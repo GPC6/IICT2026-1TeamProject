@@ -1,4 +1,6 @@
 function drawBackground4() {
-  fill(255,0,0);
-  ellipse(width/2 , height/2, 100);
+  if (backgroundNum == 4) {
+    fill(255, 0, 0);
+    ellipse(width / 2, height / 2, 100, 100);
+  }
 }

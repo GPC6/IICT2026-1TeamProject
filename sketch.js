@@ -26,18 +26,18 @@ function draw() {
 
 function keyPressed(){
   if (key=='1'){
-    backgroundNum = '1'
+    backgroundNum = 1
   }
   if (key=='2'){
-    backgroundNum = '2'
+    backgroundNum = 2
   }
   if (key=='3'){
-    backgroundNum = '3'
+    backgroundNum = 3
   }
   if (key=='4'){
-    backgroundNum = '4'
+    backgroundNum = 4
   }
   if (key=='5'){
-    backgroundNum = '5'
+    backgroundNum = 5
   }
 }
