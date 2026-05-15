@@ -4,4 +4,10 @@ function setup() {
 
 function draw() {
   background(220);
+
+  drawBackground1();
+  drawBackground2();
+  drawBackground3();
+  drawBackground4();
+  drawBackground5();
 }
