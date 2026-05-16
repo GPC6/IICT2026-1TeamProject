@@ -59,3 +59,25 @@ class TextBox {
     text(bodyText || "", this.x + 28, this.y + 64, this.w - 56, this.h - 84);
   }
 }
+
+class CharactorImage {
+  constructor(name, emotion) {
+    this.img = loadImage("./assets/char/"+name+".png")
+    imageMode(CENTER)
+  }
+
+  draw(i, char_len) {
+    if(char_len == 1){
+      image(this.img, width/2, height/2);
+    }
+    else {
+      if(i == 0)
+        image(this.img, width*0.25, height/2);
+      else if(i == 1)
+        image(this.img, width*0.75, height/2);
+      else if(i == 2)
+        image(this.img, width*0.5, height/2);
+    }
+    
+  }
+}

@@ -6,7 +6,8 @@ class Game {
       nodeIndex: 0,
       dopamine: CONFIG.initialDopamine,
       affection: CONFIG.initialAffection,
-      ending: null
+      ending: null,
+      charactors : []
     };
 
     this.titleButton = new Button(500, 500, 280, 68, "시작", () => {
@@ -20,6 +21,7 @@ class Game {
     this.textBox = new TextBox(80, 470, 1120, 200);
     this.choiceButtons = [];
     this.minigame = null;
+    this.charactor = {수진: null, 혜지: null, 건호: null};
   }
 
   changeScene(scene) {
@@ -82,7 +84,27 @@ class Game {
 
     const node = this.getCurrentNode();
 
+    if (node.type === 'charactor in') {
+      if(this.state.charactors.indexOf(node.name) === -1){
+        this.state.charactors.push(node.name);
+      }
+      this.charactor[node.name] = new CharactorImage(node.name, node.emotion)
+      this.state.nodeIndex += 1
+    }
+
+    if (node.type === 'charactor out') {
+      this.state.charactors.splice(this.state.charactors.indexOf(node.name), 1)
+      this.charactor[node.name] = null
+      this.state.nodeIndex += 1
+    }
+
     if (node.type === "dialogue") {
+      let i = 0;
+      let char_len = this.state.charactors.length;
+      for(char of this.state.charactors) {
+          this.charactor[char].draw(i, char_len);
+          i++;
+      }
       this.textBox.draw(node.speaker, node.text);
       return;
     }
@@ -142,6 +164,7 @@ class Game {
 
   refreshChoices() {
     const node = this.getCurrentNode();
+    console.log(this.state.nodeIndex)
     this.choiceButtons = [];
 
     if (!node || node.type !== "choice") return;
@@ -196,7 +219,7 @@ class Game {
 
   drawStatus() {
     this.drawMeter(32, 28, "도파민", this.state.dopamine, "#f06a7a");
-    this.drawMeter(32, 74, "호감도", this.state.affection, "#6cc4a1");
+    // this.drawMeter(32, 74, "호감도", this.state.affection, "#6cc4a1");
   }
 
   drawMeter(x, y, label, value, colorHex) {

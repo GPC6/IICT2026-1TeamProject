@@ -2,25 +2,83 @@ const EPISODES = {
   EP1: [
     {
       type: "dialogue",
+      speaker: "dummy",
+      text: "dummy"
+    },
+    {
+      type: "dialogue",
       speaker: "주인공",
-      text: "하... 내일까지 제출인데. 몬스터라도 마셔야겠다."
+      text: "나는 주인공이야"
+    },
+    {
+      type: "charactor in",
+      name: "수진",
+      emotion: "일반"
     },
     {
       type: "dialogue",
       speaker: "수진",
-      text: "아, 네! 죄송합니다... 1500원입니다."
+      text: "나는 수진이야. 이 게임의 여주인공이야."
+    },
+    {
+      type: "charactor in",
+      name: "혜지",
+      emotion: "일반"
+    },
+    {
+      type: "dialogue",
+      speaker: "혜지",
+      text: "안녕 나는 혜지야"
+    },
+    {
+      type: "charactor in",
+      name: "건호",
+      emotion: "일반"
+    },
+    {
+      type: "dialogue",
+      speaker: "건호",
+      text: "나는 건호야"
+    },
+    {
+      type: "dialogue",
+      speaker: "수진",
+      text: "야 너희들 뭐야!"
+    },
+    {
+      type: "charactor out",
+      name: "혜지" 
+    },
+    {
+      type: "dialogue",
+      speaker: "혜지",
+      text: "쳇"
+    },
+    {
+      type: "charactor out",
+      name: "건호",
+    },
+    {
+      type: "dialogue",
+      speaker: "건호",
+      text: "도망가자!"
+    },
+    {
+      type: "dialogue",
+      speaker: "수진",
+      text: "이상한 놈들이었어..."
     },
     {
       type: "choice",
-      prompt: "수진을 다시 본다면 어떻게 행동할까?",
+      prompt: "쟤들은 누굴까?",
       choices: [
         {
-          text: "침착하게 인사한다",
+          text: "이상한 놈들이다",
           effects: { affection: 10, dopamine: -5 },
           next: "EP2"
         },
         {
-          text: "운명이라고 확신한다",
+          text: "웃긴 놈들이다",
           effects: { affection: 15, dopamine: 12 },
           next: "EP2"
         }
