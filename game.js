@@ -1,17 +1,19 @@
 class Game {
-  constructor() {
+  constructor(assets) {
+    this.assets = assets;
     this.state = {
-      scene: "title",
+      scene: SCENES.TITLE,
       episodeId: "EP1",
       nodeIndex: 0,
       dopamine: CONFIG.initialDopamine,
       affection: CONFIG.initialAffection,
       ending: null,
-      charactors : []
+      characters: [],
+      background: null
     };
 
     this.titleButton = new Button(500, 500, 280, 68, "시작", () => {
-      this.changeScene("story");
+      this.changeScene(SCENES.STORY);
     });
 
     this.restartButton = new Button(500, 560, 280, 64, "다시 시작", () => {
@@ -21,23 +23,24 @@ class Game {
     this.textBox = new TextBox(80, 470, 1120, 200);
     this.choiceButtons = [];
     this.minigame = null;
-    this.charactor = {수진: null, 혜지: null, 건호: null};
+    this.backgroundImage = null;
+    this.character = {};
   }
 
   changeScene(scene) {
     this.state.scene = scene;
 
-    if (scene === "story") {
+    if (scene === SCENES.STORY) {
       this.refreshChoices();
     }
 
-    if (scene === "minigame") {
+    if (scene === SCENES.MINIGAME) {
       this.minigame = new DopamineGame();
     }
   }
 
   update() {
-    if (this.state.scene !== "minigame") return;
+    if (this.state.scene !== SCENES.MINIGAME) return;
 
     this.minigame.update();
 
@@ -45,22 +48,22 @@ class Game {
       this.addDopamine(this.minigame.getDopamineChange());
       this.state.episodeId = "EP_AFTER_MINIGAME";
       this.state.nodeIndex = 0;
-      this.changeScene("story");
+      this.changeScene(SCENES.STORY);
     }
   }
 
   draw() {
-    if (this.state.scene === "title") this.drawTitle();
-    if (this.state.scene === "story") this.drawStory();
-    if (this.state.scene === "minigame") this.minigame.draw();
-    if (this.state.scene === "ending") this.drawEnding();
+    if (this.state.scene === SCENES.TITLE) this.drawTitle();
+    if (this.state.scene === SCENES.STORY) this.drawStory();
+    if (this.state.scene === SCENES.MINIGAME) this.minigame.draw();
+    if (this.state.scene === SCENES.ENDING) this.drawEnding();
   }
 
   mousePressed() {
-    if (this.state.scene === "title") this.titleButton.mousePressed();
-    if (this.state.scene === "story") this.handleStoryClick();
-    if (this.state.scene === "minigame") this.minigame.mousePressed();
-    if (this.state.scene === "ending") this.restartButton.mousePressed();
+    if (this.state.scene === SCENES.TITLE) this.titleButton.mousePressed();
+    if (this.state.scene === SCENES.STORY) this.handleStoryClick();
+    if (this.state.scene === SCENES.MINIGAME) this.minigame.mousePressed();
+    if (this.state.scene === SCENES.ENDING) this.restartButton.mousePressed();
   }
 
   drawTitle() {
@@ -79,37 +82,20 @@ class Game {
   }
 
   drawStory() {
-    background("#202633");
+    this.drawBackground();
     this.drawStatus();
 
-    const node = this.getCurrentNode();
+    const node = this.processStoryCommandNodes();
+    if (!node) return;
 
-    if (node.type === 'charactor in') {
-      if(this.state.charactors.indexOf(node.name) === -1){
-        this.state.charactors.push(node.name);
-      }
-      this.charactor[node.name] = new CharactorImage(node.name, node.emotion)
-      this.state.nodeIndex += 1
-    }
-
-    if (node.type === 'charactor out') {
-      this.state.charactors.splice(this.state.charactors.indexOf(node.name), 1)
-      this.charactor[node.name] = null
-      this.state.nodeIndex += 1
-    }
-
-    if (node.type === "dialogue") {
-      let i = 0;
-      let char_len = this.state.charactors.length;
-      for(char of this.state.charactors) {
-          this.charactor[char].draw(i, char_len);
-          i++;
-      }
+    if (node.type === NODE_TYPES.DIALOGUE) {
+      this.drawCharacters();
       this.textBox.draw(node.speaker, node.text);
       return;
     }
 
-    if (node.type === "choice") {
+    if (node.type === NODE_TYPES.CHOICE) {
+      this.drawCharacters();
       fill("#f5f2ea");
       textAlign(CENTER, CENTER);
       textSize(28);
@@ -118,9 +104,9 @@ class Game {
       return;
     }
 
-    if (node.type === "endingCheck") {
+    if (node.type === NODE_TYPES.ENDING_CHECK) {
       this.state.ending = this.decideEnding();
-      this.changeScene("ending");
+      this.changeScene(SCENES.ENDING);
     }
   }
 
@@ -146,10 +132,87 @@ class Game {
     this.restartButton.draw();
   }
 
+  drawBackground() {
+    if (this.backgroundImage) {
+      this.backgroundImage.draw();
+      return;
+    }
+
+    background("#202633");
+  }
+
+  drawCharacters() {
+    let i = 0;
+    const characterLength = this.state.characters.length;
+
+    for (const character of this.state.characters) {
+      if (this.character[character]) {
+        this.character[character].draw(i, characterLength);
+      }
+      i++;
+    }
+  }
+
+  processStoryCommandNodes() {
+    let node = this.getCurrentNode();
+    let processed = false;
+
+    while (node && this.isStoryCommandNode(node)) {
+      if (node.type === NODE_TYPES.BACKGROUND) {
+        this.state.background = node.name;
+        const image = this.assets.backgrounds[node.name];
+        if (!image) {
+          console.warn("Missing background asset: " + node.name);
+        }
+        this.backgroundImage = image ? new BackgroundImage(image) : null;
+      }
+
+      if (node.type === NODE_TYPES.CHARACTER_IN) {
+        if(this.state.characters.indexOf(node.name) === -1){
+          this.state.characters.push(node.name);
+        }
+        const image = this.getCharacterAsset(node.name, node.emotion);
+        if (!image) {
+          console.warn("Missing character asset: " + node.name + " / " + (node.emotion || "default"));
+        }
+        this.character[node.name] = image ? new CharacterImage(image) : null
+      }
+
+      if (node.type === NODE_TYPES.CHARACTER_OUT) {
+        const index = this.state.characters.indexOf(node.name);
+        if (index !== -1) {
+          this.state.characters.splice(index, 1)
+        }
+        this.character[node.name] = null
+      }
+
+      this.state.nodeIndex += 1
+      processed = true;
+      node = this.getCurrentNode();
+    }
+
+    if (processed && node && node.type === NODE_TYPES.CHOICE) {
+      this.refreshChoices();
+    }
+
+    return node;
+  }
+
+  isStoryCommandNode(node) {
+    return node.type === NODE_TYPES.BACKGROUND || node.type === NODE_TYPES.CHARACTER_IN || node.type === NODE_TYPES.CHARACTER_OUT;
+  }
+
+  getCharacterAsset(name, emotion) {
+    const characterAssets = this.assets.characters[name];
+    if (!characterAssets) return null;
+
+    return characterAssets[emotion] || characterAssets.default || null;
+  }
+
   handleStoryClick() {
     const node = this.getCurrentNode();
 
-    if (node.type === "dialogue") {
+    if (node.type === NODE_TYPES.DIALOGUE) {
       this.state.nodeIndex += 1;
       this.refreshChoices();
       return;
@@ -164,10 +227,9 @@ class Game {
 
   refreshChoices() {
     const node = this.getCurrentNode();
-    console.log(this.state.nodeIndex)
     this.choiceButtons = [];
 
-    if (!node || node.type !== "choice") return;
+    if (!node || node.type !== NODE_TYPES.CHOICE) return;
 
     const choices = node.choices.filter((choice) => this.canChoose(choice));
 
@@ -175,8 +237,8 @@ class Game {
       const button = new Button(340, 360 + index * 88, 600, 64, choice.text, () => {
         this.applyEffects(choice.effects);
 
-        if (choice.next === "MINIGAME") {
-          this.changeScene("minigame");
+        if (choice.next === NEXT_TARGETS.MINIGAME) {
+          this.changeScene(SCENES.MINIGAME);
           return;
         }
 

@@ -15,9 +15,9 @@ p5.js는 `libraries/` 폴더의 로컬 파일을 사용합니다.
 도파민때문에/
   index.html       실행 파일. p5.js와 게임 JS 파일을 순서대로 불러온다.
   styles.css       캔버스와 페이지 기본 스타일.
-  config.js        캔버스 크기, 도파민/호감도 초기값.
+  config.js        캔버스 크기, 초기값, 노드 타입, 에셋 목록.
   story-data.js    에피소드, 대사, 선택지, 선택 효과 데이터.
-  ui.js            Button, TextBox 같은 공통 UI 객체.
+  ui.js            Button, TextBox, BackgroundImage, CharacterImage 같은 화면 객체.
   mini-game.js     도파민 미니게임 객체.
   game.js          전체 게임 상태, 장면 전환, 선택지 처리, 엔딩 판정.
   sketch.js        p5.js의 setup/draw/mousePressed를 Game 객체에 연결.
@@ -36,14 +36,18 @@ config.js
   -> sketch.js
 ```
 
-이 순서가 중요합니다. `Game` 객체는 `CONFIG`, `EPISODES`, `Button`, `TextBox`, `DopamineGame`을 사용하기 때문에, 관련 파일들이 먼저 로드되어야 합니다.
+이 순서가 중요합니다. `Game` 객체는 `CONFIG`, `NODE_TYPES`, `EPISODES`, `Button`, `TextBox`, `BackgroundImage`, `CharacterImage`, `DopamineGame`을 사용하기 때문에, 관련 파일들이 먼저 로드되어야 합니다.
 
-`sketch.js`는 p5.js가 호출하는 기본 함수만 가지고 있습니다.
+`sketch.js`는 p5.js가 호출하는 기본 함수와 이미지 사전 로딩을 담당합니다.
 
 ```js
+function preload() {
+  // ASSET_MANIFEST를 읽어 배경과 캐릭터 이미지를 미리 불러온다.
+}
+
 function setup() {
   createCanvas(CONFIG.width, CONFIG.height);
-  game = new Game();
+  game = new Game(assets);
 }
 
 function draw() {
@@ -56,7 +60,29 @@ function mousePressed() {
 }
 ```
 
-즉, 실제 게임 로직은 대부분 `Game` 객체 안에 있고, p5.js는 매 프레임마다 `game.update()`와 `game.draw()`를 불러주는 역할을 합니다.
+즉, 이미지 파일은 `preload()`에서 미리 준비되고, 실제 게임 로직은 대부분 `Game` 객체 안에서 실행됩니다. p5.js는 매 프레임마다 `game.update()`와 `game.draw()`를 불러주는 역할을 합니다.
+
+## 에셋 로딩 구조
+
+파일: `config.js`, `sketch.js`
+
+사용할 이미지는 `ASSET_MANIFEST`에 등록합니다.
+
+```js
+const ASSET_MANIFEST = {
+  backgrounds: {
+    dummy: "./assets/bg/dummy.png"
+  },
+  characters: {
+    수진: {
+      default: "./assets/char/수진.png",
+      일반: "./assets/char/수진.png"
+    }
+  }
+};
+```
+
+`sketch.js`의 `preload()`는 이 목록을 읽어서 `assets.backgrounds`, `assets.characters`에 p5 이미지 객체를 미리 넣습니다. 그래서 `game.js`와 `ui.js`는 파일을 직접 불러오지 않고 이미 준비된 이미지를 받아 그립니다.
 
 ## 주요 게임 객체
 
@@ -68,12 +94,14 @@ function mousePressed() {
 
 ```js
 this.state = {
-  scene: "title",
+  scene: SCENES.TITLE,
   episodeId: "EP1",
   nodeIndex: 0,
   dopamine: CONFIG.initialDopamine,
   affection: CONFIG.initialAffection,
-  ending: null
+  ending: null,
+  characters: [],
+  background: null
 };
 ```
 
@@ -81,12 +109,14 @@ this.state = {
 
 | 속성 | 역할 |
 | --- | --- |
-| `scene` | 현재 화면. `"title"`, `"story"`, `"minigame"`, `"ending"` 중 하나 |
+| `scene` | 현재 화면. `SCENES.TITLE`, `SCENES.STORY`, `SCENES.MINIGAME`, `SCENES.ENDING` 중 하나 |
 | `episodeId` | 현재 읽고 있는 에피소드 ID. `EPISODES`의 key와 연결됨 |
 | `nodeIndex` | 현재 에피소드 안에서 몇 번째 노드를 보여줄지 결정 |
 | `dopamine` | 도파민 수치. 선택지와 미니게임으로 변함 |
 | `affection` | 호감도 수치. 선택지로 변함 |
 | `ending` | 마지막에 결정된 엔딩 종류 |
+| `characters` | 현재 화면에 등장 중인 캐릭터 이름 배열 |
+| `background` | 현재 배경 이름 |
 
 `Game`의 핵심 메서드는 다음과 같습니다.
 
@@ -98,6 +128,8 @@ this.state = {
 | `mousePressed()` | 현재 `scene`에 맞는 클릭 처리 함수 호출 |
 | `handleStoryClick()` | 대사 클릭 시 다음 노드로 이동하거나 선택지 버튼 처리 |
 | `refreshChoices()` | 현재 선택지 데이터를 읽어서 `Button` 객체 배열 생성 |
+| `processStoryCommandNodes()` | 배경/캐릭터 등장/퇴장 같은 명령형 노드를 자동 처리 |
+| `drawCharacters()` | 현재 등장 중인 캐릭터들을 그림 |
 | `applyEffects(effects)` | 선택지 효과를 도파민/호감도에 반영 |
 | `decideEnding()` | 최종 수치에 따라 엔딩 결정 |
 
@@ -133,6 +165,25 @@ this.textBox.draw(node.speaker, node.text);
 ```
 
 `speaker`와 `text`를 받아 화면 아래쪽에 대화창을 그립니다. 대사 진행 자체는 `TextBox`가 아니라 `Game.handleStoryClick()`이 담당합니다.
+
+### BackgroundImage
+
+파일: `ui.js`
+
+`BackgroundImage`는 이미 `preload()`에서 불러온 이미지를 받아 배경으로 그립니다. 배경도 캐릭터와 같이 `CENTER` 기준으로 그립니다.
+
+```js
+imageMode(CENTER);
+image(this.img, width / 2, height / 2, width, height);
+```
+
+### CharacterImage
+
+파일: `ui.js`
+
+`CharacterImage`는 현재 등장 중인 캐릭터 이미지를 그립니다. 이미지는 너비 200을 기준으로 원본 비율을 유지합니다.
+
+캐릭터가 1명이면 중앙, 2명 이상이면 왼쪽/오른쪽/중앙 순서로 배치됩니다.
 
 ### DopamineGame
 
@@ -175,13 +226,56 @@ getDopamineChange() {
 ```js
 const EPISODES = {
   EP1: [
-    { type: "dialogue", speaker: "...", text: "..." },
-    { type: "choice", prompt: "...", choices: [...] }
+    { type: NODE_TYPES.BACKGROUND, name: "dummy" },
+    { type: NODE_TYPES.DIALOGUE, speaker: "...", text: "..." },
+    { type: NODE_TYPES.CHOICE, prompt: "...", choices: [...] }
   ]
 };
 ```
 
 각 에피소드는 노드 배열입니다. `Game.state.episodeId`가 어떤 에피소드를 볼지 정하고, `Game.state.nodeIndex`가 그 안의 몇 번째 노드를 볼지 정합니다.
+
+노드 타입은 문자열을 직접 쓰지 않고 `NODE_TYPES`를 사용합니다. 오타로 인한 오류를 줄이기 위한 규칙입니다.
+
+### background 노드
+
+배경을 바꾸는 명령형 노드입니다.
+
+```js
+{
+  type: NODE_TYPES.BACKGROUND,
+  name: "dummy"
+}
+```
+
+`name`은 `ASSET_MANIFEST.backgrounds`에 등록된 이름과 같아야 합니다.
+
+### character in 노드
+
+캐릭터를 화면에 등장시키는 명령형 노드입니다.
+
+```js
+{
+  type: NODE_TYPES.CHARACTER_IN,
+  name: "수진",
+  emotion: "일반"
+}
+```
+
+`name`과 `emotion`은 `ASSET_MANIFEST.characters`에 등록된 값과 연결됩니다. 해당 표정 이미지가 없으면 `default` 이미지를 찾습니다.
+
+### character out 노드
+
+캐릭터를 화면에서 퇴장시키는 명령형 노드입니다.
+
+```js
+{
+  type: NODE_TYPES.CHARACTER_OUT,
+  name: "수진"
+}
+```
+
+명령형 노드는 클릭을 기다리지 않고 자동으로 처리된 뒤 다음 노드로 넘어갑니다.
 
 ### dialogue 노드
 
@@ -189,7 +283,7 @@ const EPISODES = {
 
 ```js
 {
-  type: "dialogue",
+  type: NODE_TYPES.DIALOGUE,
   speaker: "주인공",
   text: "..."
 }
@@ -203,7 +297,7 @@ const EPISODES = {
 
 ```js
 {
-  type: "choice",
+  type: NODE_TYPES.CHOICE,
   prompt: "...",
   choices: [
     {
@@ -218,7 +312,7 @@ const EPISODES = {
 선택지를 누르면 다음 일이 순서대로 일어납니다.
 
 1. `applyEffects(choice.effects)`로 도파민/호감도 변화 적용.
-2. `choice.next`가 `"MINIGAME"`이면 미니게임 화면으로 전환.
+2. `choice.next`가 `NEXT_TARGETS.MINIGAME`이면 미니게임 화면으로 전환.
 3. 그렇지 않으면 `episodeId`를 `choice.next`로 바꾸고 `nodeIndex`를 0으로 초기화.
 4. 새 에피소드의 선택지가 있으면 `refreshChoices()`로 버튼 다시 생성.
 
@@ -228,11 +322,11 @@ const EPISODES = {
 
 ```js
 {
-  type: "endingCheck"
+  type: NODE_TYPES.ENDING_CHECK
 }
 ```
 
-이 노드에 도달하면 `decideEnding()`으로 엔딩을 정하고 `scene`을 `"ending"`으로 바꿉니다.
+이 노드에 도달하면 `decideEnding()`으로 엔딩을 정하고 `scene`을 `SCENES.ENDING`으로 바꿉니다.
 
 ## 장면 전환 구조
 
@@ -325,12 +419,12 @@ decideEnding() {
 ```js
 EP3: [
   {
-    type: "dialogue",
+    type: NODE_TYPES.DIALOGUE,
     speaker: "주인공",
     text: "새로운 장면..."
   },
   {
-    type: "choice",
+    type: NODE_TYPES.CHOICE,
     prompt: "무엇을 할까?",
     choices: [
       {
@@ -349,10 +443,10 @@ EP3: [
 next: "EP3"
 ```
 
-미니게임으로 보내고 싶으면 `next`에 `"MINIGAME"`을 넣습니다.
+미니게임으로 보내고 싶으면 `next`에 `NEXT_TARGETS.MINIGAME`을 넣습니다.
 
 ```js
-next: "MINIGAME"
+next: NEXT_TARGETS.MINIGAME
 ```
 
 ## 자주 수정하는 위치
@@ -361,6 +455,7 @@ next: "MINIGAME"
 | --- | --- |
 | 대사, 선택지, 선택 효과 바꾸기 | `story-data.js` |
 | 도파민/호감도 초기값 바꾸기 | `config.js` |
+| 배경/캐릭터 이미지 등록하기 | `config.js` |
 | 장면 전환, 엔딩 조건 바꾸기 | `game.js` |
 | 미니게임 규칙 바꾸기 | `mini-game.js` |
 | 버튼/대화창 모양 바꾸기 | `ui.js` |

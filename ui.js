@@ -60,9 +60,20 @@ class TextBox {
   }
 }
 
-class CharactorImage {
-  constructor(name, emotion) {
-    this.img = loadImage("./assets/char/" + name + ".png")
+class BackgroundImage {
+  constructor(img) {
+    this.img = img;
+  }
+
+  draw() {
+    imageMode(CENTER);
+    image(this.img, width / 2, height / 2, width, height);
+  }
+}
+
+class CharacterImage {
+  constructor(img) {
+    this.img = img;
     imageMode(CENTER)
   }
 
