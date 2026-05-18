@@ -66,8 +66,12 @@ class BackgroundImage {
   }
 
   draw() {
+    const scale = max(width / this.img.width, height / this.img.height);
+    const drawWidth = this.img.width * scale;
+    const drawHeight = this.img.height * scale;
+
     imageMode(CENTER);
-    image(this.img, width / 2, height / 2, width, height);
+    image(this.img, width / 2, height / 2, drawWidth, drawHeight);
   }
 }
 

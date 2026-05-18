@@ -33,3 +33,7 @@ function draw() {
 function mousePressed() {
   game.mousePressed();
 }
+
+function keyPressed() {
+  game.keyPressed();
+}

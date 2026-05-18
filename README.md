@@ -18,9 +18,84 @@ p5.js는 `libraries/` 폴더의 로컬 파일을 사용합니다.
   config.js        캔버스 크기, 초기값, 노드 타입, 에셋 목록.
   story-data.js    에피소드, 대사, 선택지, 선택 효과 데이터.
   ui.js            Button, TextBox, BackgroundImage, CharacterImage 같은 화면 객체.
-  mini-game.js     도파민 미니게임 객체.
+  sub_games/       클래스형 p5.js 서브게임 파일.
   game.js          전체 게임 상태, 장면 전환, 선택지 처리, 엔딩 판정.
   sketch.js        p5.js의 setup/draw/mousePressed를 Game 객체에 연결.
+```
+
+## 노드 ID 기반 이동 구조
+
+이제 선택지는 에피소드를 직접 고르지 않습니다. 선택지는 항상 현재 에피소드 안의 자연수 노드 ID만 고르고, 에피소드 이동이나 미니게임 진입은 `move` 노드만 담당합니다.
+
+```js
+{
+  id: 10,
+  type: "choice",
+  prompt: "어떻게 말할까?",
+  choices: [
+    {
+      text: "같이 가자고 말한다",
+      effects: { affection: 10 },
+      nextNode: 11
+    }
+  ]
+},
+{
+  id: 11,
+  type: "move",
+  next: "EP2"
+}
+```
+
+웹 편집기에서는 각 에피소드 안에서 `1, 2, 3...` 같은 단순한 자연수 ID만 보여주면 됩니다. 엔진은 내부적으로 `EP1#11`처럼 `episodeId + node.id` 조합으로 해석하므로, 서로 다른 에피소드에 같은 `id: 1`이 있어도 충돌하지 않습니다.
+
+선택지 직후 추가 발화가 필요하면 `follow`에 넣고, 그 뒤에 이어질 노드를 `nextNode`로 지정합니다.
+
+```js
+{
+  id: 20,
+  type: "choice",
+  prompt: "반응을 고르자",
+  choices: [
+    {
+      text: "조심스럽게 묻는다",
+      follow: [
+        { speaker: "주인공", text: "괜찮아?" }
+      ],
+      nextNode: 21
+    }
+  ]
+},
+{
+  id: 21,
+  type: "move",
+  next: "EP3"
+}
+```
+
+미니게임도 같은 원칙입니다. 선택지는 미니게임을 직접 고르지 않고, 미니게임으로 보내는 `move` 노드의 ID를 고릅니다.
+
+```js
+{
+  id: 30,
+  type: "move",
+  next: "MINIGAME",
+  minigame: "brickBreaker",
+  after: "EP4"
+}
+```
+
+선택지 뒤에 모든 분기가 다시 합쳐지는 공통 대사가 있다면 별도 `AFTER_CHOICE` 에피소드를 만들지 않아도 됩니다. 본 에피소드 안에 공통 노드를 이어 붙이고, 각 선택지가 그 노드의 `nextNode`를 바라보게 하면 됩니다.
+
+특정 에피소드의 특정 노드로 이동해야 할 때는 `move` 노드에 `nextNode`를 함께 쓸 수 있습니다.
+
+```js
+{
+  id: 40,
+  type: "move",
+  next: "EP5",
+  nextNode: 7
+}
 ```
 
 ## 전체 실행 흐름
@@ -31,12 +106,13 @@ p5.js는 `libraries/` 폴더의 로컬 파일을 사용합니다.
 config.js
   -> story-data.js
   -> ui.js
-  -> mini-game.js
+  -> sub_games/breakblocks.js
+  -> sub_games/shooting.js
   -> game.js
   -> sketch.js
 ```
 
-이 순서가 중요합니다. `Game` 객체는 `CONFIG`, `NODE_TYPES`, `EPISODES`, `Button`, `TextBox`, `BackgroundImage`, `CharacterImage`, `DopamineGame`을 사용하기 때문에, 관련 파일들이 먼저 로드되어야 합니다.
+이 순서가 중요합니다. `Game` 객체는 `CONFIG`, `NODE_TYPES`, `SUB_GAME_MANIFEST`, `EPISODES`, `Button`, `TextBox`, `BackgroundImage`, `CharacterImage`, `BrickBreakerGame`, `SideShooterGame`을 사용하기 때문에, 관련 파일들이 먼저 로드되어야 합니다.
 
 `sketch.js`는 p5.js가 호출하는 기본 함수와 이미지 사전 로딩을 담당합니다.
 
@@ -170,11 +246,11 @@ this.textBox.draw(node.speaker, node.text);
 
 파일: `ui.js`
 
-`BackgroundImage`는 이미 `preload()`에서 불러온 이미지를 받아 배경으로 그립니다. 배경도 캐릭터와 같이 `CENTER` 기준으로 그립니다.
+`BackgroundImage`는 이미 `preload()`에서 불러온 이미지를 받아 배경으로 그립니다. 배경도 캐릭터와 같이 `CENTER` 기준으로 그리며, 이미지 비율을 유지한 채 화면을 꽉 채우는 cover 방식입니다.
 
 ```js
 imageMode(CENTER);
-image(this.img, width / 2, height / 2, width, height);
+image(this.img, width / 2, height / 2, drawWidth, drawHeight);
 ```
 
 ### CharacterImage
@@ -185,37 +261,18 @@ image(this.img, width / 2, height / 2, width, height);
 
 캐릭터가 1명이면 중앙, 2명 이상이면 왼쪽/오른쪽/중앙 순서로 배치됩니다.
 
-### DopamineGame
+### 서브게임 클래스
 
-파일: `mini-game.js`
+파일: `sub_games/breakblocks.js`, `sub_games/shooting.js`
 
-`DopamineGame`은 중간에 실행되는 미니게임 객체입니다. 움직이는 수용체가 중앙에 가까울 때 클릭하면 점수가 오르고, 멀 때 클릭하면 점수가 내려갑니다.
+서브게임은 메인 p5.js 캔버스 안에서 실행되는 클래스형 객체입니다. 각 클래스는 본게임의 현재 도파민을 생성자로 받고, 게임이 끝나면 최종 도파민을 `getDopamine()`으로 본게임에 돌려줍니다.
 
-```js
-this.score = 50;
-this.shotsLeft = 5;
-this.finished = false;
-this.receptorX = width / 2;
-this.receptorDirection = 1;
-```
-
-| 속성 | 역할 |
-| --- | --- |
-| `score` | 미니게임 점수. 50에서 시작 |
-| `shotsLeft` | 남은 클릭 기회. 5회 |
-| `finished` | 미니게임 종료 여부 |
-| `receptorX` | 움직이는 수용체의 x 좌표 |
-| `receptorDirection` | 수용체 이동 방향 |
-
-미니게임의 결과는 `getDopamineChange()`로 계산됩니다.
+현재 서브게임은 `config.js`의 `SUB_GAME_MANIFEST`에 등록합니다.
 
 ```js
-getDopamineChange() {
-  return Math.round(this.score - 50);
-}
+new BrickBreakerGame(currentDopamine)
+new SideShooterGame(currentDopamine)
 ```
-
-예를 들어 최종 점수가 63이면 도파민이 `+13` 증가하고, 35이면 `-15` 감소합니다.
 
 ## 스토리 데이터 구조
 
@@ -226,16 +283,27 @@ getDopamineChange() {
 ```js
 const EPISODES = {
   EP1: [
-    { type: NODE_TYPES.BACKGROUND, name: "dummy" },
-    { type: NODE_TYPES.DIALOGUE, speaker: "...", text: "..." },
-    { type: NODE_TYPES.CHOICE, prompt: "...", choices: [...] }
+    { type: "background", name: "dummy" },
+    { type: "dialogue", speaker: "...", text: "..." },
+    { type: "choice", prompt: "...", choices: [...] }
   ]
 };
 ```
 
 각 에피소드는 노드 배열입니다. `Game.state.episodeId`가 어떤 에피소드를 볼지 정하고, `Game.state.nodeIndex`가 그 안의 몇 번째 노드를 볼지 정합니다.
 
-노드 타입은 문자열을 직접 쓰지 않고 `NODE_TYPES`를 사용합니다. 오타로 인한 오류를 줄이기 위한 규칙입니다.
+`story-data.js`는 웹 편집기에서 만들기 쉽도록 문자열 기반 데이터로 둡니다. `NODE_TYPES`는 엔진 코드가 비교할 때 쓰는 상수이고, 시나리오 데이터에는 `"dialogue"` 같은 문자열을 저장합니다.
+
+모든 노드와 선택지는 `condition`을 가질 수 있습니다. 조건이 없으면 항상 실행되고, 조건이 있으면 모든 조건을 만족할 때만 실행됩니다.
+
+```js
+condition: {
+  dopamineMin: 40,
+  dopamineMax: 70,
+  affectionMin: 20,
+  affectionMax: 80
+}
+```
 
 ### background 노드
 
@@ -243,7 +311,7 @@ const EPISODES = {
 
 ```js
 {
-  type: NODE_TYPES.BACKGROUND,
+  type: "background",
   name: "dummy"
 }
 ```
@@ -256,7 +324,7 @@ const EPISODES = {
 
 ```js
 {
-  type: NODE_TYPES.CHARACTER_IN,
+  type: "character in",
   name: "수진",
   emotion: "일반"
 }
@@ -270,12 +338,62 @@ const EPISODES = {
 
 ```js
 {
-  type: NODE_TYPES.CHARACTER_OUT,
+  type: "character out",
   name: "수진"
 }
 ```
 
 명령형 노드는 클릭을 기다리지 않고 자동으로 처리된 뒤 다음 노드로 넘어갑니다.
+
+### clear 노드
+
+현재 화면 상태를 정리하는 명령형 노드입니다.
+
+```js
+{ type: "clear characters" }
+{ type: "clear background" }
+{ type: "scene reset" }
+```
+
+`clear characters`는 모든 캐릭터를 지우고, `clear background`는 배경을 제거합니다. `scene reset`은 캐릭터와 배경을 모두 제거합니다.
+
+### move 노드
+
+선택지 없이 다른 에피소드나 미니게임으로 이동하는 명령형 노드입니다.
+
+```js
+{
+  type: "move",
+  next: "EP3"
+}
+```
+
+조건과 함께 쓰면 수치에 따라 특정 루트로 보낼 수 있습니다.
+
+```js
+{
+  type: "move",
+  next: "EP_GOOD_ROUTE",
+  condition: { affectionMin: 40 }
+}
+```
+
+미니게임으로 이동할 때는 `next`에 `"MINIGAME"`을 넣고, `minigame`에 실행할 서브게임 ID를 넣습니다.
+
+```js
+{
+  type: "move",
+  next: "MINIGAME",
+  minigame: "brickBreaker"
+}
+```
+
+현재 등록된 서브게임 ID는 다음과 같습니다.
+
+| ID | 파일 |
+| --- | --- |
+| `brickBreaker` | `sub_games/breakblocks.js` |
+| `sideShooter` | `sub_games/shooting.js` |
 
 ### dialogue 노드
 
@@ -283,7 +401,7 @@ const EPISODES = {
 
 ```js
 {
-  type: NODE_TYPES.DIALOGUE,
+  type: "dialogue",
   speaker: "주인공",
   text: "..."
 }
@@ -297,7 +415,7 @@ const EPISODES = {
 
 ```js
 {
-  type: NODE_TYPES.CHOICE,
+  type: "choice",
   prompt: "...",
   choices: [
     {
@@ -312,9 +430,24 @@ const EPISODES = {
 선택지를 누르면 다음 일이 순서대로 일어납니다.
 
 1. `applyEffects(choice.effects)`로 도파민/호감도 변화 적용.
-2. `choice.next`가 `NEXT_TARGETS.MINIGAME`이면 미니게임 화면으로 전환.
-3. 그렇지 않으면 `episodeId`를 `choice.next`로 바꾸고 `nodeIndex`를 0으로 초기화.
-4. 새 에피소드의 선택지가 있으면 `refreshChoices()`로 버튼 다시 생성.
+2. `choice.follow`가 있으면 선택 직후 이어질 대사를 먼저 재생.
+3. `choice.next`가 `"MINIGAME"`이면 `choice.minigame`에 적힌 서브게임으로 전환.
+4. 그렇지 않으면 `episodeId`를 `choice.next`로 바꾸고 `nodeIndex`를 0으로 초기화.
+5. 새 에피소드의 선택지가 있으면 `refreshChoices()`로 버튼 다시 생성.
+
+`follow`는 선택지 버튼에는 보이지 않고, 선택 직후 이어지는 발화를 저장합니다.
+
+```js
+{
+  text: "여기 앉아도 될까요?",
+  effects: { affection: 15 },
+  follow: [
+    { speaker: "수진", text: "네~" },
+    { speaker: "주인공", text: "저는 건축학과 000이라고 합니다." }
+  ],
+  next: "EP2_AFTER_CHOICE"
+}
+```
 
 ### endingCheck 노드
 
@@ -322,7 +455,7 @@ const EPISODES = {
 
 ```js
 {
-  type: NODE_TYPES.ENDING_CHECK
+  type: "endingCheck"
 }
 ```
 
@@ -419,12 +552,12 @@ decideEnding() {
 ```js
 EP3: [
   {
-    type: NODE_TYPES.DIALOGUE,
+    type: "dialogue",
     speaker: "주인공",
     text: "새로운 장면..."
   },
   {
-    type: NODE_TYPES.CHOICE,
+    type: "choice",
     prompt: "무엇을 할까?",
     choices: [
       {
@@ -443,10 +576,11 @@ EP3: [
 next: "EP3"
 ```
 
-미니게임으로 보내고 싶으면 `next`에 `NEXT_TARGETS.MINIGAME`을 넣습니다.
+미니게임으로 보내고 싶으면 `next`에 `"MINIGAME"`을 넣습니다.
 
 ```js
-next: NEXT_TARGETS.MINIGAME
+next: "MINIGAME",
+minigame: "sideShooter"
 ```
 
 ## 자주 수정하는 위치
@@ -457,7 +591,9 @@ next: NEXT_TARGETS.MINIGAME
 | 도파민/호감도 초기값 바꾸기 | `config.js` |
 | 배경/캐릭터 이미지 등록하기 | `config.js` |
 | 장면 전환, 엔딩 조건 바꾸기 | `game.js` |
-| 미니게임 규칙 바꾸기 | `mini-game.js` |
+| 서브게임 목록 바꾸기 | `config.js` |
+| 서브게임 실행 방식 바꾸기 | `game.js` |
+| 서브게임 내부 규칙 바꾸기 | `sub_games/` |
 | 버튼/대화창 모양 바꾸기 | `ui.js` |
 | 캔버스 크기 바꾸기 | `config.js` |
 
@@ -467,9 +603,9 @@ next: NEXT_TARGETS.MINIGAME
 타이틀
   -> EP1 대사와 선택지
   -> EP2 대사와 선택지
-  -> 도파민 미니게임
+  -> story-data.js에서 지정한 서브게임
   -> EP_AFTER_MINIGAME 대사
   -> 엔딩 판정
 ```
 
-전체적으로 `story-data.js`는 게임 내용, `game.js`는 게임 규칙, `ui.js`와 `mini-game.js`는 화면에 보이는 객체를 담당한다고 보면 됩니다.
+전체적으로 `story-data.js`는 게임 내용, `game.js`는 게임 규칙, `ui.js`는 기본 화면 객체, `sub_games/`는 본게임 안에서 실행되는 미니게임을 담당한다고 보면 됩니다.
