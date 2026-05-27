@@ -1,7 +1,11 @@
 let game;
 let assets = {
   backgrounds: {},
-  characters: {}
+  characters: {},
+  sounds: {
+    bgm: {},
+    effects: {}
+  }
 };
 
 function preload() {
@@ -15,6 +19,14 @@ function preload() {
     Object.entries(emotions).forEach(([emotion, path]) => {
       assets.characters[name][emotion] = loadImage(path);
     });
+  });
+
+  Object.entries(ASSET_MANIFEST.sounds.bgm || {}).forEach(([name, path]) => {
+    assets.sounds.bgm[name] = loadSound(path);
+  });
+
+  Object.entries(ASSET_MANIFEST.sounds.effects || {}).forEach(([name, path]) => {
+    assets.sounds.effects[name] = loadSound(path);
   });
 }
 

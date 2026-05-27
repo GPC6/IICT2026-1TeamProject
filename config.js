@@ -19,6 +19,7 @@ const NODE_TYPES = {
   CLEAR_CHARACTERS: "clear characters",
   CLEAR_BACKGROUND: "clear background",
   SCENE_RESET: "scene reset",
+  SOUND: "sound",
   DIALOGUE: "dialogue",
   CHOICE: "choice",
   MOVE: "move",
@@ -48,6 +49,14 @@ const SUB_GAME_MANIFEST = {
 const ASSET_MANIFEST = {
   backgrounds: {
     dummy: "./assets/bg/dummy.png"
+  },
+  sounds: {
+    bgm: {
+      // exampleBgm: "./assets/sound/bgm/example.mp3"
+    },
+    effects: {
+      // doorOpen: "./assets/sound/effects/door-open.mp3"
+    }
   },
   characters: {
     수진: {

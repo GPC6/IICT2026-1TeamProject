@@ -11,6 +11,7 @@ class Game {
       ending: null,
       characters: [],
       background: null,
+      currentBgm: null,
       selectedSubGame: null,
       selectedSubGameReturn: null,
       selectedSubGameReturnNode: null,
@@ -64,6 +65,8 @@ class Game {
   }
 
   mousePressed() {
+    this.unlockAudio();
+
     if (this.state.scene === SCENES.TITLE) this.titleButton.mousePressed();
     if (this.state.scene === SCENES.STORY) this.handleStoryClick();
     if (this.state.scene === SCENES.MINIGAME && this.subGame) this.subGame.mousePressed();
@@ -71,6 +74,8 @@ class Game {
   }
 
   keyPressed() {
+    this.unlockAudio();
+
     if (this.state.scene === SCENES.MINIGAME && this.subGame && this.subGame.keyPressed) {
       this.subGame.keyPressed();
     }
@@ -218,6 +223,10 @@ class Game {
         this.backgroundImage = null;
       }
 
+      if (node.type === NODE_TYPES.SOUND) {
+        this.handleSoundNode(node);
+      }
+
       if (node.type === NODE_TYPES.MOVE) {
         if (node.next === NEXT_TARGETS.MINIGAME) {
           this.state.selectedSubGame = node.minigame || node.subGame || SUB_GAMES.BRICK_BREAKER;
@@ -252,7 +261,103 @@ class Game {
       node.type === NODE_TYPES.CLEAR_CHARACTERS ||
       node.type === NODE_TYPES.CLEAR_BACKGROUND ||
       node.type === NODE_TYPES.SCENE_RESET ||
+      node.type === NODE_TYPES.SOUND ||
       node.type === NODE_TYPES.MOVE;
+  }
+
+  unlockAudio() {
+    if (typeof userStartAudio === "function") {
+      userStartAudio();
+    }
+  }
+
+  handleSoundNode(node) {
+    const soundType = this.normalizeSoundType(node.soundType || node.kind || "effect");
+    const action = node.action || "play";
+
+    if (soundType === "bgm") {
+      this.handleBgmNode(node, action);
+      return;
+    }
+
+    if (action === "stop") {
+      this.stopSound(node.name, "effects");
+      return;
+    }
+
+    this.playSoundEffect(node);
+  }
+
+  normalizeSoundType(soundType) {
+    if (soundType === "music") return "bgm";
+    if (soundType === "sfx" || soundType === "effects") return "effect";
+    return soundType;
+  }
+
+  handleBgmNode(node, action) {
+    if (action === "stop") {
+      this.stopCurrentBgm();
+      return;
+    }
+
+    const sound = this.getSoundAsset(node.name, "bgm");
+    if (!sound) {
+      console.warn("Missing bgm asset: " + node.name);
+      return;
+    }
+
+    if (this.state.currentBgm === node.name && sound.isPlaying()) return;
+
+    this.stopCurrentBgm();
+    this.state.currentBgm = node.name;
+    this.setSoundVolume(sound, node.volume);
+
+    if (node.loop === false) {
+      sound.play();
+    } else {
+      sound.loop();
+    }
+  }
+
+  playSoundEffect(node) {
+    const sound = this.getSoundAsset(node.name, "effects");
+    if (!sound) {
+      console.warn("Missing sound effect asset: " + node.name);
+      return;
+    }
+
+    this.setSoundVolume(sound, node.volume);
+    if (node.restart !== false && sound.isPlaying()) {
+      sound.stop();
+    }
+    sound.play();
+  }
+
+  getSoundAsset(name, group) {
+    if (!name || !this.assets.sounds || !this.assets.sounds[group]) return null;
+    return this.assets.sounds[group][name] || null;
+  }
+
+  setSoundVolume(sound, volume) {
+    if (typeof sound.setVolume === "function" && typeof volume === "number") {
+      sound.setVolume(constrain(volume, 0, 1));
+    }
+  }
+
+  stopCurrentBgm() {
+    const currentBgm = this.state.currentBgm;
+    const sound = this.getSoundAsset(currentBgm, "bgm");
+    if (sound && sound.isPlaying()) {
+      sound.stop();
+    }
+    this.state.currentBgm = null;
+  }
+
+  stopSound(name, group) {
+    const sound = this.getSoundAsset(name, group);
+    if (sound && sound.isPlaying()) {
+      sound.stop();
+    }
   }
 
   moveTo(next = null, nextNode = null) {
@@ -380,6 +485,10 @@ class Game {
           this.validateCharacterAsset(node.name, node.emotion, location);
         }
 
+        if (node.type === NODE_TYPES.SOUND) {
+          this.validateSoundNode(node, location);
+        }
+
         if (node.type === NODE_TYPES.MOVE) {
           this.validateMoveTarget(node.next, node.nextNode, location);
           this.validateSubGameTarget(node.minigame || node.subGame, node.next, location);
@@ -422,6 +531,38 @@ class Game {
 
     if (emotion && !character[emotion] && !character.default) {
       console.warn("Unknown character emotion at " + location + ": " + name + " / " + emotion);
+    }
+  }
+
+  validateSoundNode(node, location) {
+    const soundType = this.normalizeSoundType(node.soundType || node.kind || "effect");
+    const action = node.action || "play";
+
+    if (!["bgm", "effect"].includes(soundType)) {
+      console.warn("Unknown sound type at " + location + ": " + soundType);
+    }
+
+    if (!["play", "stop"].includes(action)) {
+      console.warn("Unknown sound action at " + location + ": " + action);
+    }
+
+    if (action !== "stop" && !node.name) {
+      console.warn("Sound node has no name at " + location);
+      return;
+    }
+
+    if (node.volume !== undefined && (typeof node.volume !== "number" || node.volume < 0 || node.volume > 1)) {
+      console.warn("Sound volume must be a number from 0 to 1 at " + location);
+    }
+
+    if (action === "stop" && !node.name && soundType !== "bgm") return;
+
+    if (action === "stop" && !node.name) return;
+
+    const group = soundType === "bgm" ? "bgm" : "effects";
+    const manifestGroup = ASSET_MANIFEST.sounds && ASSET_MANIFEST.sounds[group];
+    if (node.name && (!manifestGroup || !manifestGroup[node.name])) {
+      console.warn("Unknown sound asset at " + location + ": " + soundType + " / " + node.name);
     }
   }
 
