@@ -32,7 +32,7 @@ function preload() {
 
 function setup() {
   createCanvas(CONFIG.width, CONFIG.height);
-  textFont("sans-serif");
+  textFont("Malgun Gothic, sans-serif");
 
   game = new Game(assets);
 }

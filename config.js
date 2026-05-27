@@ -8,6 +8,7 @@ const CONFIG = {
 const SCENES = {
   TITLE: "title",
   STORY: "story",
+  DOPAMINE_READY: "dopamineReady",
   MINIGAME: "minigame",
   ENDING: "ending"
 };
@@ -48,7 +49,30 @@ const SUB_GAME_MANIFEST = {
 
 const ASSET_MANIFEST = {
   backgrounds: {
-    dummy: "./assets/bg/dummy.png"
+    dummy: "./assets/bg/convenience_store_night.png",
+    convenienceStore: "./assets/bg/convenience_store_night.png",
+    bedroomNight: "./assets/bg/bedroom_night.png",
+    "도서관 열람실": "./assets/bg/bedroom_night.png",
+    "편의점": "./assets/bg/convenience_store_night.png",
+    "강의실 혹은 동아리방": "./assets/bg/dummy.png",
+    "MT 장소": "./assets/bg/dummy.png",
+    "(CG) MT 장소에 둘러앉은 주인공, 수진, 건호, 혜지": "./assets/bg/dummy.png",
+    "소주병을 향해 뻗는 수진의 손": "./assets/bg/dummy.png",
+    "소주병을 향해 뻗는 수진의 손을 잡는 건호의 손": "./assets/bg/dummy.png",
+    "공포방탈출 입구": "./assets/bg/dummy.png",
+    "공포방탈출 내부": "./assets/bg/dummy.png",
+    "공포방탈출 외부": "./assets/bg/dummy.png",
+    "(CG) 천장에서 귀신이 떨어지는 걸 보고 놀라는 수진": "./assets/bg/dummy.png",
+    "예쁜 파스타집": "./assets/bg/dummy.png",
+    "길거리": "./assets/bg/convenience_store_night.png",
+    "(CG) 예쁜 파스타집에 있는 주인공과 수진": "./assets/bg/dummy.png",
+    "(CG) 파스타집을 나와 걸어가는 주인공과 수진": "./assets/bg/convenience_store_night.png",
+    "야외 교내": "./assets/bg/convenience_store_night.png",
+    "동아리 앞": "./assets/bg/dummy.png",
+    "동아리실 안": "./assets/bg/dummy.png",
+    "카톡창 안": "./assets/bg/bedroom_night.png",
+    "백스테이지": "./assets/bg/dummy.png",
+    "밤, 대학가": "./assets/bg/convenience_store_night.png"
   },
   sounds: {
     bgm: {
