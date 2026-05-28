@@ -91,11 +91,36 @@ class Game {
     this.nameInput = document.getElementById("playerNameInput");
     this.nameConfirmText = document.getElementById("nameConfirmText");
 
-    document.getElementById("nameNextButton").addEventListener("click", () => this.openNameConfirm());
-    document.getElementById("nameConfirmButton").addEventListener("click", () => this.confirmName());
-    document.getElementById("nameCancelButton").addEventListener("click", () => this.showNameEntry());
+    const stopOverlayEvent = (event) => {
+      this.ignoreCanvasClickUntil = Date.now() + 300;
+      event.stopPropagation();
+    };
+    const handleOverlayButton = (event, action) => {
+      event.preventDefault();
+      stopOverlayEvent(event);
+      action();
+    };
+
+    ["pointerdown", "pointerup", "mousedown", "mouseup", "click", "touchstart", "touchend"].forEach((eventName) => {
+      this.nameOverlay.addEventListener(eventName, stopOverlayEvent);
+    });
+
+    document.getElementById("nameNextButton").addEventListener("click", (event) => {
+      handleOverlayButton(event, () => this.openNameConfirm());
+    });
+    document.getElementById("nameConfirmButton").addEventListener("click", (event) => {
+      handleOverlayButton(event, () => this.confirmName());
+    });
+    document.getElementById("nameCancelButton").addEventListener("click", (event) => {
+      handleOverlayButton(event, () => this.showNameEntry());
+    });
     this.nameInput.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") this.openNameConfirm();
+      event.stopPropagation();
+      if (event.key === "Enter") {
+        event.preventDefault();
+        this.ignoreCanvasClickUntil = Date.now() + 300;
+        this.openNameConfirm();
+      }
     });
   }
 
@@ -163,6 +188,8 @@ class Game {
   }
 
   mousePressed() {
+    if (this.isNameOverlayOpen() || Date.now() < (this.ignoreCanvasClickUntil || 0)) return;
+
     this.unlockAudio();
 
     if (this.state.scene === SCENES.TITLE) this.titleButton.mousePressed();
@@ -171,6 +198,10 @@ class Game {
     if (this.state.scene === SCENES.DOPAMINE_READY) this.handleDopamineReadyClick();
     if (this.state.scene === SCENES.MINIGAME && this.subGame) this.subGame.mousePressed();
     if (this.state.scene === SCENES.ENDING) this.restartButton.mousePressed();
+  }
+
+  isNameOverlayOpen() {
+    return this.nameOverlay && !this.nameOverlay.hidden;
   }
 
   keyPressed() {

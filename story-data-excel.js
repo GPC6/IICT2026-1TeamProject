@@ -40,20 +40,25 @@ const EPISODES = {
     },
     {
       "id": 8,
+      "type": "background",
+      "name": "편의점"
+    },
+    {
       "type": "dialogue",
       "speaker": "주인공",
       "text": "저기 계산..."
     },
     {
       "id": 9,
-      "type": "character in",
-      "name": "수진"
+      "type": "clear characters"
     },
     {
       "id": 10,
-      "type": "dialogue",
-      "speaker": "나레이션",
-      "text": "수진이 고개를 꾸벅꾸벅 떨구고 있는 CG"
+      "type": "background",
+      "name": "(CG) 수진이 편의점 계산대에서 졸고 있음"
+    },
+    {
+      "type": "clear characters"
     },
     {
       "id": 12,
@@ -78,14 +83,15 @@ const EPISODES = {
     },
     {
       "id": 14,
-      "type": "character in",
-      "name": "수진"
+      "type": "clear characters"
     },
     {
       "id": 15,
-      "type": "dialogue",
-      "speaker": "나레이션",
-      "text": "수진이 화들짝 깨는 CG"
+      "type": "background",
+      "name": "(CG) 수진이 편의점 계산대에서 화들짝 깨어남"
+    },
+    {
+      "type": "clear characters"
     },
     {
       "id": 16,
@@ -134,7 +140,10 @@ const EPISODES = {
       "text": "(이제 집에 가서 공부하다 자야겠다...)"
     },
     {
-      "id": 24,
+      "type": "clear background",
+      "id": 24
+    },
+    {
       "type": "move",
       "next": "MINIGAME",
       "minigame": "brickBreaker",
@@ -445,7 +454,10 @@ const EPISODES = {
       "text": "(내 첫사랑… 시작되는 건가?)"
     },
     {
-      "id": 31,
+      "type": "clear background",
+      "id": 31
+    },
+    {
       "type": "move",
       "next": "MINIGAME",
       "minigame": "sideShooter",
@@ -461,6 +473,9 @@ const EPISODES = {
       "id": 2,
       "type": "background",
       "name": "(CG) MT 장소에 둘러앉은 주인공, 수진, 건호, 혜지"
+    },
+    {
+      "type": "clear characters"
     },
     {
       "id": 3,
@@ -768,28 +783,40 @@ const EPISODES = {
       ]
     },
     {
-      "id": 34,
+      "type": "clear background",
+      "id": 34
+    },
+    {
       "type": "move",
       "next": "MINIGAME",
       "minigame": "brickBreaker",
       "after": "EP4-A 넷이"
     },
     {
-      "id": 35,
+      "type": "clear background",
+      "id": 35
+    },
+    {
       "type": "move",
       "next": "MINIGAME",
       "minigame": "brickBreaker",
       "after": "EP4-A 넷이"
     },
     {
-      "id": 36,
+      "type": "clear background",
+      "id": 36
+    },
+    {
       "type": "move",
       "next": "MINIGAME",
       "minigame": "brickBreaker",
       "after": "EP4-A 넷이"
     },
     {
-      "id": 37,
+      "type": "clear background",
+      "id": 37
+    },
+    {
       "type": "move",
       "next": "MINIGAME",
       "minigame": "brickBreaker",
@@ -903,15 +930,7 @@ const EPISODES = {
       "name": "(CG) 천장에서 귀신이 떨어지는 걸 보고 놀라는 수진"
     },
     {
-      "id": 20,
-      "type": "background",
-      "name": "공포방탈출 내부"
-    },
-    {
-      "id": 21,
-      "type": "character in",
-      "name": "수진",
-      "emotion": "Frightened"
+      "type": "clear characters"
     },
     {
       "id": 22,
@@ -1104,7 +1123,10 @@ const EPISODES = {
       "text": "좋아. (건호가 수진이를 대하는 방식이 조금 신경쓰인다)"
     },
     {
-      "id": 41,
+      "type": "clear background",
+      "id": 41
+    },
+    {
       "type": "move",
       "next": "MINIGAME",
       "minigame": "sideShooter",
@@ -1122,6 +1144,9 @@ const EPISODES = {
       "name": "(CG) 예쁜 파스타집에 있는 주인공과 수진"
     },
     {
+      "type": "clear characters"
+    },
+    {
       "id": 3,
       "type": "sound",
       "soundType": "bgm",
@@ -1129,15 +1154,15 @@ const EPISODES = {
       "name": "BGM 시작"
     },
     {
-      "id": 4,
-      "type": "background",
-      "name": "예쁜 파스타집"
-    },
-    {
       "id": 6,
       "type": "dialogue",
       "speaker": "주인공",
       "text": "이제 정기공연 얼마 안 남았는데, 기분이 어때?"
+    },
+    {
+      "id": 4,
+      "type": "background",
+      "name": "예쁜 파스타집"
     },
     {
       "id": 7,
@@ -1229,6 +1254,15 @@ const EPISODES = {
       "name": "(CG) 파스타집을 나와 걸어가는 주인공과 수진"
     },
     {
+      "type": "clear characters"
+    },
+    {
+      "id": 21,
+      "type": "dialogue",
+      "speaker": "수진",
+      "text": "근데 OO아, 나 궁금한 거 있어."
+    },
+    {
       "id": 19,
       "type": "background",
       "name": "길거리"
@@ -1238,12 +1272,6 @@ const EPISODES = {
       "type": "character in",
       "name": "수진",
       "emotion": "Normal"
-    },
-    {
-      "id": 21,
-      "type": "dialogue",
-      "speaker": "수진",
-      "text": "근데 OO아, 나 궁금한 거 있어."
     },
     {
       "id": 23,
@@ -1366,7 +1394,10 @@ const EPISODES = {
       ]
     },
     {
-      "id": 27,
+      "type": "clear background",
+      "id": 27
+    },
+    {
       "type": "move",
       "next": "EP5 미팅사건"
     }
@@ -1728,7 +1759,10 @@ const EPISODES = {
       ]
     },
     {
-      "id": 44,
+      "type": "clear background",
+      "id": 44
+    },
+    {
       "type": "move",
       "next": "MINIGAME",
       "minigame": "brickBreaker",
@@ -1971,7 +2005,15 @@ const EPISODES = {
       "text": "어? 그래."
     },
     {
+      "type": "clear background",
       "id": 35,
+      "condition": {
+        "affectionMin": 100,
+        "dopamineMin": 35,
+        "dopamineMax": 80
+      }
+    },
+    {
       "type": "move",
       "next": "해피엔딩",
       "condition": {
@@ -1981,7 +2023,10 @@ const EPISODES = {
       }
     },
     {
-      "id": 36,
+      "type": "clear background",
+      "id": 36
+    },
+    {
       "type": "move",
       "next": "베드엔딩"
     }
@@ -2152,6 +2197,9 @@ const EPISODES = {
       "text": "(주인공은 조심스럽게 수진의 손을 잡는다)"
     },
     {
+      "type": "clear background"
+    },
+    {
       "id": 27,
       "type": "dialogue",
       "speaker": "END",
@@ -2306,6 +2354,9 @@ const EPISODES = {
       "type": "dialogue",
       "speaker": "주인공",
       "text": "(..어디서부터 잘못된 걸까.., 분명 처음엔 좋았는데..)"
+    },
+    {
+      "type": "clear background"
     },
     {
       "id": 29,
