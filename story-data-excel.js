@@ -63,8 +63,8 @@ const EPISODES = {
     {
       "id": 12,
       "type": "dialogue",
-      "speaker": "주인공",
-      "text": "(…예쁘다.)"
+      "speaker": "독백",
+      "text": "…예쁘다."
     },
     {
       "id": 13,
@@ -130,14 +130,14 @@ const EPISODES = {
     {
       "id": 21,
       "type": "dialogue",
-      "speaker": "주인공",
-      "text": "(...잠 덜 깬 얼굴인데도 엄청 예쁘네. )"
+      "speaker": "독백",
+      "text": "...잠 덜 깬 얼굴인데도 엄청 예쁘네."
     },
     {
       "id": 23,
       "type": "dialogue",
-      "speaker": "주인공",
-      "text": "(이제 집에 가서 공부하다 자야겠다...)"
+      "speaker": "독백",
+      "text": "이제 집에 가서 공부하다 자야겠다..."
     },
     {
       "type": "clear background",
@@ -170,14 +170,14 @@ const EPISODES = {
     {
       "id": 5,
       "type": "dialogue",
-      "speaker": "주인공",
-      "text": "(동아리는 처음이라 긴장되네...)"
+      "speaker": "독백",
+      "text": "동아리는 처음이라 긴장되네..."
     },
     {
       "id": 6,
       "type": "dialogue",
-      "speaker": "주인공",
-      "text": "(어디 앉지?)"
+      "speaker": "독백",
+      "text": "어디 앉지?"
     },
     {
       "id": 7,
@@ -188,8 +188,8 @@ const EPISODES = {
     {
       "id": 8,
       "type": "dialogue",
-      "speaker": "주인공",
-      "text": "(수진이 저 끝에 앉아있다.)",
+      "speaker": "독백",
+      "text": "수진이 저 끝에 앉아있다.",
       "effects": {
         "dopamine": 5
       }
@@ -221,8 +221,8 @@ const EPISODES = {
     {
       "id": 15,
       "type": "dialogue",
-      "speaker": "주인공",
-      "text": "(운명인가?)"
+      "speaker": "독백",
+      "text": "운명인가?"
     },
     {
       "id": 16,
@@ -399,8 +399,8 @@ const EPISODES = {
     {
       "id": 22,
       "type": "dialogue",
-      "speaker": "주인공",
-      "text": "(헉 나도 무대제작부인데… 이런 우연이!!)"
+      "speaker": "독백",
+      "text": "헉 나도 무대제작부인데… 이런 우연이!!"
     },
     {
       "id": 23,
@@ -450,8 +450,8 @@ const EPISODES = {
     {
       "id": 30,
       "type": "dialogue",
-      "speaker": "주인공",
-      "text": "(내 첫사랑… 시작되는 건가?)"
+      "speaker": "독백",
+      "text": "내 첫사랑… 시작되는 건가?"
     },
     {
       "type": "clear background",
@@ -615,8 +615,8 @@ const EPISODES = {
     {
       "id": 25,
       "type": "dialogue",
-      "speaker": "주인공",
-      "text": "(생각) 수진이는 건호가 많이 편해보인다. 건호도 수진이를 잘 챙겨준다..",
+      "speaker": "독백",
+      "text": "수진이는 건호가 많이 편해보인다. 건호도 수진이를 잘 챙겨준다..",
       "effects": {
         "dopamine": -5
       }
@@ -855,8 +855,8 @@ const EPISODES = {
     {
       "id": 7,
       "type": "dialogue",
-      "speaker": "주인공",
-      "text": "(생각보다 무서운데...?)"
+      "speaker": "독백",
+      "text": "생각보다 무서운데...?"
     },
     {
       "id": 8,
@@ -1415,8 +1415,8 @@ const EPISODES = {
     {
       "id": 4,
       "type": "dialogue",
-      "speaker": "주인공",
-      "text": "(공강인데 동아리방 가볼까? 수진이 있으려나?)"
+      "speaker": "독백",
+      "text": "공강인데 동아리방 가볼까? 수진이 있으려나?"
     },
     {
       "id": 5,
@@ -1440,8 +1440,8 @@ const EPISODES = {
     {
       "id": 9,
       "type": "dialogue",
-      "speaker": "주인공",
-      "text": "(동아리방으로 향하며 문을 연다)"
+      "speaker": "독백",
+      "text": "동아리방으로 향하며 문을 연다"
     },
     {
       "id": 10,
@@ -1487,8 +1487,8 @@ const EPISODES = {
     {
       "id": 18,
       "type": "dialogue",
-      "speaker": "주인공",
-      "text": "(잠시만.. 수진이가 미팅 나간다고?)"
+      "speaker": "독백",
+      "text": "잠시만.. 수진이가 미팅 나간다고?"
     },
     {
       "id": 19,
@@ -2169,8 +2169,8 @@ const EPISODES = {
     {
       "id": 21,
       "type": "dialogue",
-      "speaker": "주인공",
-      "text": "(얼어 붙는다)"
+      "speaker": "독백",
+      "text": "얼어 붙는다"
     },
     {
       "id": 22,
@@ -2193,8 +2193,8 @@ const EPISODES = {
     {
       "id": 26,
       "type": "dialogue",
-      "speaker": "주인공",
-      "text": "(주인공은 조심스럽게 수진의 손을 잡는다)"
+      "speaker": "독백",
+      "text": "주인공은 조심스럽게 수진의 손을 잡는다"
     },
     {
       "type": "clear background"
@@ -2352,8 +2352,8 @@ const EPISODES = {
     {
       "id": 28,
       "type": "dialogue",
-      "speaker": "주인공",
-      "text": "(..어디서부터 잘못된 걸까.., 분명 처음엔 좋았는데..)"
+      "speaker": "독백",
+      "text": "..어디서부터 잘못된 걸까.., 분명 처음엔 좋았는데.."
     },
     {
       "type": "clear background"

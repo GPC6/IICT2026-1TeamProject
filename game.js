@@ -53,6 +53,18 @@ class Game {
     this.subGame = null;
     this.backgroundImage = null;
     this.character = {};
+    this.dopamineDeltaPopup = null;
+    this.dialogueLog = [];
+    this.loggedDialogueKeys = new Set();
+    this.logPanelOpen = false;
+    this.logScrollIndex = 0;
+    this.logVisibleCount = 7;
+    this.typewriter = {
+      nodeKey: null,
+      visibleChars: 0,
+      speed: 0.82,
+      fullText: ""
+    };
     this.saveButton = new Button(76, 464, 68, 28, "SAVE", () => {
       this.saveSnapshot();
     }, {
@@ -185,6 +197,7 @@ class Game {
     if (this.state.scene === SCENES.DOPAMINE_READY) this.drawDopamineReady();
     if (this.state.scene === SCENES.MINIGAME && this.subGame) this.subGame.draw();
     if (this.state.scene === SCENES.ENDING) this.drawEnding();
+    if (this.logPanelOpen) this.drawDialogueLogOverlay();
   }
 
   mousePressed() {
@@ -206,6 +219,11 @@ class Game {
 
   keyPressed() {
     this.unlockAudio();
+
+    if (this.logPanelOpen) {
+      this.handleDialogueLogKey();
+      return;
+    }
 
     if (this.state.scene === SCENES.MINIGAME && this.subGame && this.subGame.keyPressed) {
       this.subGame.keyPressed();
@@ -239,7 +257,6 @@ class Game {
 
     this.titleButton.draw();
     this.loadButton.draw();
-    this.drawTitleSideMenu();
   }
 
   drawStory() {
@@ -258,7 +275,8 @@ class Game {
 
     if (node.type === NODE_TYPES.DIALOGUE) {
       this.drawCharacters();
-      this.textBox.draw(this.formatSpeaker(node.speaker), this.formatStoryText(node.text));
+      const displayText = this.getTypewriterText(node);
+      this.textBox.draw(this.formatSpeaker(node.speaker), displayText, node.speaker);
       this.drawStoryQuickMenu();
       return;
     }
@@ -330,23 +348,6 @@ class Game {
     }
   }
 
-  drawTitleSideMenu() {
-    const labels = ["START", "LOAD", "SETTING", "EXTRA", "HLP"];
-    for (let i = 0; i < labels.length; i++) {
-      const y = 350 + i * 38;
-      fill(i === 0 ? "#ff8f2a" : "#4b5565");
-      circle(1104, y, 24);
-      fill("#fff");
-      textAlign(CENTER, CENTER);
-      textSize(9);
-      text(labels[i][0], 1104, y + 1);
-      fill("#4b5565");
-      textAlign(LEFT, CENTER);
-      textSize(10);
-      text(labels[i], 1124, y);
-    }
-  }
-
   drawEpisodeBadge() {
     noStroke();
     fill(28, 31, 43, 180);
@@ -358,9 +359,8 @@ class Game {
   }
 
   drawStoryQuickMenu() {
-    const currentNode = this.getCurrentNode();
-    const isChoiceScreen = currentNode && currentNode.type === NODE_TYPES.CHOICE;
-    const menuY = isChoiceScreen ? 676 : 464;
+    const items = this.getStoryQuickMenuItems();
+    const menuY = items.length > 0 ? items[0].y : 464;
 
     this.saveButton.x = 76;
     this.saveButton.y = menuY;
@@ -368,20 +368,32 @@ class Game {
     this.saveButton.h = 28;
     this.saveButton.label = "SAVE";
     this.saveButton.draw();
-    const items = ["메뉴", "대사록", "자동", "빠른저장", "불러오기"];
-    for (let i = 0; i < items.length; i++) {
-      const x = 154 + i * 78;
-      const y = menuY;
+    for (const item of items) {
       fill(0, 0, 0, 128);
       stroke(255, 255, 255, 74);
       strokeWeight(1);
-      rect(x, y, 66, 28, 14);
+      rect(item.x, item.y, item.w, item.h, 14);
       noStroke();
       fill(255, 255, 255, 218);
       textAlign(CENTER, CENTER);
       textSize(11);
-      text(items[i], x + 33, y + 14);
+      text(item.label, item.x + item.w / 2, item.y + item.h / 2);
     }
+  }
+
+  getStoryQuickMenuItems() {
+    const currentNode = this.getCurrentNode();
+    const isChoiceScreen = currentNode && currentNode.type === NODE_TYPES.CHOICE;
+    const menuY = isChoiceScreen ? 676 : 464;
+    const labels = ["대사록"];
+
+    return labels.map((label, index) => ({
+      label,
+      x: 154 + index * 78,
+      y: menuY,
+      w: 66,
+      h: 28
+    }));
   }
 
   drawChoiceOverlay(prompt) {
@@ -716,14 +728,30 @@ class Game {
   }
 
   handleStoryClick() {
+    if (this.logPanelOpen) {
+      this.handleDialogueLogClick();
+      return;
+    }
+
     if (this.saveButton.contains(mouseX, mouseY)) {
       this.saveButton.mousePressed();
+      return;
+    }
+
+    const quickMenuItem = this.getStoryQuickMenuItemAt(mouseX, mouseY);
+    if (quickMenuItem) {
+      this.handleStoryQuickMenu(quickMenuItem.label);
       return;
     }
 
     const node = this.getCurrentNode();
 
     if (node.type === NODE_TYPES.DIALOGUE) {
+      if (!this.isTypewriterComplete()) {
+        this.completeTypewriter();
+        return;
+      }
+
       this.applyEffects(node.effects);
       this.advanceCurrentNode();
       this.refreshChoices();
@@ -731,6 +759,205 @@ class Game {
     }
 
     this.choiceButtons.forEach((button) => button.mousePressed());
+  }
+
+  getStoryQuickMenuItemAt(px, py) {
+    return this.getStoryQuickMenuItems().find((item) => (
+      px >= item.x && px <= item.x + item.w &&
+      py >= item.y && py <= item.y + item.h
+    ));
+  }
+
+  handleStoryQuickMenu(label) {
+    if (label === "대사록") {
+      this.openDialogueLog();
+    }
+  }
+
+  openDialogueLog() {
+    this.logPanelOpen = true;
+    this.logScrollIndex = max(0, this.dialogueLog.length - this.logVisibleCount);
+  }
+
+  closeDialogueLog() {
+    this.logPanelOpen = false;
+  }
+
+  handleDialogueLogClick() {
+    const panel = this.getDialogueLogPanelRect();
+    const closeButton = this.getDialogueLogCloseRect(panel);
+    const upButton = this.getDialogueLogScrollButtonRect(panel, "up");
+    const downButton = this.getDialogueLogScrollButtonRect(panel, "down");
+
+    if (this.containsRect(closeButton, mouseX, mouseY)) {
+      this.closeDialogueLog();
+      return;
+    }
+
+    if (this.containsRect(upButton, mouseX, mouseY)) {
+      this.scrollDialogueLog(-1);
+      return;
+    }
+
+    if (this.containsRect(downButton, mouseX, mouseY)) {
+      this.scrollDialogueLog(1);
+      return;
+    }
+
+    if (!this.containsRect(panel, mouseX, mouseY)) {
+      this.closeDialogueLog();
+    }
+  }
+
+  handleDialogueLogKey() {
+    if (keyCode === ESCAPE) {
+      this.closeDialogueLog();
+      return;
+    }
+
+    if (keyCode === UP_ARROW) {
+      this.scrollDialogueLog(-1);
+      return;
+    }
+
+    if (keyCode === DOWN_ARROW) {
+      this.scrollDialogueLog(1);
+      return;
+    }
+
+    if (keyCode === 33) this.scrollDialogueLog(-4);
+    if (keyCode === 34) this.scrollDialogueLog(4);
+  }
+
+  mouseWheel(event) {
+    if (!this.logPanelOpen) return true;
+    this.scrollDialogueLog(event.delta > 0 ? 1 : -1);
+    return false;
+  }
+
+  scrollDialogueLog(delta) {
+    const maxScroll = max(0, this.dialogueLog.length - this.logVisibleCount);
+    this.logScrollIndex = constrain(this.logScrollIndex + delta, 0, maxScroll);
+  }
+
+  drawDialogueLogOverlay() {
+    const panel = this.getDialogueLogPanelRect();
+    const closeButton = this.getDialogueLogCloseRect(panel);
+    const upButton = this.getDialogueLogScrollButtonRect(panel, "up");
+    const downButton = this.getDialogueLogScrollButtonRect(panel, "down");
+
+    noStroke();
+    fill(0, 0, 0, 164);
+    rect(0, 0, width, height);
+
+    fill(14, 18, 31, 238);
+    stroke(255, 255, 255, 52);
+    strokeWeight(1);
+    rect(panel.x, panel.y, panel.w, panel.h, 16);
+
+    noStroke();
+    fill("#ffffff");
+    textAlign(LEFT, CENTER);
+    textStyle(BOLD);
+    textSize(26);
+    text("대사록", panel.x + 34, panel.y + 42);
+    textStyle(NORMAL);
+
+    fill(255, 255, 255, 34);
+    rect(panel.x + 28, panel.y + 72, panel.w - 56, 1);
+
+    this.drawDialogueLogCloseButton(closeButton);
+    this.drawDialogueLogScrollButton(upButton, "▲");
+    this.drawDialogueLogScrollButton(downButton, "▼");
+
+    if (this.dialogueLog.length === 0) {
+      fill(255, 255, 255, 180);
+      textAlign(CENTER, CENTER);
+      textSize(20);
+      text("아직 기록된 대사가 없습니다.", panel.x + panel.w / 2, panel.y + panel.h / 2);
+      return;
+    }
+
+    const start = this.logScrollIndex;
+    const entries = this.dialogueLog.slice(start, start + this.logVisibleCount);
+    const rowX = panel.x + 44;
+    const rowY = panel.y + 96;
+    const rowW = panel.w - 112;
+    const rowH = 60;
+
+    entries.forEach((entry, index) => {
+      const y = rowY + index * rowH;
+      fill(index % 2 === 0 ? "rgba(255, 255, 255, 0.055)" : "rgba(255, 255, 255, 0.025)");
+      noStroke();
+      rect(rowX - 12, y - 8, rowW + 24, rowH - 6, 8);
+
+      const speaker = entry.speaker || "독백";
+      const speakerColor = this.getSpeakerColor(entry.speakerKey);
+      fill(speakerColor);
+      textAlign(LEFT, TOP);
+      textStyle(BOLD);
+      textSize(15);
+      text(speaker, rowX, y);
+
+      fill("#ffffff");
+      textStyle(NORMAL);
+      textSize(18);
+      textLeading(24);
+      text(entry.text, rowX + 94, y - 2, rowW - 104, rowH - 8);
+    });
+
+    fill(255, 255, 255, 150);
+    textAlign(RIGHT, CENTER);
+    textSize(13);
+    text(`${min(this.dialogueLog.length, start + 1)}-${min(this.dialogueLog.length, start + entries.length)} / ${this.dialogueLog.length}`, panel.x + panel.w - 84, panel.y + panel.h - 30);
+  }
+
+  drawDialogueLogCloseButton(button) {
+    const hover = this.containsRect(button, mouseX, mouseY);
+    fill(hover ? "rgba(238, 63, 115, 0.95)" : "rgba(255, 255, 255, 0.12)");
+    noStroke();
+    rect(button.x, button.y, button.w, button.h, 16);
+    fill("#ffffff");
+    textAlign(CENTER, CENTER);
+    textStyle(BOLD);
+    textSize(17);
+    text("X", button.x + button.w / 2, button.y + button.h / 2);
+    textStyle(NORMAL);
+  }
+
+  drawDialogueLogScrollButton(button, label) {
+    const hover = this.containsRect(button, mouseX, mouseY);
+    fill(hover ? "rgba(255, 255, 255, 0.24)" : "rgba(255, 255, 255, 0.1)");
+    noStroke();
+    rect(button.x, button.y, button.w, button.h, 12);
+    fill("#ffffff");
+    textAlign(CENTER, CENTER);
+    textStyle(BOLD);
+    textSize(15);
+    text(label, button.x + button.w / 2, button.y + button.h / 2);
+    textStyle(NORMAL);
+  }
+
+  getDialogueLogPanelRect() {
+    return { x: 170, y: 58, w: 940, h: 604 };
+  }
+
+  getDialogueLogCloseRect(panel) {
+    return { x: panel.x + panel.w - 62, y: panel.y + 26, w: 34, h: 34 };
+  }
+
+  getDialogueLogScrollButtonRect(panel, direction) {
+    return {
+      x: panel.x + panel.w - 58,
+      y: direction === "up" ? panel.y + 104 : panel.y + panel.h - 82,
+      w: 30,
+      h: 42
+    };
+  }
+
+  containsRect(rectangle, px, py) {
+    return px >= rectangle.x && px <= rectangle.x + rectangle.w &&
+      py >= rectangle.y && py <= rectangle.y + rectangle.h;
   }
 
   getCurrentNode() {
@@ -744,10 +971,99 @@ class Game {
   advanceCurrentNode() {
     if (this.state.pendingNodes.length > 0) {
       this.state.pendingNodes.shift();
+      this.resetTypewriter();
       return;
     }
 
     this.state.nodeIndex += 1;
+    this.resetTypewriter();
+  }
+
+  resetTypewriter() {
+    this.typewriter.nodeKey = null;
+    this.typewriter.visibleChars = 0;
+    this.typewriter.fullText = "";
+  }
+
+  getTypewriterText(node) {
+    const fullText = this.formatStoryText(node.text);
+    const nodeKey = this.getDialogueNodeKey(node);
+
+    if (this.typewriter.nodeKey !== nodeKey) {
+      this.typewriter.nodeKey = nodeKey;
+      this.typewriter.visibleChars = 0;
+      this.typewriter.fullText = fullText;
+      this.addDialogueLog(node, fullText, nodeKey);
+    }
+
+    const chars = Array.from(this.typewriter.fullText);
+    const frameScale = typeof deltaTime === "number" ? deltaTime / 16.67 : 1;
+    this.typewriter.visibleChars = min(chars.length, this.typewriter.visibleChars + this.typewriter.speed * frameScale);
+    return chars.slice(0, floor(this.typewriter.visibleChars)).join("");
+  }
+
+  isTypewriterComplete() {
+    if (!this.typewriter.fullText) return true;
+    return this.typewriter.visibleChars >= Array.from(this.typewriter.fullText).length;
+  }
+
+  completeTypewriter() {
+    this.typewriter.visibleChars = Array.from(this.typewriter.fullText).length;
+  }
+
+  getDialogueNodeKey(node) {
+    if (this.state.pendingNodes.length > 0) {
+      return [
+        "pending",
+        this.state.episodeId,
+        this.state.nodeIndex,
+        this.state.pendingNodes.length,
+        node.speaker || "",
+        node.text || ""
+      ].join(":");
+    }
+
+    return [
+      "episode",
+      this.state.episodeId,
+      node.id !== undefined ? node.id : this.state.nodeIndex,
+      node.speaker || "",
+      node.text || ""
+    ].join(":");
+  }
+
+  addDialogueLog(node, fullText, nodeKey) {
+    if (this.loggedDialogueKeys.has(nodeKey)) return;
+    this.loggedDialogueKeys.add(nodeKey);
+    this.dialogueLog.push({
+      speaker: this.formatSpeaker(node.speaker),
+      speakerKey: node.speaker || "",
+      text: fullText,
+      episodeId: this.state.episodeId,
+      nodeIndex: this.state.nodeIndex
+    });
+  }
+
+  addChoiceLog(choice, fullText) {
+    const node = this.getCurrentNode();
+    const nodeId = node && node.id !== undefined ? node.id : this.state.nodeIndex;
+    const nodeKey = [
+      "choice",
+      this.state.episodeId,
+      nodeId,
+      fullText,
+      this.dialogueLog.length
+    ].join(":");
+
+    if (this.loggedDialogueKeys.has(nodeKey)) return;
+    this.loggedDialogueKeys.add(nodeKey);
+    this.dialogueLog.push({
+      speaker: "선택",
+      speakerKey: "선택",
+      text: fullText,
+      episodeId: this.state.episodeId,
+      nodeIndex: this.state.nodeIndex
+    });
   }
 
   refreshChoices() {
@@ -765,7 +1081,9 @@ class Game {
 
     choices.forEach((choice, index) => {
       const choiceNumber = String(index + 1).padStart(2, "0");
-      const button = new Button((width - buttonW) / 2, startY + index * (buttonH + gap), buttonW, buttonH, `${choiceNumber}   ${this.formatStoryText(choice.text)}`, () => {
+      const choiceText = this.formatStoryText(choice.text);
+      const button = new Button((width - buttonW) / 2, startY + index * (buttonH + gap), buttonW, buttonH, `${choiceNumber}   ${choiceText}`, () => {
+        this.addChoiceLog(choice, choiceText);
         this.applyEffects(choice.effects);
         this.queueChoiceFollow(choice.follow);
 
@@ -889,7 +1207,17 @@ class Game {
   }
 
   addDopamine(amount) {
+    const before = this.state.dopamine;
     this.state.dopamine = constrain(this.state.dopamine + amount, 0, 100);
+    const changedAmount = this.state.dopamine - before;
+
+    if (changedAmount !== 0) {
+      this.dopamineDeltaPopup = {
+        amount: changedAmount,
+        startedAt: this.getTimeMs(),
+        duration: 1100
+      };
+    }
   }
 
   decideEnding() {
@@ -901,6 +1229,7 @@ class Game {
 
   drawStatus() {
     this.drawMeter(32, 28, "도파민", this.state.dopamine, "#e94c8a");
+    this.drawDopamineDeltaPopup(32, 28);
     // this.drawMeter(32, 74, "호감도", this.state.affection, "#6cc4a1");
   }
 
@@ -925,6 +1254,33 @@ class Game {
     text(Math.round(value), x + 112, y + 19);
   }
 
+  drawDopamineDeltaPopup(x, y) {
+    if (!this.dopamineDeltaPopup) return;
+
+    const elapsed = this.getTimeMs() - this.dopamineDeltaPopup.startedAt;
+    if (elapsed >= this.dopamineDeltaPopup.duration) {
+      this.dopamineDeltaPopup = null;
+      return;
+    }
+
+    const progress = elapsed / this.dopamineDeltaPopup.duration;
+    const alpha = 255 * (1 - progress);
+    const offsetY = -20 * progress;
+    const amount = Math.round(this.dopamineDeltaPopup.amount);
+    const label = `${amount > 0 ? "+" : ""}${amount}`;
+    const positive = amount > 0;
+
+    noStroke();
+    fill(0, 0, 0, alpha * 0.62);
+    rect(x + 332, y + 2 + offsetY, 68, 34, 17);
+    fill(positive ? 255 : 106, positive ? 218 : 211, positive ? 112 : 255, alpha);
+    textAlign(CENTER, CENTER);
+    textStyle(BOLD);
+    textSize(21);
+    text(label, x + 366, y + 19 + offsetY);
+    textStyle(NORMAL);
+  }
+
   shouldShowDopamineMeter() {
     return this.getEpisodeNumber() >= 2 || this.state.episodeId.includes("ENDING") || this.state.episodeId.includes("엔딩");
   }
@@ -947,8 +1303,27 @@ class Game {
   }
 
   formatSpeaker(speaker) {
+    if (speaker === "독백") return "";
     if (speaker === "주인공") return this.state.playerName || "주인공";
     return speaker || "";
+  }
+
+  getSpeakerColor(speaker) {
+    const colors = {
+      수진: "#f48fb1",
+      혜지: "#b39ddb",
+      건호: "#90caf9",
+      주인공: "#ffffff",
+      나레이션: "#cfd8dc",
+      독백: "#ffffff",
+      선택: "#ffd166"
+    };
+
+    return colors[speaker] || "#fff7dc";
+  }
+
+  getTimeMs() {
+    return typeof millis === "function" ? millis() : Date.now();
   }
 
   formatStoryText(text) {
