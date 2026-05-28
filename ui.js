@@ -112,16 +112,17 @@ class CharacterImage {
   draw(i, char_len) {
     let w = 250;
     let h = w * this.img.height / this.img.width;
+    const y = height / 1.5;
     if (char_len == 1) {
-      image(this.img, width / 2, height / 1.5, w, h);
+      image(this.img, width / 2, y, w, h);
     }
     else {
       if (i == 0)
-        image(this.img, width * 0.25, height / 2, w, h);
+        image(this.img, width * 0.25, y, w, h);
       else if (i == 1)
-        image(this.img, width * 0.75, height / 2, w, h);
+        image(this.img, width * 0.75, y, w, h);
       else if (i == 2)
-        image(this.img, width * 0.5, height / 2, w, h);
+        image(this.img, width * 0.5, y, w, h);
     }
 
   }
