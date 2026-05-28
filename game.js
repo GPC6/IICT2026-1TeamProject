@@ -52,6 +52,7 @@ class Game {
     this.choiceButtons = [];
     this.subGame = null;
     this.backgroundImage = null;
+    this.backgroundTransition = null;
     this.character = {};
     this.dopamineDeltaPopup = null;
     this.dialogueLog = [];
@@ -261,11 +262,12 @@ class Game {
 
   drawStory() {
     this.drawBackground();
-    this.drawEpisodeBadge();
-    if (this.shouldShowDopamineMeter()) this.drawStatus();
 
     const node = this.processStoryCommandNodes();
     if (!node) return;
+
+    this.drawEpisodeBadge();
+    if (this.shouldShowDopamineMeter()) this.drawStatus();
 
     if (node.type === NODE_TYPES.DIALOGUE && node.speaker === "END") {
       this.state.endingText = node.text;
@@ -320,6 +322,8 @@ class Game {
   }
 
   drawBackground() {
+    if (this.drawBackgroundTransition()) return;
+
     if (this.state.background === "dummy") {
       this.drawSceneImage("convenienceStore", false);
       return;
@@ -346,6 +350,240 @@ class Game {
       noStroke();
       rect(0, 0, width, height);
     }
+  }
+
+  drawBackgroundTransition() {
+    if (!this.backgroundTransition) return false;
+
+    const elapsed = this.getTimeMs() - this.backgroundTransition.startedAt;
+    const progress = Math.min(1, elapsed / this.backgroundTransition.duration);
+
+    if (this.backgroundTransition.type === "fadeSlide") {
+      this.drawFadeSlideBackgroundTransition(elapsed);
+    } else {
+      this.drawFadeBlackBackgroundTransition(progress);
+    }
+
+    if (progress >= 1) {
+      this.backgroundTransition = null;
+    }
+
+    return true;
+  }
+
+  drawFadeBlackBackgroundTransition(progress) {
+    const fadeOutEnd = 0.35;
+    const blackHoldEnd = 0.52;
+
+    if (progress < fadeOutEnd) {
+      const fadeProgress = progress / fadeOutEnd;
+      this.drawBackgroundAsset(this.backgroundTransition.fromImage);
+      this.drawBlackOverlay(255 * fadeProgress);
+      return;
+    }
+
+    if (progress < blackHoldEnd) {
+      background("#000000");
+      return;
+    }
+
+    const fadeProgress = (progress - blackHoldEnd) / (1 - blackHoldEnd);
+    this.drawBackgroundAsset(this.backgroundTransition.toImage);
+    this.drawBlackOverlay(255 * (1 - fadeProgress));
+  }
+
+  drawFadeSlideBackgroundTransition(elapsed) {
+    const fadeOutDuration = this.backgroundTransition.fadeOutDuration;
+    const blackHoldEnd = fadeOutDuration + this.backgroundTransition.blackHoldDuration;
+
+    if (elapsed < fadeOutDuration) {
+      const fadeProgress = elapsed / fadeOutDuration;
+      this.drawBackgroundAsset(this.backgroundTransition.fromImage);
+      this.drawBlackOverlay(255 * fadeProgress);
+      return;
+    }
+
+    background("#000000");
+
+    if (elapsed < blackHoldEnd) {
+      return;
+    }
+
+    const slideElapsed = elapsed - blackHoldEnd;
+    const revealProgress = this.easeInOutCubic(Math.min(1, slideElapsed / this.backgroundTransition.slideDuration));
+    this.drawBackgroundAssetSoftReveal(
+      this.backgroundTransition.toImage,
+      revealProgress,
+      this.backgroundTransition.direction
+    );
+  }
+
+  drawBackgroundAsset(imageAsset, alpha = 255, offsetX = 0) {
+    if (!imageAsset) {
+      background("#202633");
+      return;
+    }
+
+    const scale = max(width / imageAsset.width, height / imageAsset.height);
+    const drawWidth = imageAsset.width * scale;
+    const drawHeight = imageAsset.height * scale;
+
+    push();
+    tint(255, Math.max(0, Math.min(255, alpha)));
+    imageMode(CENTER);
+    image(imageAsset, width / 2 + offsetX, height / 2, drawWidth, drawHeight);
+    pop();
+  }
+
+  drawBackgroundAssetSoftReveal(imageAsset, revealProgress, direction) {
+    if (!imageAsset || revealProgress <= 0) return;
+    if (revealProgress >= 0.995) {
+      this.drawBackgroundAsset(imageAsset);
+      return;
+    }
+
+    const fadeWidth = width * 0.32;
+    const revealEdge = direction === "left"
+      ? -fadeWidth + (width + fadeWidth * 2) * revealProgress
+      : width + fadeWidth - (width + fadeWidth * 2) * revealProgress;
+    const sliceCount = 64;
+    const sliceWidth = width / sliceCount;
+
+    for (let i = 0; i < sliceCount; i++) {
+      const sliceX = i * sliceWidth;
+      const sliceCenter = sliceX + sliceWidth / 2;
+      const rawAlpha = direction === "left"
+        ? (revealEdge - sliceCenter) / fadeWidth
+        : (sliceCenter - revealEdge) / fadeWidth;
+      const sliceAlpha = this.smoothStep(Math.max(0, Math.min(1, rawAlpha))) * 255;
+
+      if (sliceAlpha <= 0) continue;
+
+      drawingContext.save();
+      drawingContext.beginPath();
+      drawingContext.rect(sliceX, 0, sliceWidth + 1, height);
+      drawingContext.clip();
+      this.drawBackgroundAsset(imageAsset, sliceAlpha);
+      drawingContext.restore();
+    }
+  }
+
+  smoothStep(t) {
+    return t * t * (3 - 2 * t);
+  }
+
+  drawBlackOverlay(alpha) {
+    noStroke();
+    fill(0, 0, 0, Math.max(0, Math.min(255, alpha)));
+    rect(0, 0, width, height);
+  }
+
+  easeInOutCubic(t) {
+    return t < 0.5
+      ? 4 * t * t * t
+      : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+
+  getBackgroundAsset(name) {
+    if (!name) return null;
+    if (name === "dummy") return this.assets.backgrounds.convenienceStore || null;
+    return this.assets.backgrounds[name] || null;
+  }
+
+  startBackgroundTransition(fromImage, toImage, options = "fadeBlack") {
+    const transitionOptions = this.normalizeBackgroundTransitionOptions(options);
+    if (transitionOptions.type === "none") return false;
+
+    this.backgroundTransition = {
+      type: transitionOptions.type,
+      fromImage,
+      toImage,
+      startedAt: this.getTimeMs(),
+      duration: transitionOptions.duration,
+      direction: transitionOptions.direction,
+      fadeOutDuration: transitionOptions.fadeOutDuration,
+      blackHoldDuration: transitionOptions.blackHoldDuration,
+      slideDuration: transitionOptions.slideDuration
+    };
+
+    return true;
+  }
+
+  getBackgroundTransitionOptions(node) {
+    const rawOptions = node.transition ?? node.backgroundTransition ?? node.effect;
+    const options = rawOptions && typeof rawOptions === "object"
+      ? rawOptions
+      : { type: rawOptions };
+
+    return {
+      type: options.type || options.name || rawOptions || "fadeBlack",
+      duration: options.duration ?? node.transitionDuration,
+      direction: options.direction ?? node.transitionDirection,
+      slideDuration: options.slideDuration ?? options.revealDuration ?? node.transitionSlideDuration,
+      slideSpeed: options.slideSpeed ?? options.speed ?? node.transitionSlideSpeed
+    };
+  }
+
+  normalizeBackgroundTransitionOptions(options) {
+    const rawOptions = options && typeof options === "object" ? options : { type: options };
+    const type = this.normalizeBackgroundTransitionType(rawOptions.type);
+    const defaultDuration = type === "fadeSlide" ? 620 : 520;
+    const duration = this.normalizeBackgroundTransitionDuration(rawOptions.duration, defaultDuration);
+    const fadeOutDuration = type === "fadeSlide" ? Math.round(duration * 0.32) : 0;
+    const blackHoldDuration = type === "fadeSlide" ? Math.round(duration * 0.16) : 0;
+    const baseSlideDuration = Math.max(120, duration - fadeOutDuration - blackHoldDuration);
+    const slideSpeed = this.normalizeBackgroundSlideSpeed(rawOptions.slideSpeed);
+    const slideDuration = this.normalizeBackgroundSlideDuration(
+      rawOptions.slideDuration,
+      Math.round(baseSlideDuration / slideSpeed)
+    );
+
+    return {
+      type,
+      duration: type === "fadeSlide" ? fadeOutDuration + blackHoldDuration + slideDuration : duration,
+      direction: this.normalizeBackgroundTransitionDirection(rawOptions.direction),
+      fadeOutDuration,
+      blackHoldDuration,
+      slideDuration
+    };
+  }
+
+  normalizeBackgroundTransitionType(type) {
+    const transitionType = String(type || "fadeBlack").toLowerCase();
+
+    if (transitionType === "none" || transitionType === "cut" || transitionType === "instant") return "none";
+    if (transitionType === "fadeslide" || transitionType === "fade-slide" || transitionType === "slide") return "fadeSlide";
+    return "fadeBlack";
+  }
+
+  normalizeBackgroundTransitionDuration(duration, fallback) {
+    if (typeof duration !== "number" || !Number.isFinite(duration)) return fallback;
+    return Math.max(120, Math.min(2000, duration));
+  }
+
+  normalizeBackgroundSlideDuration(duration, fallback) {
+    if (typeof duration !== "number" || !Number.isFinite(duration)) return fallback;
+    return Math.max(120, Math.min(2000, duration));
+  }
+
+  normalizeBackgroundSlideSpeed(speed) {
+    if (typeof speed !== "number" || !Number.isFinite(speed)) return 1;
+    return Math.max(0.25, Math.min(4, speed));
+  }
+
+  normalizeBackgroundTransitionDirection(direction) {
+    return direction === "left" ? "left" : "right";
+  }
+
+  isBackgroundTransitionActive() {
+    if (!this.backgroundTransition) return false;
+
+    if (this.getTimeMs() - this.backgroundTransition.startedAt >= this.backgroundTransition.duration) {
+      this.backgroundTransition = null;
+      return false;
+    }
+
+    return true;
   }
 
   drawEpisodeBadge() {
@@ -483,6 +721,8 @@ class Game {
   }
 
   processStoryCommandNodes() {
+    if (this.isBackgroundTransitionActive()) return null;
+
     let node = this.getCurrentNode();
     let processed = false;
 
@@ -495,12 +735,28 @@ class Game {
       }
 
       if (node.type === NODE_TYPES.BACKGROUND) {
+        const previousBackground = this.state.background;
+        const previousImage = this.getBackgroundAsset(previousBackground);
         this.state.background = node.name;
-        const image = this.assets.backgrounds[node.name];
+        const image = this.getBackgroundAsset(node.name);
         if (!image) {
           console.warn("Missing background asset: " + node.name);
         }
         this.backgroundImage = image ? new BackgroundImage(image) : null;
+        this.advanceCurrentNode();
+        processed = true;
+
+        if (previousBackground !== node.name && (previousImage || image)) {
+          const didStartTransition = this.startBackgroundTransition(
+            previousImage,
+            image,
+            this.getBackgroundTransitionOptions(node)
+          );
+          if (didStartTransition) return null;
+        }
+
+        node = this.getCurrentNode();
+        continue;
       }
 
       if (node.type === NODE_TYPES.CLEAR_BACKGROUND) {
