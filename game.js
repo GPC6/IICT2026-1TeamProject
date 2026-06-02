@@ -519,8 +519,7 @@ class Game {
       type: options.type || options.name || rawOptions || "fadeBlack",
       duration: options.duration ?? node.transitionDuration,
       direction: options.direction ?? node.transitionDirection,
-      slideDuration: options.slideDuration ?? options.revealDuration ?? node.transitionSlideDuration,
-      slideSpeed: options.slideSpeed ?? options.speed ?? node.transitionSlideSpeed
+      slideDuration: options.slideDuration ?? options.revealDuration ?? node.transitionSlideDuration
     };
   }
 
@@ -532,10 +531,9 @@ class Game {
     const fadeOutDuration = type === "fadeSlide" ? Math.round(duration * 0.32) : 0;
     const blackHoldDuration = type === "fadeSlide" ? Math.round(duration * 0.16) : 0;
     const baseSlideDuration = Math.max(120, duration - fadeOutDuration - blackHoldDuration);
-    const slideSpeed = this.normalizeBackgroundSlideSpeed(rawOptions.slideSpeed);
     const slideDuration = this.normalizeBackgroundSlideDuration(
       rawOptions.slideDuration,
-      Math.round(baseSlideDuration / slideSpeed)
+      baseSlideDuration
     );
 
     return {
@@ -564,11 +562,6 @@ class Game {
   normalizeBackgroundSlideDuration(duration, fallback) {
     if (typeof duration !== "number" || !Number.isFinite(duration)) return fallback;
     return Math.max(120, Math.min(2000, duration));
-  }
-
-  normalizeBackgroundSlideSpeed(speed) {
-    if (typeof speed !== "number" || !Number.isFinite(speed)) return 1;
-    return Math.max(0.25, Math.min(4, speed));
   }
 
   normalizeBackgroundTransitionDirection(direction) {
@@ -988,6 +981,8 @@ class Game {
       this.handleDialogueLogClick();
       return;
     }
+
+    if (this.isBackgroundTransitionActive()) return;
 
     if (this.saveButton.contains(mouseX, mouseY)) {
       this.saveButton.mousePressed();

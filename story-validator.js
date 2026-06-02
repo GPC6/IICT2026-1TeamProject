@@ -118,7 +118,6 @@ function validateBackgroundTransition(node, location) {
   const duration = options.duration ?? node.transitionDuration;
   const direction = options.direction ?? node.transitionDirection;
   const slideDuration = options.slideDuration ?? options.revealDuration ?? node.transitionSlideDuration;
-  const slideSpeed = options.slideSpeed ?? options.speed ?? node.transitionSlideSpeed;
 
   if (!validTypes.includes(type)) {
     console.warn("Unknown background transition at " + location + ": " + type);
@@ -136,9 +135,6 @@ function validateBackgroundTransition(node, location) {
     console.warn("Background slide duration must be a number from 120 to 2000 at " + location);
   }
 
-  if (slideSpeed !== undefined && (typeof slideSpeed !== "number" || slideSpeed < 0.25 || slideSpeed > 4)) {
-    console.warn("Background slide speed must be a number from 0.25 to 4 at " + location);
-  }
 }
 
 function normalizeSoundType(soundType) {
