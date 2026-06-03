@@ -56,9 +56,16 @@ const ASSET_MANIFEST = {
     "편의점": "./assets/bg/convenience_store_night.png",
     "(CG) 수진이 편의점 계산대에서 졸고 있음": "./assets/bg/convenience_sujin_sleepy_cg_v2.png",
     "(CG) 수진이 편의점 계산대에서 화들짝 깨어남": "./assets/bg/convenience_sujin_startled_cg_v3.png",
+    "(CG) 졸고 있는 수진": "./assets/bg/convenience_sujin_sleepy_cg_v2.png",
+    "(CG) 화들짝 깨는 수진": "./assets/bg/convenience_sujin_startled_cg_v3.png",
+    "(CG) 침실 앞 책상에서 과제를 하는 주인공": "./assets/bg/bedroom_night.png",
+    "집 안 침실": "./assets/bg/bedroom_night.png",
     "강의실 혹은 동아리방": "./assets/bg/club_classroom.png",
+    "동아리방": "./assets/bg/club_room_inside.png",
     "MT 장소": "./assets/bg/mt_room.png",
     "(CG) MT 장소에 둘러앉은 주인공, 수진, 건호, 혜지": "./assets/bg/mt_group_cg.png",
+    "(CG) 동아리방에 둘러앉은 넷": "./assets/bg/mt_group_cg.png",
+    "(CG) MT 장소에 둘러앉은 넷": "./assets/bg/mt_group_cg.png",
     "소주병을 향해 뻗는 수진의 손": "./assets/bg/soju_hand.png",
     "소주병을 향해 뻗는 수진의 손을 잡는 건호의 손": "./assets/bg/soju_hand_stopped.png",
     "공포방탈출 입구": "./assets/bg/escape_room_entrance.png",
@@ -66,22 +73,48 @@ const ASSET_MANIFEST = {
     "공포방탈출 외부": "./assets/bg/escape_room_exterior.png",
     "(CG) 천장에서 귀신이 떨어지는 걸 보고 놀라는 수진": "./assets/bg/escape_room_jump_scare.png",
     "예쁜 파스타집": "./assets/bg/pasta_restaurant.png",
+    "예쁜 파스타": "./assets/bg/pasta_restaurant.png",
     "길거리": "./assets/bg/university_street_night.png",
     "(CG) 예쁜 파스타집에 있는 주인공과 수진": "./assets/bg/pasta_restaurant_cg.png",
+    "(CG) 예쁜 파스타집에 앉은 수진": "./assets/bg/pasta_restaurant_cg.png",
     "(CG) 파스타집을 나와 걸어가는 주인공과 수진": "./assets/bg/pasta_night_walk_cg.png",
     "야외 교내": "./assets/bg/campus_outdoor.png",
     "동아리 앞": "./assets/bg/club_room_front.png",
     "동아리실 안": "./assets/bg/club_room_inside.png",
     "카톡창 안": "./assets/bg/chat_screen.png",
+    "카톡방 화면": "./assets/bg/chat_screen.png",
+    "(CG) 백스테이지에 있는 주인공과 수진": "./assets/bg/backstage.png",
     "백스테이지": "./assets/bg/backstage.png",
-    "밤, 대학가": "./assets/bg/campus_night.png"
+    "문 세트": "./assets/bg/backstage.png",
+    "수진이 우는 모습": "./assets/bg/backstage.png",
+    "토닥이는 장면": "./assets/bg/backstage.png",
+    "휴지를 건네는 장면": "./assets/bg/backstage.png",
+    "(CG) 텅 빈 밤길을 걸어가는 둘": "./assets/bg/campus_night.png",
+    "밤, 대학가": "./assets/bg/campus_night.png",
+    "(CG) 서로 바라보는 둘": "./assets/bg/campus_night.png",
+    "(CG) 손을 잡는 둘": "./assets/bg/campus_night.png",
+    "(CG) 혼자 남은 주인공)": "./assets/bg/campus_night.png"
   },
   sounds: {
     bgm: {
-      // exampleBgm: "./assets/sound/bgm/example.mp3"
+      ep14: "./assets/sound/bgm/EP1,4.mp3",
+      ep25: "./assets/sound/bgm/EP2,5.mp3",
+      ep36: "./assets/sound/bgm/EP3,6.mp3",
+      escapeRoom: "./assets/sound/bgm/Escape Room.mp3",
+      game1: "./assets/sound/bgm/Game1.mp3",
+      game2: "./assets/sound/bgm/Game2.mp3"
     },
     effects: {
-      // doorOpen: "./assets/sound/effects/door-open.mp3"
+      ep1Ding: "./assets/sound/effects/EP1 띠링.mp3",
+      ep1Barcode: "./assets/sound/effects/EP1 바코드.mp3",
+      chair: "./assets/sound/effects/EP2 의자.mp3",
+      crowd: "./assets/sound/effects/EP2, 3 왁자지껄.mp3",
+      horror: "./assets/sound/effects/EP4 공포.mp3",
+      door: "./assets/sound/effects/EP5 문.mp3",
+      running: "./assets/sound/effects/EP6 달리기.mp3",
+      screwdriver: "./assets/sound/effects/EP6 드라이버.mp3",
+      episodeTransition: "./assets/sound/effects/에피소드 전환.mp3",
+      click: "./assets/sound/effects/클릭.mp3"
     }
   },
   characters: {
