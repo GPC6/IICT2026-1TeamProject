@@ -77,6 +77,7 @@ function validateChoiceNode(node, episodeId, location) {
     const choiceLocation = location + ".choices[" + choiceIndex + "]";
     if (!choice.text) console.warn("Choice option has no text at " + choiceLocation);
     validateFollowNodes(choice.follow, choiceLocation);
+    if (choice.sound) validateSoundNode(choice.sound, choiceLocation + ".sound");
     validateChoiceTarget(choice.nextNode, episodeId, choiceLocation);
     if (choice.next) {
       console.warn("Choice should use nextNode instead of next at " + choiceLocation);
@@ -255,6 +256,7 @@ function validateFollowNodes(follow, location) {
 
     if (!line.speaker) console.warn("Follow line has no speaker at " + lineLocation);
     if (!line.text) console.warn("Follow line has no text at " + lineLocation);
+    if (line.sound) validateSoundNode(line.sound, lineLocation + ".sound");
   });
 }
 

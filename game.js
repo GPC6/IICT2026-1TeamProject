@@ -1335,6 +1335,7 @@ class Game {
       const choiceText = this.formatStoryText(choice.text);
       const button = new Button((width - buttonW) / 2, startY + index * (buttonH + gap), buttonW, buttonH, `${choiceNumber}   ${choiceText}`, () => {
         this.addChoiceLog(choice, choiceText);
+        if (choice.sound) this.handleSoundNode({ type: NODE_TYPES.SOUND, ...choice.sound });
         this.applyEffects(choice.effects);
         this.queueChoiceFollow(choice.follow);
 
@@ -1410,12 +1411,22 @@ class Game {
   }
 
   queueChoiceFollow(follow = []) {
-    this.state.pendingNodes = follow.map((line) => ({
-      type: NODE_TYPES.DIALOGUE,
-      speaker: line.speaker,
-      text: line.text,
-      effects: line.effects
-    }));
+    this.state.pendingNodes = follow.flatMap((line) => {
+      const nodes = [];
+      if (line.sound) {
+        nodes.push({
+          type: NODE_TYPES.SOUND,
+          ...line.sound
+        });
+      }
+      nodes.push({
+        type: NODE_TYPES.DIALOGUE,
+        speaker: line.speaker,
+        text: line.text,
+        effects: line.effects
+      });
+      return nodes;
+    });
   }
 
   startSelectedSubGame() {
@@ -1466,7 +1477,7 @@ class Game {
       this.dopamineDeltaPopup = {
         amount: changedAmount,
         startedAt: this.getTimeMs(),
-        duration: 1100
+        duration: 1600
       };
     }
   }
@@ -1479,7 +1490,7 @@ class Game {
   }
 
   drawStatus() {
-    this.drawMeter(32, 28, "도파민", this.state.dopamine, "#e94c8a");
+    this.drawMeter(32, 28, "도파민", this.state.dopamine, this.getDopamineZoneColor(this.state.dopamine));
     this.drawDopamineDeltaPopup(32, 28);
     // this.drawMeter(32, 74, "호감도", this.state.affection, "#6cc4a1");
   }
@@ -1495,14 +1506,66 @@ class Game {
     text(label, x + 12, y + 19);
     textStyle(NORMAL);
 
+    const barX = x + 126;
+    const barY = y + 12;
+    const barW = 154;
+    const barH = 14;
     fill("#f0f2fa");
-    rect(x + 126, y + 12, 154, 14, 7);
-    fill(colorHex);
-    rect(x + 126, y + 12, map(value, 0, 100, 0, 154), 14, 7);
-    fill("#f5f2ea");
+    rect(barX, barY, barW, barH, 7);
+
+    if (label === "도파민") {
+      this.drawDopamineMeterFill(barX, barY, barW, barH, value);
+      this.drawDopamineMilestoneMarks(barX, barY, barW, barH);
+    } else {
+      fill(colorHex);
+      rect(barX, barY, map(value, 0, 100, 0, barW), barH, 7);
+    }
+
+    fill(label === "도파민" ? this.getDopamineZoneColor(value) : "#f5f2ea");
     textAlign(RIGHT, CENTER);
     textSize(18);
     text(Math.round(value), x + 112, y + 19);
+  }
+
+  drawDopamineMeterFill(x, y, w, h, value) {
+    const filledW = map(value, 0, 100, 0, w);
+    fill(this.getDopamineZoneColor(value));
+    rect(x, y, filledW, h, 7);
+  }
+
+  drawDopamineMilestoneMarks(x, y, w, h) {
+    this.getDopamineMilestones().forEach((milestone) => {
+      const markerX = x + map(milestone, 0, 100, 0, w);
+
+      stroke(255, 255, 255, 190);
+      strokeWeight(1.4);
+      line(markerX, y - 4, markerX, y + h + 4);
+      noStroke();
+
+      fill(255, 255, 255, 188);
+      textAlign(CENTER, TOP);
+      textStyle(BOLD);
+      textSize(10);
+      text(milestone, markerX, y + h + 1);
+      textStyle(NORMAL);
+    });
+  }
+
+  getDopamineMilestones() {
+    return [50, 80];
+  }
+
+  getDopamineZones() {
+    return [
+      { from: 0, to: 51, color: "#70d7aa" },
+      { from: 51, to: 81, color: "#ffd166" },
+      { from: 81, to: 100, color: "#ff5c93" }
+    ];
+  }
+
+  getDopamineZoneColor(value) {
+    const zone = this.getDopamineZones().find((entry) => value >= entry.from && (value < entry.to || entry.to === 100));
+    return zone ? zone.color : "#e94c8a";
   }
 
   drawDopamineDeltaPopup(x, y) {
@@ -1515,8 +1578,9 @@ class Game {
     }
 
     const progress = elapsed / this.dopamineDeltaPopup.duration;
-    const alpha = 255 * (1 - progress);
-    const offsetY = -20 * progress;
+    const fadeProgress = progress < 0.35 ? 0 : (progress - 0.35) / 0.65;
+    const alpha = 255 * (1 - fadeProgress);
+    const offsetY = -18 * progress;
     const amount = Math.round(this.dopamineDeltaPopup.amount);
     const label = `${amount > 0 ? "+" : ""}${amount}`;
     const positive = amount > 0;
