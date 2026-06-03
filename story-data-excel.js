@@ -9,7 +9,7 @@ const EPISODES = {
     {
       "id": 2,
       "type": "background",
-      "name": "도서관 열람실",
+      "name": "(CG) 침실 앞 책상에서 과제를 하는 주인공",
       "transition": "fadeBlack"
     },
     {
@@ -156,20 +156,30 @@ const EPISODES = {
     },
     {
       "id": 21,
+      "type": "background",
+      "name": "집 안 침실",
+      "transition": {
+        "type": "fadeSlide",
+        "duration": 700,
+        "direction": "right"
+      }
+    },
+    {
+      "id": 22,
       "type": "dialogue",
       "speaker": "독백",
       "text": "이제 집에 가서 공부하다 자야겠다..."
     },
     {
       "type": "clear background",
-      "id": 22
+      "id": 23
     },
     {
       "type": "move",
       "next": "MINIGAME",
       "minigame": "brickBreaker",
       "after": "EP2 동아리 OT",
-      "id": 23
+      "id": 24
     }
   ],
   "EP2 동아리 OT": [
@@ -496,7 +506,7 @@ const EPISODES = {
     {
       "id": 2,
       "type": "background",
-      "name": "(CG) MT 장소에 둘러앉은 주인공, 수진, 건호, 혜지",
+      "name": "(CG) MT 장소에 둘러앉은 넷",
       "transition": "fadeBlack"
     },
     {
@@ -1208,7 +1218,7 @@ const EPISODES = {
     {
       "id": 2,
       "type": "background",
-      "name": "(CG) 예쁜 파스타집에 있는 주인공과 수진",
+      "name": "(CG) 예쁜 파스타집에 앉은 수진",
       "transition": "fadeBlack"
     },
     {
@@ -1230,6 +1240,16 @@ const EPISODES = {
     },
     {
       "id": 6,
+      "type": "background",
+      "name": "예쁜 파스타",
+      "transition": {
+        "type": "fadeSlide",
+        "duration": 700,
+        "direction": "right"
+      }
+    },
+    {
+      "id": 27,
       "type": "background",
       "name": "예쁜 파스타집",
       "transition": {
@@ -1759,7 +1779,7 @@ const EPISODES = {
     {
       "id": 31,
       "type": "background",
-      "name": "카톡창 안",
+      "name": "카톡방 화면",
       "transition": "fadeBlack"
     },
     {
@@ -1963,6 +1983,16 @@ const EPISODES = {
       "text": "넵, 선배 고칠게요"
     },
     {
+      "id": 35,
+      "type": "background",
+      "name": "문 세트",
+      "transition": {
+        "type": "fadeSlide",
+        "duration": 700,
+        "direction": "right"
+      }
+    },
+    {
       "id": 16,
       "type": "dialogue",
       "speaker": "나레이션",
@@ -2145,7 +2175,7 @@ const EPISODES = {
     {
       "id": 2,
       "type": "background",
-      "name": "밤, 대학가",
+      "name": "(CG) 텅 빈 밤길을 걸어가는 둘",
       "transition": {
         "type": "fadeSlide",
         "duration": 700,
@@ -2158,6 +2188,17 @@ const EPISODES = {
       "type": "dialogue",
       "speaker": "나레이션",
       "text": "(텅 빈 밤길. 둘은 천천히 걸어간다.)"
+    },
+    {
+      "id": 25,
+      "type": "background",
+      "name": "밤, 대학가",
+      "transition": {
+        "type": "fadeSlide",
+        "duration": 700,
+        "direction": "right",
+        "slideSpeed": 0.7
+      }
     },
     {
       "id": 4,
@@ -2214,6 +2255,20 @@ const EPISODES = {
       "text": "(주인공은 잠깐 수진을 바라본다)"
     },
     {
+      "id": 26,
+      "type": "clear characters"
+    },
+    {
+      "id": 27,
+      "type": "background",
+      "name": "(CG) 서로 바라보는 둘",
+      "transition": {
+        "type": "fadeSlide",
+        "duration": 700,
+        "direction": "right"
+      }
+    },
+    {
       "id": 13,
       "type": "choice",
       "prompt": "(주인공은 잠깐 수진을 바라본다)",
@@ -2267,6 +2322,17 @@ const EPISODES = {
       "text": "나 사실 너 좋아해.., 너는 나 어때?"
     },
     {
+      "id": 28,
+      "type": "background",
+      "name": "밤, 대학가",
+      "transition": {
+        "type": "fadeSlide",
+        "duration": 700,
+        "direction": "right",
+        "slideSpeed": 0.7
+      }
+    },
+    {
       "id": 16,
       "type": "character in",
       "name": "수진",
@@ -2303,6 +2369,20 @@ const EPISODES = {
       "text": "아니.. 너무 좋아서ㅎㅎ"
     },
     {
+      "id": 29,
+      "type": "clear characters"
+    },
+    {
+      "id": 30,
+      "type": "background",
+      "name": "(CG) 손을 잡는 둘",
+      "transition": {
+        "type": "fadeSlide",
+        "duration": 700,
+        "direction": "right"
+      }
+    },
+    {
       "id": 22,
       "type": "dialogue",
       "speaker": "독백",
@@ -2327,7 +2407,7 @@ const EPISODES = {
     {
       "id": 2,
       "type": "background",
-      "name": "밤, 대학가",
+      "name": "(CG) 텅 빈 밤길을 걸어가는 둘",
       "transition": {
         "type": "fadeSlide",
         "duration": 700,
@@ -2340,6 +2420,17 @@ const EPISODES = {
       "type": "dialogue",
       "speaker": "나레이션",
       "text": "(텅 빈 밤길. 둘은 천천히 걸어간다.)"
+    },
+    {
+      "id": 26,
+      "type": "background",
+      "name": "밤, 대학가",
+      "transition": {
+        "type": "fadeSlide",
+        "duration": 700,
+        "direction": "right",
+        "slideSpeed": 0.7
+      }
     },
     {
       "id": 4,
@@ -2461,6 +2552,20 @@ const EPISODES = {
       "type": "dialogue",
       "speaker": "수진",
       "text": "먼저 갈게.."
+    },
+    {
+      "id": 27,
+      "type": "clear characters"
+    },
+    {
+      "id": 28,
+      "type": "background",
+      "name": "(CG) 혼자 남은 주인공)",
+      "transition": {
+        "type": "fadeSlide",
+        "duration": 700,
+        "direction": "right"
+      }
     },
     {
       "id": 22,
