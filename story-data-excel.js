@@ -3495,6 +3495,12 @@ const EPISODES = {
     },
     {
       "type": "dialogue",
+      "speaker": "수진",
+      "text": "나도 너.. 좋아해!",
+      "id": 20
+    },
+    {
+      "type": "dialogue",
       "speaker": "독백",
       "text": "(헉!)",
       "id": 21

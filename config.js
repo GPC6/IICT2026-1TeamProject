@@ -62,6 +62,7 @@ const ASSET_MANIFEST = {
     "집 안 침실": "./assets/bg/bedroom_night.png",
     "강의실 혹은 동아리방": "./assets/bg/club_classroom.png",
     "동아리방": "./assets/bg/club_room_inside.png",
+    "동아리방": "./assets/bg/club_room_inside.png",
     "MT 장소": "./assets/bg/mt_room.png",
     "(CG) MT 장소에 둘러앉은 주인공, 수진, 건호, 혜지": "./assets/bg/mt_group_cg.png",
     "(CG) 동아리방에 둘러앉은 넷": "./assets/bg/mt_group_cg.png",
@@ -119,34 +120,34 @@ const ASSET_MANIFEST = {
   },
   characters: {
     수진: {
-      default: "./assets/char/수진_Normal.png",
-      일반: "./assets/char/수진_Normal.png",
-      Normal: "./assets/char/수진_Normal.png",
-      Happy: "./assets/char/수진_Happy.png",
-      Surprised: "./assets/char/수진_Surprised.png",
-      Flustered: "./assets/char/수진_Flustered.png",
-      Frightened: "./assets/char/수진_Frightened.png",
-      Focused: "./assets/char/수진_Focused.png",
-      hopeful: "./assets/char/수진_hopeful.png",
-      Sad: "./assets/char/수진_Sad.png"
+      default: "./assets/char_new/sujin_normal.png",
+      일반: "./assets/char_new/sujin_normal.png",
+      Normal: "./assets/char_new/sujin_normal.png",
+      Happy: "./assets/char_new/sujin_happy.png",
+      Surprised: "./assets/char_new/sujin_surprised.png",
+      Flustered: "./assets/char_new/sujin_flustered.png",
+      Frightened: "./assets/char_new/sujin_startled.png",
+      Focused: "./assets/char_new/sujin_focused.png",
+      hopeful: "./assets/char_new/sujin_expectant.png",
+      Sad: "./assets/char_new/sujin_sad.png"
     },
     혜지: {
-      default: "./assets/char/혜지_Normal.png",
-      일반: "./assets/char/혜지_Normal.png",
-      Normal: "./assets/char/혜지_Normal.png",
-      Happy: "./assets/char/혜지_Happy.png",
-      Surprised: "./assets/char/혜지_Surprised.png",
-      Frightened: "./assets/char/혜지_Frightened.png",
-      Flustered: "./assets/char/혜지_Flustered.png"
+      default: "./assets/char_new/Hyeji_normal.png",
+      일반: "./assets/char_new/Hyeji_normal.png",
+      Normal: "./assets/char_new/Hyeji_normal.png",
+      Happy: "./assets/char_new/Hyeji_happy.png",
+      Surprised: "./assets/char_new/Hyeji_surprised.png",
+      Frightened: "./assets/char_new/Hyeji_startled.png",
+      Flustered: "./assets/char_new/Hyeji_flustered.png"
     },
     건호: {
-      default: "./assets/char/건호_Normal.png",
-      일반: "./assets/char/건호_Normal.png",
-      Normal: "./assets/char/건호_Normal.png",
-      Happy: "./assets/char/건호_Happy.png",
-      Focused: "./assets/char/건호_Focused.png",
-      Surprised: "./assets/char/건호_Surprised.png",
-      Flustered: "./assets/char/건호_Flustered.png"
+      default: "./assets/char_new/Geonho_normal.png",
+      일반: "./assets/char_new/Geonho_normal.png",
+      Normal: "./assets/char_new/Geonho_normal.png",
+      Happy: "./assets/char_new/Geonho_happy.png",
+      Focused: "./assets/char_new/Geonho_focused.png",
+      Surprised: "./assets/char_new/Geonho_surprised.png",
+      Flustered: "./assets/char_new/Geonho_flustered.png"
     }
   }
 };
