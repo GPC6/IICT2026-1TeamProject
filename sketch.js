@@ -1,5 +1,6 @@
 let game;
 let assets = {
+  fonts: {},
   backgrounds: {},
   characters: {},
   sounds: {
@@ -9,6 +10,10 @@ let assets = {
 };
 
 function preload() {
+  Object.entries(ASSET_MANIFEST.fonts || {}).forEach(([name, path]) => {
+    assets.fonts[name] = loadFont(path);
+  });
+
   Object.entries(ASSET_MANIFEST.backgrounds).forEach(([name, path]) => {
     assets.backgrounds[name] = loadImage(path);
   });
@@ -21,7 +26,8 @@ function preload() {
     });
   });
 
-  Object.entries(ASSET_MANIFEST.sounds.bgm || {}).forEach(([name, path]) => {
+  Object.entries(ASSET_MANIFEST.sounds.bgm || {}).forEach(([name, config]) => {
+    const path = typeof config === "string" ? config : config.path;
     assets.sounds.bgm[name] = loadSound(path);
   });
 
@@ -32,7 +38,7 @@ function preload() {
 
 function setup() {
   createCanvas(CONFIG.width, CONFIG.height);
-  textFont("Malgun Gothic, sans-serif");
+  textFont(assets.fonts.ui || "Malgun Gothic, sans-serif");
 
   game = new Game(assets);
 }

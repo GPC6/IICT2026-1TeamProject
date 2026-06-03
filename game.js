@@ -53,6 +53,8 @@ class Game {
     this.subGame = null;
     this.backgroundImage = null;
     this.backgroundTransition = null;
+    this.pendingBgmNode = null;
+    this.currentBgmLoop = null;
     this.character = {};
     this.dopamineDeltaPopup = null;
     this.dialogueLog = [];
@@ -181,6 +183,8 @@ class Game {
   }
 
   update() {
+    this.updateBgmLoop();
+
     if (this.state.scene !== SCENES.MINIGAME) return;
 
     if (this.subGame) {
@@ -231,6 +235,11 @@ class Game {
     }
   }
 
+  useFont(role) {
+    if (!this.assets.fonts || !this.assets.fonts[role]) return;
+    textFont(this.assets.fonts[role]);
+  }
+
   drawTitle() {
     this.drawSceneImage("convenienceStore", true);
     fill(255, 255, 255, 176);
@@ -240,6 +249,7 @@ class Game {
     fill("#ee3f73");
     textAlign(CENTER, CENTER);
     textStyle(BOLD);
+    this.useFont("title");
     textSize(72);
     text("도파민때문에", width / 2, 240);
     textStyle(NORMAL);
@@ -251,8 +261,10 @@ class Game {
     noStroke();
 
     fill("#5b5f70");
+    this.useFont("uiBold");
     textSize(16);
     text("SOME HOW STOPS LOVE CONVENIENCE STORY", width / 2, 310);
+    this.useFont("ui");
     textSize(18);
     text("감정을 너무 낮추지도, 너무 과열시키지도 말 것", width / 2, 354);
 
@@ -276,7 +288,7 @@ class Game {
     }
 
     if (node.type === NODE_TYPES.DIALOGUE) {
-      this.drawCharacters();
+      this.drawCharacters(node.speaker);
       const displayText = this.getTypewriterText(node);
       this.textBox.draw(this.formatSpeaker(node.speaker), displayText, node.speaker);
       this.drawStoryQuickMenu();
@@ -311,10 +323,12 @@ class Game {
 
     fill("#f6d365");
     textAlign(CENTER, CENTER);
+    this.useFont("title");
     textSize(42);
     text(endingText[this.state.ending] || this.state.endingText || "END", width / 2, 280);
 
     fill("#f5f2ea");
+    this.useFont("ui");
     textSize(24);
     text(`도파민 ${Math.round(this.state.dopamine)} / 호감도 ${Math.round(this.state.affection)}`, width / 2, 360);
 
@@ -585,6 +599,7 @@ class Game {
     rect(width - 114, 20, 86, 36, 18);
     fill("#fff5dc");
     textAlign(CENTER, CENTER);
+    this.useFont("uiBold");
     textSize(16);
     text(this.getEpisodeLabel(), width - 71, 38);
   }
@@ -593,7 +608,7 @@ class Game {
     const items = this.getStoryQuickMenuItems();
     const menuY = items.length > 0 ? items[0].y : 464;
 
-    this.saveButton.x = 76;
+    this.saveButton.x = width - 178;
     this.saveButton.y = menuY;
     this.saveButton.w = 68;
     this.saveButton.h = 28;
@@ -607,20 +622,19 @@ class Game {
       noStroke();
       fill(255, 255, 255, 218);
       textAlign(CENTER, CENTER);
+      this.useFont("uiBold");
       textSize(11);
       text(item.label, item.x + item.w / 2, item.y + item.h / 2);
     }
   }
 
   getStoryQuickMenuItems() {
-    const currentNode = this.getCurrentNode();
-    const isChoiceScreen = currentNode && currentNode.type === NODE_TYPES.CHOICE;
-    const menuY = isChoiceScreen ? 676 : 464;
+    const menuY = 464;
     const labels = ["대사록"];
 
     return labels.map((label, index) => ({
       label,
-      x: 154 + index * 78,
+      x: width - 100 + index * 78,
       y: menuY,
       w: 66,
       h: 28
@@ -643,6 +657,7 @@ class Game {
     fill("#ffffff");
     textAlign(CENTER, CENTER);
     textStyle(BOLD);
+    this.useFont("uiBold");
     textSize(12);
     text("CHOICE", promptX + 36, promptY + 11);
 
@@ -650,6 +665,7 @@ class Game {
     fill("#ffffff");
     textAlign(LEFT, TOP);
     textStyle(BOLD);
+    this.useFont("dialogueBold");
     textSize(28);
     text(prompt || "", promptX, promptY + 34, promptW, 38);
 
@@ -684,6 +700,7 @@ class Game {
 
     fill("#f6f1ff");
     textAlign(CENTER, CENTER);
+    this.useFont("ui");
     textSize(20);
     text("하루가 끝나면 잠에 들고, 도파민 게임으로 마음을 정리합니다.", width / 2, 632);
   }
@@ -704,13 +721,31 @@ class Game {
     this.changeScene(SCENES.STORY);
   }
 
-  drawCharacters() {
+  drawCharacters(activeSpeaker = null) {
+    if (this.isChatBackground()) {
+      this.drawChatCharacter(activeSpeaker);
+      return;
+    }
+
     const visibleCharacters = this.state.characters.filter((character) => this.character[character]);
     const characterLength = visibleCharacters.length;
 
     visibleCharacters.forEach((character, index) => {
       this.character[character].draw(index, characterLength);
     });
+  }
+
+  isChatBackground() {
+    return this.state.background === "카톡창 안" || this.state.background === "카톡방 화면";
+  }
+
+  drawChatCharacter(activeSpeaker) {
+    if (!activeSpeaker || activeSpeaker === "주인공" || activeSpeaker === "독백" || activeSpeaker === "나레이션") return;
+
+    const characterImage = this.character[activeSpeaker];
+    if (!characterImage) return;
+
+    characterImage.drawChatBustLeft();
   }
 
   processStoryCommandNodes() {
@@ -863,23 +898,91 @@ class Game {
       return;
     }
 
-    const sound = this.getSoundAsset(node.name, "bgm");
+    const sound = this.getOrLoadBgmAsset(node);
     if (!sound) {
       console.warn("Missing bgm asset: " + node.name);
       return;
     }
 
-    if (this.state.currentBgm === node.name && sound.isPlaying()) return;
+    if (this.state.currentBgm !== node.name) {
+      this.stopCurrentBgm();
+    }
 
-    this.stopCurrentBgm();
     this.state.currentBgm = node.name;
-    this.setSoundVolume(sound, node.volume);
+    this.pendingBgmNode = { ...node };
 
+    if (typeof sound.isLoaded === "function" && !sound.isLoaded()) return;
+
+    this.playBgmSound(node, sound);
+  }
+
+  getOrLoadBgmAsset(node) {
+    const cachedSound = this.getSoundAsset(node.name, "bgm");
+    if (cachedSound) return cachedSound;
+
+    const path = this.getBgmPath(node.name);
+    if (!path || typeof loadSound !== "function") return null;
+
+    const sound = loadSound(path, () => {
+      if (this.state.currentBgm !== node.name) return;
+      this.playBgmSound(this.pendingBgmNode || node, sound);
+    }, () => {
+      console.warn("Cannot load bgm asset: " + node.name);
+    });
+
+    this.assets.sounds.bgm[node.name] = sound;
+    return sound;
+  }
+
+  playBgmSound(node, sound) {
+    if (this.state.currentBgm !== node.name) return;
+    if (sound.isPlaying()) return;
+
+    this.setSoundVolume(sound, node.volume);
     if (node.loop === false) {
+      this.currentBgmLoop = null;
       sound.play();
     } else {
-      sound.loop();
+      this.currentBgmLoop = this.getBgmLoopPoints(node.name);
+      sound.play();
     }
+    this.pendingBgmNode = null;
+  }
+
+  updateBgmLoop() {
+    if (!this.currentBgmLoop) return;
+
+    const sound = this.getSoundAsset(this.currentBgmLoop.name, "bgm");
+    if (!sound || !sound.isPlaying()) return;
+    if (typeof sound.isLoaded === "function" && !sound.isLoaded()) return;
+    if (typeof sound.currentTime !== "function" || typeof sound.jump !== "function") return;
+
+    const loopEnd = this.currentBgmLoop.loopEnd || (typeof sound.duration === "function" ? sound.duration() : 0);
+    if (!loopEnd) return;
+
+    if (sound.currentTime() >= loopEnd - 0.04) {
+      sound.jump(this.currentBgmLoop.loopStart || 0);
+    }
+  }
+
+  getBgmConfig(name) {
+    const config = ASSET_MANIFEST.sounds.bgm && ASSET_MANIFEST.sounds.bgm[name];
+    if (!config) return null;
+    return typeof config === "string" ? { path: config } : config;
+  }
+
+  getBgmPath(name) {
+    const config = this.getBgmConfig(name);
+    return config ? config.path : null;
+  }
+
+  getBgmLoopPoints(name) {
+    const config = this.getBgmConfig(name) || {};
+    return {
+      name,
+      loopStart: config.loopStart || 0,
+      loopEnd: config.loopEnd || null
+    };
   }
 
   playSoundEffect(node) {
@@ -914,6 +1017,8 @@ class Game {
       sound.stop();
     }
     this.state.currentBgm = null;
+    this.pendingBgmNode = null;
+    this.currentBgmLoop = null;
   }
 
   stopSound(name, group) {
@@ -1110,6 +1215,7 @@ class Game {
     fill("#ffffff");
     textAlign(LEFT, CENTER);
     textStyle(BOLD);
+    this.useFont("uiBold");
     textSize(26);
     text("대사록", panel.x + 34, panel.y + 42);
     textStyle(NORMAL);
@@ -1124,6 +1230,7 @@ class Game {
     if (this.dialogueLog.length === 0) {
       fill(255, 255, 255, 180);
       textAlign(CENTER, CENTER);
+      this.useFont("ui");
       textSize(20);
       text("아직 기록된 대사가 없습니다.", panel.x + panel.w / 2, panel.y + panel.h / 2);
       return;
@@ -1147,11 +1254,13 @@ class Game {
       fill(speakerColor);
       textAlign(LEFT, TOP);
       textStyle(BOLD);
+      this.useFont("dialogueBold");
       textSize(15);
       text(speaker, rowX, y);
 
       fill("#ffffff");
       textStyle(NORMAL);
+      this.useFont("dialogue");
       textSize(18);
       textLeading(24);
       text(entry.text, rowX + 94, y - 2, rowW - 104, rowH - 8);
@@ -1159,6 +1268,7 @@ class Game {
 
     fill(255, 255, 255, 150);
     textAlign(RIGHT, CENTER);
+    this.useFont("ui");
     textSize(13);
     text(`${min(this.dialogueLog.length, start + 1)}-${min(this.dialogueLog.length, start + entries.length)} / ${this.dialogueLog.length}`, panel.x + panel.w - 84, panel.y + panel.h - 30);
   }
@@ -1171,6 +1281,7 @@ class Game {
     fill("#ffffff");
     textAlign(CENTER, CENTER);
     textStyle(BOLD);
+    this.useFont("uiBold");
     textSize(17);
     text("X", button.x + button.w / 2, button.y + button.h / 2);
     textStyle(NORMAL);
@@ -1184,6 +1295,7 @@ class Game {
     fill("#ffffff");
     textAlign(CENTER, CENTER);
     textStyle(BOLD);
+    this.useFont("uiBold");
     textSize(15);
     text(label, button.x + button.w / 2, button.y + button.h / 2);
     textStyle(NORMAL);
@@ -1349,6 +1461,7 @@ class Game {
         hoverText: "#ffffff",
         radius: 12,
         textSize: 19,
+        fontRole: "dialogueBold",
         align: "left",
         paddingX: 28,
         suffix: ">"
@@ -1502,6 +1615,7 @@ class Game {
     fill("#f5f2ea");
     textAlign(LEFT, CENTER);
     textStyle(BOLD);
+    this.useFont("uiBold");
     textSize(18);
     text(label, x + 12, y + 19);
     textStyle(NORMAL);
@@ -1523,6 +1637,7 @@ class Game {
 
     fill(label === "도파민" ? this.getDopamineZoneColor(value) : "#f5f2ea");
     textAlign(RIGHT, CENTER);
+    this.useFont("uiBold");
     textSize(18);
     text(Math.round(value), x + 112, y + 19);
   }
@@ -1545,6 +1660,7 @@ class Game {
       fill(255, 255, 255, 188);
       textAlign(CENTER, TOP);
       textStyle(BOLD);
+      this.useFont("uiBold");
       textSize(10);
       text(milestone, markerX, y + h + 1);
       textStyle(NORMAL);
@@ -1591,6 +1707,7 @@ class Game {
     fill(positive ? 255 : 106, positive ? 218 : 211, positive ? 112 : 255, alpha);
     textAlign(CENTER, CENTER);
     textStyle(BOLD);
+    this.useFont("uiBold");
     textSize(21);
     text(label, x + 366, y + 19 + offsetY);
     textStyle(NORMAL);

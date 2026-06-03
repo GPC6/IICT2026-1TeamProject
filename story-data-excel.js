@@ -1,4 +1,4 @@
-// Generated from ../도파민때문에_시나리오_proto.xlsx.
+// Generated from ../도파민때문에_시나리오_proto_2.xlsx.
 const STORY_START_EPISODE = "EP1 첫만남";
 const EPISODES = {
   "EP1 첫만남": [
@@ -429,56 +429,12 @@ const EPISODES = {
       "prompt": "안녕하세요!",
       "choices": [
         {
-          "text": "(당연히 기억 못하겠지) 여기... 앉을게요.",
+          "text": "(당연히 기억 못하겠지) 안녕하세요~ 건축학과 000입니다",
           "follow": [],
-          "condition": {
-            "dopamineMax": 50
-          },
           "nextNode": 19
         },
         {
-          "text": "...여기 자리 있나요?",
-          "follow": [
-            {
-              "speaker": "수진",
-              "text": "앉으셔도 돼요!"
-            },
-            {
-              "speaker": "주인공",
-              "text": "저는 건축학과 000이라고 합니다."
-            }
-          ],
-          "condition": {
-            "dopamineMax": 50
-          },
-          "effects": {
-            "affection": 10
-          },
-          "nextNode": 19
-        },
-        {
-          "text": "안녕하세요, 여기 앉아도 될까요?",
-          "follow": [
-            {
-              "speaker": "수진",
-              "text": "넵!"
-            },
-            {
-              "speaker": "주인공",
-              "text": "저는 건축학과 000이라고 합니다."
-            }
-          ],
-          "condition": {
-            "dopamineMin": 51,
-            "dopamineMax": 80
-          },
-          "effects": {
-            "affection": 15
-          },
-          "nextNode": 19
-        },
-        {
-          "text": "오! 그때 혹시 편의점… 기억하세요?",
+          "text": "그때 혹시 편의점… 기억하세요?",
           "follow": [
             {
               "speaker": "수진",
@@ -491,70 +447,10 @@ const EPISODES = {
             {
               "speaker": "주인공",
               "text": "하하 저는 건축학과 000입니다."
-            },
-            {
-              "speaker": "수진",
-              "text": "아 네ㅎㅎ 이제 기억할게요!"
             }
           ],
-          "condition": {
-            "dopamineMin": 51,
-            "dopamineMax": 80
-          },
           "effects": {
-            "affection": 20
-          },
-          "nextNode": 19
-        },
-        {
-          "text": "오! 그때 혹시 편의점… 기억하세요?",
-          "follow": [
-            {
-              "speaker": "수진",
-              "text": "앗…저희가 뵌 적이 있을까요?"
-            },
-            {
-              "speaker": "주인공",
-              "text": "아하… 하긴 손님이 많으니…"
-            },
-            {
-              "speaker": "주인공",
-              "text": "하하 저는 건축학과 000입니다."
-            },
-            {
-              "speaker": "수진",
-              "text": "아 네ㅎㅎ 이제 기억할게요!"
-            }
-          ],
-          "condition": {
-            "dopamineMin": 81
-          },
-          "effects": {
-            "affection": 15
-          },
-          "nextNode": 19
-        },
-        {
-          "text": "오 반가워요!!! 또 만났네요!",
-          "follow": [
-            {
-              "speaker": "수진",
-              "text": "죄송한데 혹시 누구…?"
-            },
-            {
-              "speaker": "주인공",
-              "text": "앗… 민망…"
-            },
-            {
-              "speaker": "주인공",
-              "text": "저는 건축학과 000이에요…"
-            }
-          ],
-          "condition": {
-            "dopamineMin": 81
-          },
-          "effects": {
-            "affection": 5
+            "dopamine": 7
           },
           "nextNode": 19
         }
@@ -795,56 +691,154 @@ const EPISODES = {
       "id": 53
     },
     {
-      "type": "dialogue",
-      "speaker": "주인공",
-      "text": "네 ㅎㅎ",
+      "type": "choice",
+      "prompt": "너무 부담 갖지 마요, 알았죠?",
+      "choices": [
+        {
+          "text": "활발하시고 좋네요.... (피곤하다)",
+          "follow": [
+            {
+              "speaker": "수진",
+              "text": "하하, 맞아요. 건호가 원래 저래요."
+            }
+          ],
+          "condition": {
+            "dopamineMax": 50
+          },
+          "nextNode": 55
+        },
+        {
+          "text": "네.... 에너지가 조금 많이 넘치시네요....",
+          "follow": [
+            {
+              "speaker": "수진",
+              "text": "OO씨 기 빨렸죠?"
+            },
+            {
+              "speaker": "수진",
+              "text": "저도 가끔 그래요."
+            },
+            {
+              "speaker": "건호",
+              "text": "야! 내가 무슨 발전기냐?"
+            }
+          ],
+          "condition": {
+            "dopamineMax": 50
+          },
+          "nextNode": 55
+        },
+        {
+          "text": "걱정 마세요ㅎㅎ",
+          "follow": [],
+          "condition": {
+            "dopamineMin": 51,
+            "dopamineMax": 80
+          },
+          "nextNode": 55
+        },
+        {
+          "text": "네, 저희 다같이 잘 지내봐요~",
+          "follow": [],
+          "condition": {
+            "dopamineMin": 51,
+            "dopamineMax": 80
+          },
+          "nextNode": 55
+        },
+        {
+          "text": "두 분 되게 친해 보이시네요?!!?",
+          "follow": [
+            {
+              "speaker": "수진",
+              "text": "아, 워낙 오래 알아서 그런가봐요..ㅎㅎ"
+            }
+          ],
+          "condition": {
+            "dopamineMin": 81
+          },
+          "nextNode": 55
+        },
+        {
+          "text": "전 또 남자친구인 줄 알았네요.",
+          "follow": [
+            {
+              "speaker": "수진",
+              "text": "네???"
+            },
+            {
+              "speaker": "수진",
+              "text": "쟤랑요?"
+            },
+            {
+              "speaker": "건호",
+              "text": "야, 왜 그렇게 놀라는데!"
+            },
+            {
+              "speaker": "수진",
+              "text": "아무튼 아니에요. 진짜 아니에요."
+            }
+          ],
+          "condition": {
+            "dopamineMin": 81
+          },
+          "nextNode": 55
+        }
+      ],
       "id": 54
     },
     {
-      "type": "choice",
-      "prompt": "네 ㅎㅎ",
-      "choices": [
-        {
-          "text": "수진 씨, 저희도 혹시 말을 놓을까요?",
-          "follow": [],
-          "nextNode": 56
-        },
-        {
-          "text": "저도 혹시 말 편하게 해도 돼요?",
-          "follow": [],
-          "nextNode": 56
-        }
-      ],
+      "type": "character in",
+      "name": "혜지",
+      "emotion": "Normal",
       "id": 55
+    },
+    {
+      "type": "dialogue",
+      "speaker": "혜지",
+      "text": "암튼! 이렇게 만난 것도 인연인데! 앞으로 동아리 잘 해보자~",
+      "id": 56
     },
     {
       "type": "character in",
       "name": "수진",
       "emotion": "Happy",
-      "id": 56
-    },
-    {
-      "type": "dialogue",
-      "speaker": "수진",
-      "text": "오 좋아!",
       "id": 57
     },
     {
       "type": "dialogue",
-      "speaker": "독백",
-      "text": "(내 첫사랑, 정말로 시작되는 건가?)",
+      "speaker": "수진",
+      "text": "그래! 기대된다 ㅎㅎ",
       "id": 58
     },
     {
-      "type": "clear background",
+      "type": "dialogue",
+      "speaker": "독백",
+      "text": "(수진씨… 예쁘다)",
       "id": 59
+    },
+    {
+      "type": "character in",
+      "name": "수진",
+      "emotion": "Happy",
+      "id": 60
+    },
+    {
+      "type": "dialogue",
+      "speaker": "독백",
+      "text": "(…내 첫사랑, 정말로 시작되는 건가?)",
+      "id": 61
+    },
+    {
+      "type": "clear background",
+      "id": 62
     },
     {
       "type": "move",
       "next": "MINIGAME",
       "minigame": "sideShooter",
       "after": "EP3 동아리 MT",
-      "id": 60
+      "id": 63
     }
   ],
   "EP3 동아리 MT": [
@@ -2547,6 +2541,9 @@ const EPISODES = {
       "type": "dialogue",
       "speaker": "혜지",
       "text": "야, 대학와서 미팅 한 번 쯤은 해봐야지!",
+      "effects": {
+        "dopamine": 3
+      },
       "id": 13
     },
     {
@@ -2740,9 +2737,6 @@ const EPISODES = {
             "dopamineMin": 51,
             "dopamineMax": 80
           },
-          "effects": {
-            "dopamine": 3
-          },
           "nextNode": 33
         },
         {
@@ -2768,9 +2762,6 @@ const EPISODES = {
             "dopamineMin": 51,
             "dopamineMax": 80
           },
-          "effects": {
-            "dopamine": 3
-          },
           "nextNode": 33
         },
         {
@@ -2793,10 +2784,7 @@ const EPISODES = {
             },
             {
               "speaker": "주인공",
-              "text": "아 장난이야ㅎ",
-              "effects": {
-                "dopamine": 5
-              }
+              "text": "아 장난이야ㅎ"
             },
             {
               "speaker": "수진",
@@ -2824,10 +2812,7 @@ const EPISODES = {
             },
             {
               "speaker": "수진",
-              "text": "뭐야, 내가 알아서 할게!",
-              "effects": {
-                "dopamine": 7
-              }
+              "text": "뭐야, 내가 알아서 할게!"
             }
           ],
           "condition": {
@@ -2854,9 +2839,6 @@ const EPISODES = {
       "type": "dialogue",
       "speaker": "수진",
       "text": "나 미팅 안 나가기로 했어!",
-      "effects": {
-        "dopamine": 3
-      },
       "id": 35
     },
     {
@@ -2886,10 +2868,7 @@ const EPISODES = {
           "follow": [
             {
               "speaker": "수진",
-              "text": "ㅋㅋㅋㅋㅋ너는 왜 다행이야",
-              "effects": {
-                "dopamine": 3
-              }
+              "text": "ㅋㅋㅋㅋㅋ너는 왜 다행이야"
             },
             {
               "speaker": "주인공",
@@ -3085,9 +3064,6 @@ const EPISODES = {
             {
               "speaker": "수진",
               "text": "와 됐다!",
-              "effects": {
-                "dopamine": 3
-              },
               "sound": {
                 "soundType": "effect",
                 "action": "play",
@@ -3143,9 +3119,6 @@ const EPISODES = {
             {
               "speaker": "수진",
               "text": "아 됐다! (하이파이브를 하며 웃는다)",
-              "effects": {
-                "dopamine": 5
-              },
               "sound": {
                 "soundType": "effect",
                 "action": "play",
@@ -3177,7 +3150,6 @@ const EPISODES = {
               "speaker": "주인공",
               "text": "(드르륵, 나사를 넣는다) 오 됐다!",
               "effects": {
-                "dopamine": 3,
                 "affection": 20
               },
               "sound": {
@@ -3212,7 +3184,6 @@ const EPISODES = {
               "speaker": "주인공",
               "text": "(드르륵, 나사를 넣는다) 오 됐다!",
               "effects": {
-                "dopamine": 3,
                 "affection": 10
               },
               "sound": {
@@ -3249,9 +3220,6 @@ const EPISODES = {
             {
               "speaker": "수진",
               "text": "와 드디어 됐다! 선배 여기요!",
-              "effects": {
-                "dopamine": 3
-              },
               "sound": {
                 "soundType": "effect",
                 "action": "play",
@@ -3284,9 +3252,6 @@ const EPISODES = {
       "type": "dialogue",
       "speaker": "수진",
       "text": "어..(수진이 울먹거리며 눈물을 흘린다)",
-      "effects": {
-        "dopamine": 3
-      },
       "id": 24
     },
     {
@@ -3486,12 +3451,6 @@ const EPISODES = {
       "speaker": "수진",
       "text": "(수진이 걸음을 멈춘다.)",
       "id": 19
-    },
-    {
-      "type": "dialogue",
-      "speaker": "수진",
-      "text": "나도 너.. 좋아해!",
-      "id": 20
     },
     {
       "type": "dialogue",
