@@ -2,7 +2,7 @@ const SPEAKER_COLORS = {
   수진: "#f48fb1",
   혜지: "#b39ddb",
   건호: "#90caf9",
-  마스코트: "#ffb86c",
+  파미니: "#ffb86c",
   주인공: "#ffffff",
   나레이션: "#cfd8dc",
   독백: "#ffffff",
@@ -131,10 +131,10 @@ class CharacterImage {
     imageMode(CENTER)
   }
 
-  draw(i, char_len) {
+  draw(i, char_len, yOffset = 0) {
     let w = 250;
     let h = w * this.img.height / this.img.width;
-    const y = height / 1.5;
+    const y = height / 1.5 + yOffset;
     if (char_len == 1) {
       image(this.img, width / 2, y, w, h);
     }

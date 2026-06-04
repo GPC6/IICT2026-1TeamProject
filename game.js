@@ -17,6 +17,7 @@ class Game {
       selectedSubGame: null,
       selectedSubGameReturn: null,
       selectedSubGameReturnNode: null,
+      selectedSubGameOptions: null,
       pendingNodes: [],
       playerName: localStorage.getItem("dopaPlayerName") || "",
       endingText: null
@@ -150,7 +151,8 @@ class Game {
   openNameConfirm() {
     const name = (this.nameInput.value || "").trim().slice(0, 6) || "현수";
     this.pendingPlayerName = name;
-    this.nameConfirmText.textContent = `당신의 이름은 [${name}](이)가 맞습니까?`;
+    const josa = window.KoreanJosa ? window.KoreanJosa.pick(name, "이/가") : "(이)가";
+    this.nameConfirmText.textContent = `당신의 이름은 [${name}]${josa} 맞습니까?`;
     this.nameEntry.hidden = true;
     this.nameConfirm.hidden = false;
   }
@@ -165,6 +167,10 @@ class Game {
   changeScene(scene) {
     this.state.scene = scene;
 
+    if (scene === SCENES.DOPAMINE_READY) {
+      this.resetDopamineForReady();
+    }
+
     if (scene === SCENES.STORY) {
       this.refreshChoices();
     }
@@ -172,6 +178,10 @@ class Game {
     if (scene === SCENES.MINIGAME) {
       this.startSelectedSubGame();
     }
+  }
+
+  resetDopamineForReady() {
+    this.state.dopamine = Math.round(40 + Math.random() * 10);
   }
 
   getStartEpisodeId() {
@@ -210,12 +220,25 @@ class Game {
 
     this.unlockAudio();
 
-    if (this.state.scene === SCENES.TITLE) this.titleButton.mousePressed();
-    if (this.state.scene === SCENES.TITLE) this.loadButton.mousePressed();
-    if (this.state.scene === SCENES.STORY) this.handleStoryClick();
-    if (this.state.scene === SCENES.DOPAMINE_READY) this.handleDopamineReadyClick();
-    if (this.state.scene === SCENES.MINIGAME && this.subGame) this.subGame.mousePressed();
-    if (this.state.scene === SCENES.ENDING) this.restartButton.mousePressed();
+    const scene = this.state.scene;
+    if (scene === SCENES.TITLE) {
+      this.titleButton.mousePressed();
+      this.loadButton.mousePressed();
+      return;
+    }
+    if (scene === SCENES.STORY) {
+      this.handleStoryClick();
+      return;
+    }
+    if (scene === SCENES.DOPAMINE_READY) {
+      this.handleDopamineReadyClick();
+      return;
+    }
+    if (scene === SCENES.MINIGAME && this.subGame) {
+      this.subGame.mousePressed();
+      return;
+    }
+    if (scene === SCENES.ENDING) this.restartButton.mousePressed();
   }
 
   isNameOverlayOpen() {
@@ -292,6 +315,7 @@ class Game {
       const displayText = this.getTypewriterText(node);
       this.textBox.draw(this.formatSpeaker(node.speaker), displayText, node.speaker);
       this.drawStoryQuickMenu();
+      this.drawDopamineDeltaPopup();
       return;
     }
 
@@ -300,6 +324,7 @@ class Game {
       this.drawChoiceOverlay(this.formatStoryText(node.prompt));
       this.choiceButtons.forEach((button) => button.draw());
       this.drawStoryQuickMenu();
+      this.drawDopamineDeltaPopup();
       return;
     }
 
@@ -340,6 +365,16 @@ class Game {
 
     if (this.state.background === "dummy") {
       this.drawSceneImage("convenienceStore", false);
+      return;
+    }
+
+    if (this.state.background === "검은 배경") {
+      background("#000000");
+      return;
+    }
+
+    if (this.state.background === "꿈속") {
+      this.drawDreamBackground();
       return;
     }
 
@@ -391,7 +426,7 @@ class Game {
 
     if (progress < fadeOutEnd) {
       const fadeProgress = progress / fadeOutEnd;
-      this.drawBackgroundAsset(this.backgroundTransition.fromImage);
+      this.drawTransitionBackground(this.backgroundTransition.fromName, this.backgroundTransition.fromImage);
       this.drawBlackOverlay(255 * fadeProgress);
       return;
     }
@@ -402,7 +437,7 @@ class Game {
     }
 
     const fadeProgress = (progress - blackHoldEnd) / (1 - blackHoldEnd);
-    this.drawBackgroundAsset(this.backgroundTransition.toImage);
+    this.drawTransitionBackground(this.backgroundTransition.toName, this.backgroundTransition.toImage);
     this.drawBlackOverlay(255 * (1 - fadeProgress));
   }
 
@@ -412,7 +447,7 @@ class Game {
 
     if (elapsed < fadeOutDuration) {
       const fadeProgress = elapsed / fadeOutDuration;
-      this.drawBackgroundAsset(this.backgroundTransition.fromImage);
+      this.drawTransitionBackground(this.backgroundTransition.fromName, this.backgroundTransition.fromImage);
       this.drawBlackOverlay(255 * fadeProgress);
       return;
     }
@@ -430,6 +465,20 @@ class Game {
       revealProgress,
       this.backgroundTransition.direction
     );
+  }
+
+  drawTransitionBackground(name, imageAsset) {
+    if (name === "검은 배경") {
+      background("#000000");
+      return;
+    }
+
+    if (name === "꿈속") {
+      this.drawDreamBackground();
+      return;
+    }
+
+    this.drawBackgroundAsset(imageAsset);
   }
 
   drawBackgroundAsset(imageAsset, alpha = 255, offsetX = 0) {
@@ -492,6 +541,49 @@ class Game {
     rect(0, 0, width, height);
   }
 
+  drawDreamBackground() {
+    const topColor = color("#101326");
+    const middleColor = color("#353064");
+    const bottomColor = color("#13223f");
+
+    noStroke();
+    for (let y = 0; y < height; y += 3) {
+      const t = y / height;
+      const c = t < 0.55
+        ? lerpColor(topColor, middleColor, t / 0.55)
+        : lerpColor(middleColor, bottomColor, (t - 0.55) / 0.45);
+      fill(c);
+      rect(0, y, width, 3);
+    }
+
+    const time = this.getTimeMs() * 0.00035;
+    noFill();
+    for (let i = 0; i < 9; i++) {
+      const y = 130 + i * 54 + Math.sin(time + i) * 8;
+      const alpha = 26 + i * 4;
+      stroke(215, 226, 255, alpha);
+      strokeWeight(1.5);
+      beginShape();
+      for (let x = -80; x <= width + 80; x += 48) {
+        vertex(x, y + Math.sin(x * 0.012 + time * 2 + i * 0.7) * 18);
+      }
+      endShape();
+    }
+
+    noStroke();
+    for (let i = 0; i < 70; i++) {
+      const x = (i * 173 + Math.sin(time + i) * 22) % width;
+      const y = 36 + ((i * 97) % Math.floor(height * 0.68));
+      const a = 60 + 70 * Math.abs(Math.sin(time * 2 + i));
+      fill(246, 241, 220, a);
+      rect(x, y, 2, 2);
+    }
+
+    fill(255, 255, 255, 18);
+    rect(0, 0, width, height);
+  }
+
+
   easeInOutCubic(t) {
     return t < 0.5
       ? 4 * t * t * t
@@ -501,10 +593,15 @@ class Game {
   getBackgroundAsset(name) {
     if (!name) return null;
     if (name === "dummy") return this.assets.backgrounds.convenienceStore || null;
+    if (this.isSpecialBackground(name)) return null;
     return this.assets.backgrounds[name] || null;
   }
 
-  startBackgroundTransition(fromImage, toImage, options = "fadeBlack") {
+  isSpecialBackground(name) {
+    return name === "검은 배경" || name === "꿈속";
+  }
+
+  startBackgroundTransition(fromImage, toImage, options = "none") {
     const transitionOptions = this.normalizeBackgroundTransitionOptions(options);
     if (transitionOptions.type === "none") return false;
 
@@ -517,7 +614,9 @@ class Game {
       direction: transitionOptions.direction,
       fadeOutDuration: transitionOptions.fadeOutDuration,
       blackHoldDuration: transitionOptions.blackHoldDuration,
-      slideDuration: transitionOptions.slideDuration
+      slideDuration: transitionOptions.slideDuration,
+      fromName: options.fromName,
+      toName: options.toName
     };
 
     return true;
@@ -530,7 +629,7 @@ class Game {
       : { type: rawOptions };
 
     return {
-      type: options.type || options.name || rawOptions || "fadeBlack",
+      type: options.type || options.name || (rawOptions ? "fadeBlack" : "none"),
       duration: options.duration ?? node.transitionDuration,
       direction: options.direction ?? node.transitionDirection,
       slideDuration: options.slideDuration ?? options.revealDuration ?? node.transitionSlideDuration
@@ -561,7 +660,7 @@ class Game {
   }
 
   normalizeBackgroundTransitionType(type) {
-    const transitionType = String(type || "fadeBlack").toLowerCase();
+    const transitionType = String(type || "none").toLowerCase();
 
     if (transitionType === "none" || transitionType === "cut" || transitionType === "instant") return "none";
     if (transitionType === "fadeslide" || transitionType === "fade-slide" || transitionType === "slide") return "fadeSlide";
@@ -687,7 +786,10 @@ class Game {
     fill(0, 0, 0, 58);
     rect(0, 0, width, height);
 
-    this.drawMeter(826, 298, "도파민", this.state.dopamine, "#e94c8a");
+    this.drawMeter(826, 298, "도파민", this.state.dopamine, "#e94c8a", {
+      width: 312,
+      showMilestones: false
+    });
 
     this.dopamineStartButton.draw();
     this.dopamineSkipButton.draw();
@@ -706,9 +808,15 @@ class Game {
   }
 
   handleDopamineReadyClick() {
-    this.saveButton.mousePressed();
-    this.dopamineStartButton.mousePressed();
-    this.dopamineSkipButton.mousePressed();
+    if (this.pressButton(this.saveButton)) return;
+    if (this.pressButton(this.dopamineStartButton)) return;
+    this.pressButton(this.dopamineSkipButton);
+  }
+
+  pressButton(button) {
+    if (!button.contains(mouseX, mouseY)) return false;
+    button.mousePressed();
+    return true;
   }
 
   skipSelectedSubGame() {
@@ -731,8 +839,12 @@ class Game {
     const characterLength = visibleCharacters.length;
 
     visibleCharacters.forEach((character, index) => {
-      this.character[character].draw(index, characterLength);
+      this.character[character].draw(index, characterLength, this.getCharacterYOffset(character));
     });
+  }
+
+  getCharacterYOffset(character) {
+    return character === "파미니" ? -72 : 0;
   }
 
   isChatBackground() {
@@ -767,18 +879,22 @@ class Game {
         const previousImage = this.getBackgroundAsset(previousBackground);
         this.state.background = node.name;
         const image = this.getBackgroundAsset(node.name);
-        if (!image) {
+        if (!image && !this.isSpecialBackground(node.name)) {
           console.warn("Missing background asset: " + node.name);
         }
         this.backgroundImage = image ? new BackgroundImage(image) : null;
         this.advanceCurrentNode();
         processed = true;
 
-        if (previousBackground !== node.name && (previousImage || image)) {
+        if (previousBackground !== node.name && (previousImage || image || this.isSpecialBackground(previousBackground) || this.isSpecialBackground(node.name))) {
           const didStartTransition = this.startBackgroundTransition(
             previousImage,
             image,
-            this.getBackgroundTransitionOptions(node)
+            {
+              ...this.getBackgroundTransitionOptions(node),
+              fromName: previousBackground,
+              toName: node.name
+            }
           );
           if (didStartTransition) return null;
         }
@@ -830,6 +946,7 @@ class Game {
           this.state.selectedSubGame = node.minigame || node.subGame || SUB_GAMES.BRICK_BREAKER;
           this.state.selectedSubGameReturn = node.after || "EP_AFTER_MINIGAME";
           this.state.selectedSubGameReturnNode = node.afterNode || null;
+          this.state.selectedSubGameOptions = this.getSubGameOptions(node);
           this.changeScene(SCENES.DOPAMINE_READY);
           return null;
         }
@@ -1479,7 +1596,7 @@ class Game {
 
     if (choice.next) {
       console.warn("Legacy choice.next used. Prefer nextNode and a move node.");
-      this.goToNextTarget(choice.next, choice.minigame || choice.subGame, choice.after);
+      this.goToNextTarget(choice.next, choice.minigame || choice.subGame, choice.after, choice.options);
     }
   }
 
@@ -1496,13 +1613,14 @@ class Game {
     this.refreshChoices();
   }
 
-  goToNextTarget(next, subGameId = null, after = null) {
+  goToNextTarget(next, subGameId = null, after = null, options = null) {
     if (this.state.pendingNodes.length > 0) {
       this.state.pendingNodes.push({
         type: NODE_TYPES.MOVE,
         next,
         minigame: subGameId,
-        after
+        after,
+        options
       });
       return;
     }
@@ -1511,6 +1629,7 @@ class Game {
       this.state.selectedSubGame = subGameId || SUB_GAMES.BRICK_BREAKER;
       this.state.selectedSubGameReturn = after || "EP_AFTER_MINIGAME";
       this.state.selectedSubGameReturnNode = null;
+      this.state.selectedSubGameOptions = this.getSubGameOptions({ options });
       this.changeScene(SCENES.DOPAMINE_READY);
       return;
     }
@@ -1553,7 +1672,24 @@ class Game {
       return;
     }
 
-    this.subGame = new SubGameClass(this.state.dopamine);
+    this.playSubGameBgm(subGame);
+    this.subGame = new SubGameClass(this.state.dopamine, this.state.selectedSubGameOptions || {});
+  }
+
+  getSubGameOptions(node = {}) {
+    const options = node.options || node.subGameOptions || node.minigameOptions || null;
+    return options && typeof options === "object" && !Array.isArray(options)
+      ? { ...options }
+      : {};
+  }
+
+  playSubGameBgm(subGame) {
+    const bgmName = (subGame && subGame.bgm) || "game1";
+    this.handleBgmNode({
+      type: NODE_TYPES.SOUND,
+      soundType: "bgm",
+      name: bgmName
+    }, "play");
   }
 
   finishSubGame() {
@@ -1567,6 +1703,7 @@ class Game {
     this.state.selectedSubGame = null;
     this.state.selectedSubGameReturn = null;
     this.state.selectedSubGameReturnNode = null;
+    this.state.selectedSubGameOptions = null;
     this.moveTo(returnEpisodeId, returnNodeId);
     this.changeScene(SCENES.STORY);
   }
@@ -1604,14 +1741,16 @@ class Game {
 
   drawStatus() {
     this.drawMeter(32, 28, "도파민", this.state.dopamine, this.getDopamineZoneColor(this.state.dopamine));
-    this.drawDopamineDeltaPopup(32, 28);
     // this.drawMeter(32, 74, "호감도", this.state.affection, "#6cc4a1");
   }
 
-  drawMeter(x, y, label, value, colorHex) {
+  drawMeter(x, y, label, value, colorHex, options = {}) {
+    const meterW = options.width || 318;
+    const showMilestones = options.showMilestones !== false;
+
     noStroke();
     fill("#2f2d5d");
-    rect(x, y, 318, 38, 4);
+    rect(x, y, meterW, 38, 4);
     fill("#f5f2ea");
     textAlign(LEFT, CENTER);
     textStyle(BOLD);
@@ -1622,14 +1761,14 @@ class Game {
 
     const barX = x + 126;
     const barY = y + 12;
-    const barW = 154;
+    const barW = Math.max(96, meterW - 164);
     const barH = 14;
     fill("#f0f2fa");
     rect(barX, barY, barW, barH, 7);
 
     if (label === "도파민") {
       this.drawDopamineMeterFill(barX, barY, barW, barH, value);
-      this.drawDopamineMilestoneMarks(barX, barY, barW, barH);
+      if (showMilestones) this.drawDopamineMilestoneMarks(barX, barY, barW, barH);
     } else {
       fill(colorHex);
       rect(barX, barY, map(value, 0, 100, 0, barW), barH, 7);
@@ -1643,7 +1782,7 @@ class Game {
   }
 
   drawDopamineMeterFill(x, y, w, h, value) {
-    const filledW = map(value, 0, 100, 0, w);
+    const filledW = constrain(map(value, 0, 100, 0, w), 0, w);
     fill(this.getDopamineZoneColor(value));
     rect(x, y, filledW, h, 7);
   }
@@ -1684,7 +1823,7 @@ class Game {
     return zone ? zone.color : "#e94c8a";
   }
 
-  drawDopamineDeltaPopup(x, y) {
+  drawDopamineDeltaPopup() {
     if (!this.dopamineDeltaPopup) return;
 
     const elapsed = this.getTimeMs() - this.dopamineDeltaPopup.startedAt;
@@ -1696,21 +1835,30 @@ class Game {
     const progress = elapsed / this.dopamineDeltaPopup.duration;
     const fadeProgress = progress < 0.35 ? 0 : (progress - 0.35) / 0.65;
     const alpha = 255 * (1 - fadeProgress);
-    const offsetY = -18 * progress;
+    const offsetY = -16 * progress;
+    const scaleAmount = 1 + 0.08 * (1 - Math.min(1, progress * 4));
     const amount = Math.round(this.dopamineDeltaPopup.amount);
-    const label = `${amount > 0 ? "+" : ""}${amount}`;
+    const label = `${amount > 0 ? "+" : ""}${amount} 도파민`;
     const positive = amount > 0;
+    const popupW = 132;
+    const popupH = 38;
+    const popupX = width - popupW - 76;
+    const popupY = this.textBox.y - 50 + offsetY;
 
+    push();
+    translate(popupX + popupW / 2, popupY + popupH / 2);
+    scale(scaleAmount);
     noStroke();
     fill(0, 0, 0, alpha * 0.62);
-    rect(x + 332, y + 2 + offsetY, 68, 34, 17);
+    rect(-popupW / 2, -popupH / 2, popupW, popupH, 19);
     fill(positive ? 255 : 106, positive ? 218 : 211, positive ? 112 : 255, alpha);
     textAlign(CENTER, CENTER);
     textStyle(BOLD);
     this.useFont("uiBold");
-    textSize(21);
-    text(label, x + 366, y + 19 + offsetY);
+    textSize(18);
+    text(label, 0, 0);
     textStyle(NORMAL);
+    pop();
   }
 
   shouldShowDopamineMeter() {
@@ -1748,6 +1896,7 @@ class Game {
       주인공: "#ffffff",
       나레이션: "#cfd8dc",
       독백: "#ffffff",
+      파미니: "#ffb86c",
       선택: "#ffd166"
     };
 
@@ -1760,6 +1909,9 @@ class Game {
 
   formatStoryText(text) {
     const playerName = this.state.playerName || "현수";
+    if (window.KoreanJosa) {
+      return window.KoreanJosa.replaceNameTokens(text, playerName);
+    }
     return (text || "").replace(/000|OO/g, playerName);
   }
 

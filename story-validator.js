@@ -53,6 +53,7 @@ function validateStoryData() {
         validateMoveTarget(node.next, node.nextNode, location);
         validateSubGameTarget(node.minigame || node.subGame, node.next, location);
         validateSubGameReturn(node.after, node.afterNode, node.next, location);
+        validateSubGameOptions(node, location);
       }
 
       if (node.type === NODE_TYPES.DIALOGUE) {
@@ -218,6 +219,32 @@ function validateSubGameReturn(after, afterNode, next, location) {
 
   if (afterNode !== null && afterNode !== undefined) {
     validateNodeTarget(after, afterNode, location);
+  }
+}
+
+function validateSubGameOptions(node, location) {
+  if (node.next !== NEXT_TARGETS.MINIGAME) return;
+
+  const options = node.options || node.subGameOptions || node.minigameOptions;
+  if (options === undefined) return;
+
+  if (!options || typeof options !== "object" || Array.isArray(options)) {
+    console.warn("Sub game options must be an object at " + location);
+    return;
+  }
+
+  validateOptionNumber(options, "maxTurns", 1, 30, location);
+  validateOptionNumber(options, "difficulty", 0, 10, location);
+  validateOptionNumber(options, "durationSeconds", 5, 180, location);
+  validateOptionNumber(options, "maxDuration", 5, 180, location);
+  validateOptionNumber(options, "maxSeconds", 5, 180, location);
+}
+
+function validateOptionNumber(options, key, min, max, location) {
+  if (options[key] === undefined) return;
+
+  if (typeof options[key] !== "number" || options[key] < min || options[key] > max) {
+    console.warn("Sub game option " + key + " must be a number from " + min + " to " + max + " at " + location);
   }
 }
 

@@ -37,22 +37,26 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(CONFIG.width, CONFIG.height);
+  const canvas = createCanvas(CONFIG.width, CONFIG.height);
+  canvas.elt.addEventListener("contextmenu", (event) => event.preventDefault());
   textFont(assets.fonts.ui || "Malgun Gothic, sans-serif");
 
   game = new Game(assets);
 }
 
 function draw() {
+  if (!game) return;
   game.update();
   game.draw();
 }
 
 function mousePressed() {
+  if (!game) return;
   game.mousePressed();
 }
 
 function keyPressed() {
+  if (!game) return;
   game.keyPressed();
 }
 

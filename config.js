@@ -39,11 +39,13 @@ const SUB_GAMES = {
 const SUB_GAME_MANIFEST = {
   [SUB_GAMES.BRICK_BREAKER]: {
     title: "도파민 벽돌깨기",
-    className: "BrickBreakerGame"
+    className: "BrickBreakerGame",
+    bgm: "game1"
   },
   [SUB_GAMES.SIDE_SHOOTER]: {
     title: "뉴럴 사이드 슈터",
-    className: "SideShooterGame"
+    className: "SideShooterGame",
+    bgm: "game2"
   }
 };
 
@@ -81,7 +83,7 @@ const ASSET_MANIFEST = {
     "(CG) 천장에서 귀신이 떨어지는 걸 보고 놀라는 수진": "./assets/bg/escape_room_jump_scare.png",
     "예쁜 파스타집": "./assets/bg/pasta_restaurant.png",
     "길거리": "./assets/bg/university_street_night.png",
-    "(CG) 예쁜 파스타집에 있는 주인공과 수진": "./assets/bg/pasta_restaurant_cg.png",
+    "(CG) 예쁜 파스타집에 있는 주인공과 수진": "./assets/bg/pasta_sujin_seated_cg.png",
     "(CG) 예쁜 파스타집에 앉은 수진": "./assets/bg/pasta_sujin_seated_cg.png",
     "(CG) 파스타집을 나와 걸어가는 주인공과 수진": "./assets/bg/pasta_night_walk_cg.png",
     "예쁜 파스타": "./assets/bg/pasta_food_closeup.png",
@@ -191,10 +193,10 @@ const ASSET_MANIFEST = {
       hopeful: "./assets/char_new/Geonho_expectant.png",
       Sad: "./assets/char_new/Geonho_sad.png"
     },
-    마스코트: {
-      default: "./assets/char_new/mascot_normal.png",
-      일반: "./assets/char_new/mascot_normal.png",
-      Normal: "./assets/char_new/mascot_normal.png"
+    파미니: {
+      default: "./assets/mascot/dopamine_mascot_concept_v1.png",
+      일반: "./assets/mascot/dopamine_mascot_concept_v1.png",
+      Normal: "./assets/mascot/dopamine_mascot_concept_v1.png"
     }
   }
 };

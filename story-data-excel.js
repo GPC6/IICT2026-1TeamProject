@@ -68,11 +68,6 @@ const EPISODES = {
     {
       "type": "background",
       "name": "(CG) 졸고 있는 수진",
-      "transition": {
-        "type": "fadeSlide",
-        "duration": 700,
-        "direction": "right"
-      },
       "id": 9
     },
     {
@@ -105,11 +100,6 @@ const EPISODES = {
     {
       "type": "background",
       "name": "(CG) 화들짝 깨는 수진",
-      "transition": {
-        "type": "fadeSlide",
-        "duration": 700,
-        "direction": "right"
-      },
       "id": 13
     },
     {
@@ -230,45 +220,122 @@ const EPISODES = {
     },
     {
       "type": "dialogue",
-      "speaker": "나레이션",
-      "text": "위기 상황! 주인공 'OO'의 뇌 속은 현재 과도한 밤샘 과제, 카페인 폭탄,",
+      "speaker": "주인공",
+      "text": "눈꺼풀이 무겁다. 아까까지 머릿속을 떠다니던 영상들이 흐릿하게 녹아내린다.",
+      "id": 1007
+    },
+    {
+      "type": "clear characters",
+      "id": 1008
+    },
+    {
+      "type": "background",
+      "name": "검은 배경",
+      "transition": "fadeBlack",
+      "id": 1004
+    },
+    {
+      "type": "dialogue",
+      "speaker": "주인공",
+      "text": "…잠깐만. 나 분명 눈을 감았는데, 여긴 어디지?",
+      "id": 1009
+    },
+    {
+      "type": "background",
+      "name": "꿈속",
+      "transition": {
+        "type": "fadeBlack",
+        "duration": 900
+      },
+      "id": 1010
+    },
+    {
+      "type": "character in",
+      "name": "파미니",
+      "emotion": "Normal",
+      "id": 1005
+    },
+    {
+      "type": "dialogue",
+      "speaker": "파미니",
+      "text": "드디어 연결됐다! 안녕, OO. 여기는 네 꿈속이야.",
       "id": 32
     },
     {
       "type": "dialogue",
-      "speaker": "나레이션",
-      "text": "그리고 3시간 연속 숏폼 시청으로 인해 도파민 체계가 완전히 붕괴되기 직전입니다.",
+      "speaker": "주인공",
+      "text": "꿈속…? 그리고 넌 누구야?",
       "id": 33
     },
     {
       "type": "dialogue",
-      "speaker": "나레이션",
-      "text": "하필 이 타이밍에 첫사랑을 시작하다니!",
+      "speaker": "파미니",
+      "text": "나는 도파민. 정확히는 네가 설레고, 집중하고, 가끔은 쓸데없이 각성하는 그 흐름을 관리하는 존재지.",
       "id": 34
     },
     {
       "type": "dialogue",
-      "speaker": "나레이션",
-      "text": "당신은 주인공의 행동과 이성을 제어하는 '도파민’입니다.",
+      "speaker": "주인공",
+      "text": "내 도파민이… 말도 해?",
       "id": 35
     },
     {
       "type": "dialogue",
-      "speaker": "나레이션",
-      "text": "다음 날 있을 첫 동아리 OT에서 주인공이 무기력해지거나",
+      "speaker": "파미니",
+      "text": "오늘은 특별히 비상 호출이야. 밤샘 과제, 카페인, 세 시간짜리 쇼츠 콤보로 네 뇌가 꽤 흔들렸거든.",
       "id": 36
     },
     {
       "type": "dialogue",
-      "speaker": "나레이션",
-      "text": "반대로 과도한 각성 상태로 폭주하지 않도록,",
+      "speaker": "주인공",
+      "text": "그거… 부정할 수가 없네.",
       "id": 37
     },
     {
       "type": "dialogue",
-      "speaker": "나레이션",
-      "text": "적절한 도파민 수치(50~80)를 유지하세요!",
+      "speaker": "파미니",
+      "text": "앞으로 너는 매일 밤 이 꿈속으로 오게 될 거야. 여기서 네 도파민 상태가 미니게임으로 정해지고, 그 수치가 다음 날의 행동에 영향을 줄 거야.",
       "id": 38
+    },
+    {
+      "type": "dialogue",
+      "speaker": "주인공",
+      "text": "다음 날의 행동이라면… 내가 말하거나 움직이는 방식도 달라진다는 뜻이야?",
+      "id": 1011
+    },
+    {
+      "type": "dialogue",
+      "speaker": "파미니",
+      "text": "맞아. 너무 낮으면 기운이 빠져서 타이밍을 놓치고, 너무 높으면 감정이 앞서서 실수할 수 있어.",
+      "id": 1012
+    },
+    {
+      "type": "dialogue",
+      "speaker": "파미니",
+      "text": "가장 좋은 건 적당히 설레고, 적당히 차분한 상태. 대략 50에서 80 사이를 기억해 둬.",
+      "id": 1013
+    },
+    {
+      "type": "dialogue",
+      "speaker": "주인공",
+      "text": "그러니까 지금부터… 내 마음 상태를 직접 조절해보라는 거네.",
+      "id": 1014
+    },
+    {
+      "type": "dialogue",
+      "speaker": "파미니",
+      "text": "정답. 내일은 첫 동아리 OT잖아. 무기력하게 굳어버리거나, 과하게 들떠서 폭주하지 않게 균형을 맞춰보자.",
+      "id": 1015
+    },
+    {
+      "type": "dialogue",
+      "speaker": "파미니",
+      "text": "자, 첫 번째 밤의 도파민 조절을 시작할게.",
+      "id": 1016
+    },
+    {
+      "type": "clear characters",
+      "id": 1006
     },
     {
       "type": "clear background",
@@ -279,7 +346,10 @@ const EPISODES = {
       "next": "MINIGAME",
       "minigame": "brickBreaker",
       "after": "EP2 동아리 OT",
-      "id": 40
+      "id": 40,
+      "options": {
+        "maxTurns": 8
+      }
     }
   ],
   "EP2 동아리 OT": [
@@ -838,7 +908,11 @@ const EPISODES = {
       "next": "MINIGAME",
       "minigame": "sideShooter",
       "after": "EP3 동아리 MT",
-      "id": 63
+      "id": 63,
+      "options": {
+        "difficulty": 1,
+        "durationSeconds": 75
+      }
     }
   ],
   "EP3 동아리 MT": [
@@ -1029,6 +1103,16 @@ const EPISODES = {
       "id": 23
     },
     {
+      "type": "background",
+      "name": "소주병을 향해 뻗는 수진의 손",
+      "transition": {
+        "type": "fadeSlide",
+        "duration": 700,
+        "direction": "right"
+      },
+      "id": 1001
+    },
+    {
       "type": "dialogue",
       "speaker": "수진",
       "text": "아씨 또 걸렸네ㅜ (잔을 집어든다)",
@@ -1041,15 +1125,25 @@ const EPISODES = {
         {
           "text": "수진아 집중했어야지!",
           "follow": [],
-          "nextNode": 26
+          "nextNode": 1002
         },
         {
           "text": "수진아 너 괜찮아?",
           "follow": [],
-          "nextNode": 26
+          "nextNode": 1002
         }
       ],
       "id": 25
+    },
+    {
+      "type": "background",
+      "name": "소주병을 향해 뻗는 수진의 손을 잡는 건호의 손",
+      "transition": {
+        "type": "fadeSlide",
+        "duration": 700,
+        "direction": "right"
+      },
+      "id": 1002
     },
     {
       "type": "dialogue",
@@ -1059,6 +1153,16 @@ const EPISODES = {
         "dopamine": 5
       },
       "id": 26
+    },
+    {
+      "type": "background",
+      "name": "MT 장소",
+      "transition": {
+        "type": "fadeSlide",
+        "duration": 700,
+        "direction": "right"
+      },
+      "id": 1003
     },
     {
       "type": "dialogue",
@@ -1284,7 +1388,10 @@ const EPISODES = {
       "next": "MINIGAME",
       "minigame": "brickBreaker",
       "after": "EP4-A 넷이",
-      "id": 35
+      "id": 35,
+      "options": {
+        "maxTurns": 10
+      }
     },
     {
       "type": "clear background",
@@ -1295,7 +1402,10 @@ const EPISODES = {
       "next": "MINIGAME",
       "minigame": "brickBreaker",
       "after": "EP4-A 넷이",
-      "id": 37
+      "id": 37,
+      "options": {
+        "maxTurns": 10
+      }
     },
     {
       "type": "clear background",
@@ -1306,7 +1416,10 @@ const EPISODES = {
       "next": "MINIGAME",
       "minigame": "brickBreaker",
       "after": "EP4-A 넷이",
-      "id": 39
+      "id": 39,
+      "options": {
+        "maxTurns": 10
+      }
     },
     {
       "type": "clear background",
@@ -1317,7 +1430,10 @@ const EPISODES = {
       "next": "MINIGAME",
       "minigame": "brickBreaker",
       "after": "EP4-B 둘이",
-      "id": 41
+      "id": 41,
+      "options": {
+        "maxTurns": 10
+      }
     },
     {
       "type": "clear background",
@@ -1328,7 +1444,10 @@ const EPISODES = {
       "next": "MINIGAME",
       "minigame": "brickBreaker",
       "after": "EP4-B 둘이",
-      "id": 43
+      "id": 43,
+      "options": {
+        "maxTurns": 10
+      }
     },
     {
       "type": "clear background",
@@ -1339,7 +1458,10 @@ const EPISODES = {
       "next": "MINIGAME",
       "minigame": "brickBreaker",
       "after": "EP4-B 둘이",
-      "id": 45
+      "id": 45,
+      "options": {
+        "maxTurns": 10
+      }
     }
   ],
   "EP4-A 넷이": [
@@ -1965,7 +2087,11 @@ const EPISODES = {
       "next": "MINIGAME",
       "minigame": "sideShooter",
       "after": "EP5 미팅사건",
-      "id": 72
+      "id": 72,
+      "options": {
+        "difficulty": 3,
+        "durationSeconds": 90
+      }
     }
   ],
   "EP4-B 둘이": [
@@ -2460,7 +2586,13 @@ const EPISODES = {
     },
     {
       "type": "move",
-      "next": "EP5 미팅사건",
+      "next": "MINIGAME",
+      "minigame": "sideShooter",
+      "after": "EP5 미팅사건",
+      "options": {
+        "difficulty": 3,
+        "durationSeconds": 90
+      },
       "id": 44
     }
   ],
@@ -2915,7 +3047,10 @@ const EPISODES = {
       "next": "MINIGAME",
       "minigame": "brickBreaker",
       "after": "EP6 정기공연",
-      "id": 41
+      "id": 41,
+      "options": {
+        "maxTurns": 12
+      }
     }
   ],
   "EP6 정기공연": [
@@ -3297,9 +3432,7 @@ const EPISODES = {
       "type": "move",
       "next": "해피엔딩",
       "condition": {
-        "affectionMin": 100,
-        "dopamineMin": 35,
-        "dopamineMax": 80
+        "affectionMin": 60
       },
       "id": 30
     },
