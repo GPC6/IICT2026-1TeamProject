@@ -52,6 +52,7 @@ class Game {
     this.textBox = new TextBox(0, 452, CONFIG.width, 268);
     this.choiceButtons = [];
     this.subGame = null;
+    this.minigameTutorial = null;
     this.backgroundImage = null;
     this.backgroundTransition = null;
     this.pendingBgmNode = null;
@@ -198,6 +199,8 @@ class Game {
     if (this.state.scene !== SCENES.MINIGAME) return;
 
     if (this.subGame) {
+      if (this.hasActiveMinigameTutorial()) return;
+
       this.subGame.update();
 
       if (this.subGame.finished) {
@@ -210,7 +213,10 @@ class Game {
     if (this.state.scene === SCENES.TITLE) this.drawTitle();
     if (this.state.scene === SCENES.STORY) this.drawStory();
     if (this.state.scene === SCENES.DOPAMINE_READY) this.drawDopamineReady();
-    if (this.state.scene === SCENES.MINIGAME && this.subGame) this.subGame.draw();
+    if (this.state.scene === SCENES.MINIGAME && this.subGame) {
+      this.subGame.draw();
+      if (this.hasActiveMinigameTutorial()) this.drawMinigameTutorialOverlay();
+    }
     if (this.state.scene === SCENES.ENDING) this.drawEnding();
     if (this.logPanelOpen) this.drawDialogueLogOverlay();
   }
@@ -235,6 +241,10 @@ class Game {
       return;
     }
     if (scene === SCENES.MINIGAME && this.subGame) {
+      if (this.hasActiveMinigameTutorial()) {
+        this.advanceMinigameTutorial();
+        return;
+      }
       this.subGame.mousePressed();
       return;
     }
@@ -250,6 +260,11 @@ class Game {
 
     if (this.logPanelOpen) {
       this.handleDialogueLogKey();
+      return;
+    }
+
+    if (this.state.scene === SCENES.MINIGAME && this.subGame && this.hasActiveMinigameTutorial()) {
+      this.advanceMinigameTutorial();
       return;
     }
 
@@ -822,6 +837,7 @@ class Game {
   skipSelectedSubGame() {
     const returnEpisodeId = this.state.selectedSubGameReturn || "EP_AFTER_MINIGAME";
     const returnNodeId = this.state.selectedSubGameReturnNode;
+    this.minigameTutorial = null;
     this.state.selectedSubGame = null;
     this.state.selectedSubGameReturn = null;
     this.state.selectedSubGameReturnNode = null;
@@ -1672,8 +1688,98 @@ class Game {
       return;
     }
 
+    const options = this.state.selectedSubGameOptions || {};
     this.playSubGameBgm(subGame);
-    this.subGame = new SubGameClass(this.state.dopamine, this.state.selectedSubGameOptions || {});
+    this.minigameTutorial = this.createMinigameTutorial(options);
+    this.subGame = new SubGameClass(this.state.dopamine, this.getPlayableSubGameOptions(options));
+  }
+
+  createMinigameTutorial(options) {
+    if (typeof MinigameTutorialOverlay !== "function") return null;
+    return MinigameTutorialOverlay.fromOptions(options);
+  }
+
+  getPlayableSubGameOptions(options = {}) {
+    const playableOptions = { ...options };
+    delete playableOptions.tutorial;
+    return playableOptions;
+  }
+
+  hasActiveMinigameTutorial() {
+    return this.minigameTutorial && this.minigameTutorial.isActive();
+  }
+
+  advanceMinigameTutorial() {
+    if (!this.hasActiveMinigameTutorial()) return;
+    const completed = this.minigameTutorial.advance();
+    if (completed) this.resumeSubGameAfterTutorial();
+  }
+
+  resumeSubGameAfterTutorial() {
+    if (!this.subGame || typeof millis !== "function") return;
+
+    if (this.subGame.startedAt !== undefined) {
+      this.subGame.startedAt = millis();
+    }
+    if (this.subGame.overloadStart !== undefined) {
+      this.subGame.overloadStart = this.subGame.dopamine >= this.subGame.overheatThreshold ? this.subGame.startedAt : null;
+    }
+  }
+
+  drawMinigameTutorialOverlay() {
+    const step = this.minigameTutorial && this.minigameTutorial.getCurrentStep();
+    if (!step) return;
+
+    push();
+    noStroke();
+    fill(0, 0, 0, 92);
+    rect(0, 0, width, height);
+
+    this.drawTutorialMascot();
+    this.drawTutorialSpeech(step);
+    pop();
+  }
+
+  drawTutorialMascot() {
+    const mascotImage = this.getCharacterAsset("파미니", "Normal");
+    if (!mascotImage) return;
+
+    const mascotW = 210;
+    const mascotH = mascotW * mascotImage.height / mascotImage.width;
+    imageMode(CENTER);
+    image(mascotImage, 156, height - mascotH / 2 - 26, mascotW, mascotH);
+  }
+
+  drawTutorialSpeech(step) {
+    const panelX = 296;
+    const panelY = height - 188;
+    const panelW = width - panelX - 72;
+    const panelH = 132;
+
+    fill(16, 20, 34, 236);
+    stroke(255, 184, 108, 220);
+    strokeWeight(2);
+    rect(panelX, panelY, panelW, panelH, 8);
+
+    noStroke();
+    fill("#ffb86c");
+    textAlign(LEFT, TOP);
+    textStyle(BOLD);
+    this.useFont("dialogueBold");
+    textSize(22);
+    text(step.speaker || "파미니", panelX + 28, panelY + 22);
+
+    fill("#fff7dc");
+    textStyle(NORMAL);
+    this.useFont("dialogue");
+    textSize(24);
+    text(step.text || "", panelX + 28, panelY + 56, panelW - 56, 48);
+
+    fill(255, 255, 255, 164);
+    textAlign(RIGHT, BOTTOM);
+    this.useFont("ui");
+    textSize(15);
+    text("클릭 또는 아무 키", panelX + panelW - 24, panelY + panelH - 18);
   }
 
   getSubGameOptions(node = {}) {
@@ -1698,6 +1804,7 @@ class Game {
     }
 
     this.subGame = null;
+    this.minigameTutorial = null;
     const returnEpisodeId = this.state.selectedSubGameReturn || "EP_AFTER_MINIGAME";
     const returnNodeId = this.state.selectedSubGameReturnNode;
     this.state.selectedSubGame = null;
