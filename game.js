@@ -59,6 +59,7 @@ class Game {
     this.currentBgmLoop = null;
     this.character = {};
     this.dopamineDeltaPopup = null;
+    this.lastClickSoundAt = 0;
     this.dialogueLog = [];
     this.loggedDialogueKeys = new Set();
     this.logPanelOpen = false;
@@ -115,6 +116,8 @@ class Game {
     const handleOverlayButton = (event, action) => {
       event.preventDefault();
       stopOverlayEvent(event);
+      this.unlockAudio();
+      this.playClickSound();
       action();
     };
 
@@ -136,6 +139,8 @@ class Game {
       if (event.key === "Enter") {
         event.preventDefault();
         this.ignoreCanvasClickUntil = Date.now() + 300;
+        this.unlockAudio();
+        this.playClickSound();
         this.openNameConfirm();
       }
     });
@@ -225,6 +230,7 @@ class Game {
     if (this.isNameOverlayOpen() || Date.now() < (this.ignoreCanvasClickUntil || 0)) return;
 
     this.unlockAudio();
+    this.playClickSound();
 
     const scene = this.state.scene;
     if (scene === SCENES.TITLE) {
@@ -1000,6 +1006,22 @@ class Game {
     if (typeof userStartAudio === "function") {
       userStartAudio();
     }
+  }
+
+  playClickSound() {
+    const now = this.getTimeMs();
+    if (now - this.lastClickSoundAt < 60) return;
+
+    const sound = this.getSoundAsset("click", "effects");
+    if (!sound) return;
+    if (typeof sound.isLoaded === "function" && !sound.isLoaded()) return;
+
+    this.lastClickSoundAt = now;
+    this.setSoundVolume(sound, 0.55);
+    if (sound.isPlaying()) {
+      sound.stop();
+    }
+    sound.play();
   }
 
   handleSoundNode(node) {

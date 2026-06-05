@@ -28,12 +28,12 @@ const EPISODES = {
     {
       "type": "dialogue",
       "speaker": "주인공",
-      "text": "몬스터라도 마셔야겠다.",
+      "text": "음료수라도 마셔야겠다.",
       "id": 5
     },
     {
       "type": "choice",
-      "prompt": "몬스터라도 마셔야겠다.",
+      "prompt": "음료수라도 마셔야겠다.",
       "choices": [
         {
           "text": "(망고맛 에너지 드링크를 고른다)",
@@ -433,7 +433,7 @@ const EPISODES = {
     {
       "type": "dialogue",
       "speaker": "주인공",
-      "text": "어? 설마...",
+      "text": "어? 설마 어제 편의점에서 만난...?",
       "id": 11
     },
     {
@@ -1094,8 +1094,8 @@ const EPISODES = {
     },
     {
       "type": "dialogue",
-      "speaker": "나레이션",
-      "text": "(모두) 건호가 좋아하는 랜덤 게임! 랜덤 게임! 게임 스타트!",
+      "speaker": "모두",
+      "text": "건호가 좋아하는 랜덤 게임! 랜덤 게임! 게임 스타트!",
       "id": 20
     },
     {
@@ -1535,7 +1535,7 @@ const EPISODES = {
     {
       "type": "dialogue",
       "speaker": "건호",
-      "text": "OO이스케이프에 XX테마가 진짜 잘 만들었대.",
+      "text": "○○이스케이프에 XX테마가 진짜 잘 만들었대.",
       "id": 10
     },
     {
@@ -2154,7 +2154,7 @@ const EPISODES = {
             },
             {
               "speaker": "주인공",
-              "text": "파스타 좋지! 학교 앞에 OO음식점이 파스타 맛있다던데 어때?"
+              "text": "파스타 좋지! 학교 앞에 ○○음식점이 파스타 맛있다던데 어때?"
             },
             {
               "speaker": "수진",
@@ -2179,7 +2179,7 @@ const EPISODES = {
             },
             {
               "speaker": "주인공",
-              "text": "학교 앞에 OO음식점이 파스타 맛있다던데 어때?"
+              "text": "학교 앞에 ○○음식점이 파스타 맛있다던데 어때?"
             },
             {
               "speaker": "수진",
@@ -2260,8 +2260,8 @@ const EPISODES = {
     },
     {
       "type": "dialogue",
-      "speaker": "기타",
-      "text": "(종업원) 주문하신 메뉴 나왔습니다~",
+      "speaker": "종업원",
+      "text": "주문하신 메뉴 나왔습니다~",
       "id": 14
     },
     {
