@@ -26,7 +26,7 @@ class Game {
 
     this.bindNameOverlay();
 
-    this.titleButton = new Button(408, 600, 204, 54, "START", () => {
+    this.titleButton = new Button(200, 510, 204, 54, "START", () => {
       this.showNameEntry();
     }, {
       stroke: "#ef4778",
@@ -37,7 +37,7 @@ class Game {
       textSize: 18
     });
 
-    this.loadButton = new Button(668, 600, 204, 54, "LOAD", () => {
+    this.loadButton = new Button(200, 590, 204, 54, "LOAD", () => {
       this.openLoadSlotOverlay();
     }, {
       stroke: "#ffd35a",
@@ -1138,25 +1138,17 @@ class Game {
     const briefingLines = [
       this.getPaminiAffectionBriefingLine(snapshot),
       this.getPaminiDopamineBriefingLine(snapshot.dopamine),
+      "앞으로 매일 밤 이렇게 잠깐 나타날게. 하루 동안 네 감정이 어떤 방향으로 움직였는지 같이 정리해보자.",
       "그럼 이제 꿈속에서 내일의 도파민을 다시 맞춰보자. 너무 낮지도, 너무 과열되지도 않게."
     ];
 
-    if (this.isPaminiFirstMeetingEpisode(snapshot.episodeId)) {
-      return this.buildPaminiFirstMeetingLines(snapshot).concat(briefingLines);
-    }
-
-    return briefingLines;
-  }
-
-  isPaminiFirstMeetingEpisode(episodeId) {
-    return this.getEpisodeNumberFromId(episodeId) === 2;
+    return this.buildPaminiFirstMeetingLines(snapshot).concat(briefingLines);
   }
 
   buildPaminiFirstMeetingLines(snapshot) {
     return [
-      "안녕, 나는 파미니야. 네 마음속 도파민 흐름을 같이 봐주는 작은 안내자라고 생각해줘.",
-      this.getPaminiFirstMeetingEmotionLine(snapshot.dopamine),
-      "앞으로 매일 밤 이렇게 잠깐 나타날게. 하루 동안 네 감정이 어떤 방향으로 움직였는지 같이 정리해보자."
+      "안녕, 오늘도 도파민 점검하러 파미니가 왔어!",
+      this.getPaminiFirstMeetingEmotionLine(snapshot.dopamine)
     ];
   }
 
@@ -1173,18 +1165,18 @@ class Game {
 
     const lines = {
       positive: {
-        LOW: "좋은 선택이 있었지만 도파민이 낮아서 마음을 전하는 속도는 조금 늦었던 것 같아.",
-        OPT: "오늘은 적당한 도파민으로 좋은 흐름을 잘 이어간 것 같아.",
-        HIGH: "마음은 가까워졌지만 높은 도파민으로 감정이 조금 앞섰던 순간도 있었어."
+        LOW: "수진이와 가까워졌지만, 도파민이 낮아서 기회를 놓친 순간도 있었던 것 같아.",
+        OPT: "오늘은 적절한 도파민으로 좋은 흐름을 잘 이어간 것 같아.",
+        HIGH: "수진이와 더 가까워졌지만, 높은 도파민으로 감정이 조금 앞섰던 순간도 있었어."
       },
       neutral: {
-        LOW: "도파민이 낮아서 기회가 와도 한 걸음 늦게 지나간 느낌이야.",
-        OPT: "큰 변화는 없었지만 적당한 도파민 덕분에 흐름은 무너지지 않았어.",
-        HIGH: "도파민이 높아서 감정은 많이 움직였는데, 관계는 아직 제자리였던 것 같아."
+        LOW: "낮은 도파민으로 기회를 놓쳤고, 그래서 관계는 제자리였던 것 같아.",
+        OPT: "적절한 도파민 흐름을 유지했지만, 관계는 아직 제자리인 것 같아.",
+        HIGH: "도파민이 높아서 감정이 앞섰는데, 관계는 아직 제자리였던 것 같아."
       },
       negative: {
-        LOW: "도파민이 낮아 망설임이 길어지면서 기회를 놓친 장면이 있었어.",
-        OPT: "도파민 흐름은 나쁘지 않았는데, 오늘은 선택의 결이 조금 엇갈린 것 같아.",
+        LOW: "도파민이 낮아 기회를 놓친 순간이 있었고, 상대와 박자가 어긋났던 것 같아.",
+        OPT: "적절한 도파민 흐름을 유지했지만, 오늘은 선택의 결이 조금 엇갈린 것 같아.",
         HIGH: "높은 도파민으로 감정이 앞서면서 상대와 박자가 어긋난 순간이 있었어."
       }
     };
@@ -1195,9 +1187,9 @@ class Game {
 
   getPaminiDopamineBriefingLine(dopamine) {
     const dopamineState = this.getDopamineState(dopamine);
-    if (dopamineState === "LOW") return "내일은 조금 더 움직일 수 있는 방향만 기억해두자.";
+    if (dopamineState === "LOW") return "내일은 조금 더 적극적으로 움직여보자.";
     if (dopamineState === "HIGH") return "내일은 앞서가는 마음을 붙잡고, 조금 더 신중하게 행동해보자.";
-    return "내일도 이 균형을 크게 흔들지 않는 방향만 기억해두자.";
+    return "내일도 이 균형을 지켜줘!";
   }
 
   startPaminiBriefingTransition() {

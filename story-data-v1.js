@@ -64,7 +64,9 @@ const EPISODES = {
     {
       "type": "background",
       "name": "(CG) 졸고 있는 수진",
-      "id": 8
+      "id": 8,
+      "transitionDuration": 300,
+      "transition": "fadeBlack"
     },
     {
       "type": "dialogue",
@@ -73,62 +75,63 @@ const EPISODES = {
       "id": 9
     },
     {
+      "type": "background",
+      "name": "(CG) 자는 수진 클로즈업",
+      "id": 10,
+      "transition": "fadeBlack",
+      "transitionDuration": 1000
+    },
+    {
       "type": "dialogue",
       "speaker": "주인공",
-      "text": "(…예쁘다.)",
-      "id": 10
+      "text": "(몽롱하던 시야가 번쩍 뜨인다.)",
+      "id": 11
     },
     {
       "type": "choice",
-      "prompt": "(…예쁘다.)",
+      "prompt": "(몽롱하던 시야가 번쩍 뜨인다.)",
       "choices": [
         {
           "text": "저기요…",
           "follow": [],
-          "nextNode": 12
+          "nextNode": 13
         },
         {
           "text": "(그냥 빤히 쳐다본다)",
           "follow": [],
-          "nextNode": 12
+          "nextNode": 13
         }
       ],
-      "id": 11
+      "id": 12
     },
     {
       "type": "background",
       "name": "(CG) 화들짝 깨는 수진",
-      "id": 12
+      "id": 13
     },
     {
       "type": "dialogue",
       "speaker": "수진",
       "text": "아, 네! 죄송합니다…!",
-      "id": 13
+      "id": 14
     },
     {
       "type": "sound",
       "soundType": "effect",
       "action": "play",
       "name": "ep1Barcode",
-      "id": 14
+      "id": 15
     },
     {
       "type": "dialogue",
       "speaker": "수진",
       "text": "1500원입니다…!",
-      "id": 15
-    },
-    {
-      "type": "dialogue",
-      "speaker": "주인공",
-      "text": "(몽롱하던 시야가 번쩍 뜨인다.)",
       "id": 16
     },
     {
       "type": "dialogue",
       "speaker": "주인공",
-      "text": "예쁘다…",
+      "text": "예쁘시네요",
       "id": 17
     },
     {
@@ -282,49 +285,97 @@ const EPISODES = {
     },
     {
       "type": "dialogue",
-      "speaker": "지시문",
-      "text": "위기 상황! 00의 뇌 속은 현재 과도한 밤샘 과제, 카페인 폭탄,",
+      "speaker": "파미니",
+      "text": "위기 상황!",
       "id": 40
     },
     {
       "type": "dialogue",
-      "speaker": "지시문",
-      "text": "그리고 3시간 연속 숏폼 시청으로 인해 도파민 체계가 완전히 붕괴되기 직전입니다.",
+      "speaker": "주인공",
+      "text": "뭐지... 꿈인가?",
       "id": 41
     },
     {
       "type": "dialogue",
-      "speaker": "지시문",
-      "text": "하필 이 타이밍에 첫사랑을 시작하다니!",
+      "speaker": "파미니",
+      "text": "안녕! 나는 파미니야.",
       "id": 42
     },
     {
       "type": "dialogue",
-      "speaker": "지시문",
-      "text": "당신은 주인공의 행동과 이성을 제어하는 '도파민’입니다.",
+      "speaker": "파미니",
+      "text": "네 마음속 도파민 흐름을 관리하는 작은 안내자라고 생각하면 돼.",
       "id": 43
     },
     {
       "type": "dialogue",
-      "speaker": "지시문",
-      "text": "다음 날 있을 첫 동아리 OT에서 주인공이 무기력해지거나",
+      "speaker": "파미니",
+      "text": "현재 너의 뇌 속은 과도한 밤샘 과제, 카페인 폭탄, 그리고 3시간 연속 숏폼 시청으로",
       "id": 44
     },
     {
       "type": "dialogue",
-      "speaker": "지시문",
-      "text": "반대로 과도한 각성 상태로 폭주하지 않도록,",
+      "speaker": "파미니",
+      "text": "도파민 체계가 완전히 무너지기 직전이야.",
       "id": 45
     },
     {
       "type": "dialogue",
-      "speaker": "지시문",
-      "text": "적절한 도파민 수치(50~80)를 유지하세요!",
+      "speaker": "파미니",
+      "text": "하필 이 타이밍에 첫사랑을 시작하다니!",
       "id": 46
     },
     {
-      "type": "clear background",
+      "type": "dialogue",
+      "speaker": "주인공",
+      "text": "헉... 어떡하면 좋을까?",
       "id": 47
+    },
+    {
+      "type": "dialogue",
+      "speaker": "파미니",
+      "text": "적절한 도파민 수치 50~80을 기억해!",
+      "id": 48
+    },
+    {
+      "type": "dialogue",
+      "speaker": "파미니",
+      "text": "도파민 수치가 너무 낮으면 무기력해질 수 있고, 넘치면 폭주할 수 있어!",
+      "id": 49
+    },
+    {
+      "type": "dialogue",
+      "speaker": "주인공",
+      "text": "도파민에 따라 내 말과 행동이 바뀌는거야?",
+      "id": 50
+    },
+    {
+      "type": "dialogue",
+      "speaker": "파미니",
+      "text": "정확해!",
+      "id": 51
+    },
+    {
+      "type": "dialogue",
+      "speaker": "파미니",
+      "text": "너무 높아도 문제, 너무 낮아도 문제야.",
+      "id": 52
+    },
+    {
+      "type": "dialogue",
+      "speaker": "파미니",
+      "text": " 내일 있을 동아리 OT를 위해 도파민 수치를 조절해보자!",
+      "id": 53
+    },
+    {
+      "type": "dialogue",
+      "speaker": "파미니",
+      "text": "잊지 마. 목표는 50~80이야!",
+      "id": 54
+    },
+    {
+      "type": "clear background",
+      "id": 55
     },
     {
       "type": "move",
@@ -334,13 +385,14 @@ const EPISODES = {
       "options": {
         "maxTurns": 5,
         "tutorial": [
-          "첫 벽돌깨기는 5턴만 진행돼. 마우스로 각도를 정하고 클릭하면 공이 나가.",
-          "블럭 숫자는 남은 내구도야. 목표는 끝날 때 도파민을 적당히 남기는 거야.",
-          "빨간 블럭은 맞힐 때마다 도파민이 +1씩 늘어나고, 파란 블럭은 부숴지면 도파민이 8 감소해.",
+          "첫 번째 게임은 벽돌깨기야.",
+          "마우스로 각도를 정하고 클릭하면 공이 발사돼.",
+          "빨간 블럭은 맞힐 때마다 도파민 수치를 상승시키고, 초록색 블럭은 부숴질 때 도파민을 감소시켜!",
+          "블록에 적힌 숫자는 남은 내구도야",
           "블럭이 바닥에 닿으면, 도파민은 그 상태로 유지된 채 게임 종료야!"
         ]
       },
-      "id": 48
+      "id": 56
     }
   ],
   "EP2 동아리 OT": [
@@ -938,13 +990,15 @@ const EPISODES = {
         "difficulty": 0,
         "durationSeconds": 45,
         "tutorial": [
-          "슈팅은 45초만 버티면 돼. 마우스로 움직이고 좌클릭을 꾹 누르면 자동으로 공격해.",
+          "다음 게임은 슈팅게임이야!",
+          "45초만 버티면 돼. 마우스로 움직이고 좌클릭으로 공격해.",
           "모든 적들은 처치하면 모두 도파민 +3 증가해.",
           "적에게 맞으면 도파민이 크게 올라. 빨간 표시는 도파민 상승이라고 보면 돼.",
           "초록 안정 캡슐과 흡수 필터는 도파민을 낮춰. 초록색은 완화 신호야.",
-          "노란 P 캡슐은 파워 칸을 올려. 원하는 칸에서 우클릭하면 기술을 써.",
+          "노란 P 캡슐은 파워 칸을 올려. 원하는 칸에서 우클릭하면 기술을 쓸 수 있어.",
           "예를 들어 흡수 기술은 도파민을 낮춰주는 기술이야.",
-          "흡수 기술을 제외한 기술은 한 번씩만 사용할 수 있어."
+          "흡수 기술을 제외한 기술은 한 번씩만 사용할 수 있어.",
+          "도파민은 시간에 따라 점점 줄어드니까 잘 신경써야해 !"
         ]
       },
       "id": 56
