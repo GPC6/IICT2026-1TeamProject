@@ -1,4 +1,4 @@
-const STORY_START_EPISODE = "해피엔딩";
+const STORY_START_EPISODE = "EP1 첫만남";
 const EPISODES = {
   "EP1 첫만남": [
     {

@@ -38,7 +38,7 @@ class Game {
     });
 
     this.loadButton = new Button(668, 600, 204, 54, "LOAD", () => {
-      this.loadSnapshot();
+      this.openLoadSlotOverlay();
     }, {
       stroke: "#ffd35a",
       fill: "rgba(255, 255, 255, 0.82)",
@@ -78,7 +78,7 @@ class Game {
       fullText: ""
     };
     this.saveButton = new Button(76, 464, 68, 28, "SAVE", () => {
-      this.saveSnapshot();
+      this.openSaveSlotOverlay();
     }, {
       fill: "rgba(0, 0, 0, 0.5)",
       hoverFill: "rgba(255, 255, 255, 0.18)",
@@ -88,6 +88,18 @@ class Game {
       radius: 14,
       textSize: 12
     });
+    this.loadQuickButton = new Button(1182, 20, 68, 28, "LOAD", () => {
+      this.openLoadSlotOverlay();
+    }, {
+      fill: "rgba(0, 0, 0, 0.5)",
+      hoverFill: "rgba(255, 255, 255, 0.18)",
+      stroke: "rgba(255, 255, 255, 0.38)",
+      hoverStroke: "rgba(255, 255, 255, 0.75)",
+      text: "#ffffff",
+      radius: 14,
+      textSize: 12
+    });
+    this.saveSlotOverlay = null;
     this.dopamineStartButton = new Button(826, 370, 312, 58, "도파민 게임 시작하기", () => {
       this.changeScene(SCENES.MINIGAME);
     }, {
@@ -224,6 +236,7 @@ class Game {
     if (this.state.scene === SCENES.ENDING) this.drawEnding();
     if (this.state.scene === SCENES.CREDITS) this.drawCredits();
     if (this.logPanelOpen) this.drawDialogueLogOverlay();
+    if (this.saveSlotOverlay) this.drawSaveSlotOverlay();
   }
 
   mousePressed() {
@@ -232,6 +245,11 @@ class Game {
     this.unlockAudio();
 
     const scene = this.state.scene;
+    if (this.saveSlotOverlay) {
+      this.handleSaveSlotOverlayClick();
+      return;
+    }
+
     if (scene === SCENES.STORY && this.isDisabledChoiceButtonAt(mouseX, mouseY)) {
       this.handleStoryClick();
       return;
@@ -358,7 +376,11 @@ class Game {
   }
 
   drawEnding() {
-    this.drawSceneImage("(CG) 손을 잡는 둘")
+    if(this.state.endingText == "해피엔딩") {
+    this.drawSceneImage("(CG) 손을 잡는 둘", true)
+    } else {
+      background("rgb(15, 9, 31)")
+    }
 
     fill("#f6d365");
     textAlign(CENTER, CENTER);
@@ -391,7 +413,7 @@ class Game {
   }
 
   drawCredits() {
-    this.drawSceneImage("happyendcredit", false)
+    this.drawSceneImage("happyendcredit", true)
 
     fill("#f6d365");
     textAlign(CENTER, CENTER);
@@ -815,15 +837,18 @@ class Game {
 
   drawStoryQuickMenu() {
     const items = this.getStoryQuickMenuItems();
-    const menuY = items.length > 0 ? items[0].y : 464;
+    this.configureQuickMenuButtons(items);
 
-    this.saveButton.x = width - 178;
-    this.saveButton.y = menuY;
-    this.saveButton.w = 68;
-    this.saveButton.h = 28;
-    this.saveButton.label = "SAVE";
-    this.saveButton.draw();
     for (const item of items) {
+      if (item.label === "SAVE") {
+        this.saveButton.draw();
+        continue;
+      }
+      if (item.label === "LOAD") {
+        this.loadQuickButton.draw();
+        continue;
+      }
+
       fill(0, 0, 0, 128);
       stroke(255, 255, 255, 74);
       strokeWeight(1);
@@ -839,15 +864,38 @@ class Game {
 
   getStoryQuickMenuItems() {
     const menuY = 464;
-    const labels = ["대사록"];
+    const labels = ["SAVE", "LOAD", "대사록"];
+    const itemW = 66;
+    const gap = 10;
+    const startX = width - (labels.length * itemW + (labels.length - 1) * gap) - 28;
 
     return labels.map((label, index) => ({
       label,
-      x: width - 100 + index * 78,
+      x: startX + index * (itemW + gap),
       y: menuY,
-      w: 66,
+      w: itemW,
       h: 28
     }));
+  }
+
+  configureQuickMenuButtons(items) {
+    const saveItem = items.find((item) => item.label === "SAVE");
+    if (saveItem) {
+      this.saveButton.x = saveItem.x;
+      this.saveButton.y = saveItem.y;
+      this.saveButton.w = saveItem.w;
+      this.saveButton.h = saveItem.h;
+      this.saveButton.label = "SAVE";
+    }
+
+    const loadItem = items.find((item) => item.label === "LOAD");
+    if (loadItem) {
+      this.loadQuickButton.x = loadItem.x;
+      this.loadQuickButton.y = loadItem.y;
+      this.loadQuickButton.w = loadItem.w;
+      this.loadQuickButton.h = loadItem.h;
+      this.loadQuickButton.label = "LOAD";
+    }
   }
 
   drawChoiceOverlay(prompt, impactSummary = { type: "none", mixed: false }) {
@@ -957,18 +1005,39 @@ class Game {
 
     this.dopamineStartButton.draw();
     this.dopamineSkipButton.draw();
-    this.saveButton.x = 826;
-    this.saveButton.y = 516;
-    this.saveButton.w = 312;
-    this.saveButton.h = 40;
+    const saveLoadLayout = this.getDopamineReadySaveLoadLayout();
+    this.saveButton.x = saveLoadLayout.save.x;
+    this.saveButton.y = saveLoadLayout.save.y;
+    this.saveButton.w = saveLoadLayout.save.w;
+    this.saveButton.h = saveLoadLayout.save.h;
     this.saveButton.label = "SAVE";
     this.saveButton.draw();
+    this.loadQuickButton.x = saveLoadLayout.load.x;
+    this.loadQuickButton.y = saveLoadLayout.load.y;
+    this.loadQuickButton.w = saveLoadLayout.load.w;
+    this.loadQuickButton.h = saveLoadLayout.load.h;
+    this.loadQuickButton.label = "LOAD";
+    this.loadQuickButton.draw();
 
     fill("#f6f1ff");
     textAlign(CENTER, CENTER);
     this.useFont("ui");
     textSize(20);
     text("하루가 끝나면 잠에 들고, 도파민 게임으로 마음을 정리합니다.", width / 2, 632);
+  }
+
+  getDopamineReadySaveLoadLayout() {
+    const x = 826;
+    const y = 516;
+    const totalW = 312;
+    const gap = 12;
+    const buttonW = (totalW - gap) / 2;
+
+    return {
+      gap,
+      save: { x, y, w: buttonW, h: 40 },
+      load: { x: x + buttonW + gap, y, w: buttonW, h: 40 }
+    };
   }
 
   drawPaminiBriefing() {
@@ -992,8 +1061,9 @@ class Game {
     this.drawPaminiBriefingMascot();
     this.drawEpisodeBadge();
 
-    const line = this.getCurrentPaminiBriefingLine();
+    const line = this.getPaminiBriefingTypewriterText();
     this.textBox.draw("파미니", line, "파미니");
+    this.drawStoryQuickMenu();
     drawingContext.globalAlpha = previousAlpha;
     pop();
   }
@@ -1028,6 +1098,12 @@ class Game {
   }
 
   handlePaminiBriefingClick() {
+    if (this.logPanelOpen) {
+      this.handleDialogueLogClick();
+      return;
+    }
+
+    if (this.handleFunctionMenuClick()) return;
     this.advancePaminiBriefing();
   }
 
@@ -1169,11 +1245,28 @@ class Game {
     return briefing.lines[briefing.index] || "";
   }
 
+  getPaminiBriefingTypewriterText() {
+    const briefing = this.paminiBriefing;
+    const nodeKey = `PAMINI_BRIEFING#${briefing ? briefing.index : 0}`;
+    const fullText = this.getCurrentPaminiBriefingLine();
+    return this.updateTypewriter(nodeKey, fullText, () => {
+      this.addDialogueLog({
+        speaker: "파미니",
+        text: fullText
+      }, fullText, nodeKey);
+    });
+  }
+
   advancePaminiBriefing() {
     if (this.backgroundTransition || (this.paminiBriefing && this.paminiBriefing.fadeOutStartedAt != null)) return;
 
     if (!this.paminiBriefing) {
       this.changeScene(SCENES.DOPAMINE_READY);
+      return;
+    }
+
+    if (!this.isTypewriterComplete()) {
+      this.completeTypewriter();
       return;
     }
 
@@ -1183,6 +1276,7 @@ class Game {
     }
 
     this.paminiBriefing.index += 1;
+    this.resetTypewriter();
   }
 
   startPaminiBriefingFadeOut() {
@@ -1211,6 +1305,7 @@ class Game {
 
   handleDopamineReadyClick() {
     if (this.pressButton(this.saveButton)) return;
+    if (this.pressButton(this.loadQuickButton)) return;
     if (this.pressButton(this.dopamineStartButton)) return;
     this.pressButton(this.dopamineSkipButton);
   }
@@ -1643,16 +1738,7 @@ class Game {
 
     if (this.isBackgroundTransitionActive()) return;
 
-    if (this.saveButton.contains(mouseX, mouseY)) {
-      this.saveButton.mousePressed();
-      return;
-    }
-
-    const quickMenuItem = this.getStoryQuickMenuItemAt(mouseX, mouseY);
-    if (quickMenuItem) {
-      this.handleStoryQuickMenu(quickMenuItem.label);
-      return;
-    }
+    if (this.handleFunctionMenuClick()) return;
 
     const node = this.getCurrentNode();
 
@@ -1678,9 +1764,34 @@ class Game {
   }
 
   handleStoryQuickMenu(label) {
+    if (label === "SAVE") {
+      this.openSaveSlotOverlay();
+      return;
+    }
+    if (label === "LOAD") {
+      this.openLoadSlotOverlay();
+      return;
+    }
     if (label === "대사록") {
       this.openDialogueLog();
     }
+  }
+
+  handleFunctionMenuClick() {
+    if (this.saveButton && this.saveButton.contains(mouseX, mouseY)) {
+      this.saveButton.mousePressed();
+      return true;
+    }
+
+    if (this.loadQuickButton && this.loadQuickButton.contains(mouseX, mouseY)) {
+      this.loadQuickButton.mousePressed();
+      return true;
+    }
+
+    const quickMenuItem = this.getStoryQuickMenuItemAt(mouseX, mouseY);
+    if (!quickMenuItem) return false;
+    this.handleStoryQuickMenu(quickMenuItem.label);
+    return true;
   }
 
   openDialogueLog() {
@@ -1898,6 +2009,7 @@ class Game {
   }
 
   resetTypewriter() {
+    if (!this.typewriter) return;
     this.typewriter.nodeKey = null;
     this.typewriter.visibleChars = 0;
     this.typewriter.fullText = "";
@@ -1907,12 +2019,19 @@ class Game {
     const fullText = this.formatDialogueText(node.text, node.speaker);
     const nodeKey = this.getDialogueNodeKey(node);
 
+    return this.updateTypewriter(nodeKey, fullText, () => {
+      this.addDialogueLog(node, fullText, nodeKey);
+      this.applyDialogueEffectsOnDisplay(node, nodeKey);
+    });
+  }
+
+  updateTypewriter(nodeKey, fullText, onStart = null) {
+    if (!this.typewriter) return fullText;
     if (this.typewriter.nodeKey !== nodeKey) {
       this.typewriter.nodeKey = nodeKey;
       this.typewriter.visibleChars = 0;
       this.typewriter.fullText = fullText;
-      this.addDialogueLog(node, fullText, nodeKey);
-      this.applyDialogueEffectsOnDisplay(node, nodeKey);
+      if (onStart) onStart();
     }
 
     const chars = Array.from(this.typewriter.fullText);
@@ -1922,11 +2041,13 @@ class Game {
   }
 
   isTypewriterComplete() {
+    if (!this.typewriter) return true;
     if (!this.typewriter.fullText) return true;
     return this.typewriter.visibleChars >= Array.from(this.typewriter.fullText).length;
   }
 
   completeTypewriter() {
+    if (!this.typewriter) return;
     this.typewriter.visibleChars = Array.from(this.typewriter.fullText).length;
   }
 
@@ -2739,9 +2860,57 @@ class Game {
     return `(${trimmedText})`;
   }
 
-  saveSnapshot() {
-    if (this.state.scene !== SCENES.STORY && this.state.scene !== SCENES.DOPAMINE_READY) return;
-    const snapshot = {
+  getSaveSlotCount() {
+    return 5;
+  }
+
+  getSaveSlotsStorageKey() {
+    return "dopaSaveSlots";
+  }
+
+  readSaveSlots() {
+    const emptySlots = Array(this.getSaveSlotCount()).fill(null);
+    const raw = localStorage.getItem(this.getSaveSlotsStorageKey());
+    if (!raw) return emptySlots;
+
+    try {
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return emptySlots;
+      return emptySlots.map((_, index) => this.normalizeSaveSlot(parsed[index]));
+    } catch (error) {
+      console.warn("Cannot read save slots", error);
+      return emptySlots;
+    }
+  }
+
+  normalizeSaveSlot(slot) {
+    if (!slot || typeof slot !== "object" || !slot.snapshot) return null;
+    return {
+      savedAt: slot.savedAt || "",
+      label: slot.label || "",
+      snapshot: slot.snapshot
+    };
+  }
+
+  writeSaveSlots(slots) {
+    const normalizedSlots = Array(this.getSaveSlotCount()).fill(null).map((_, index) => this.normalizeSaveSlot(slots[index]));
+    localStorage.setItem(this.getSaveSlotsStorageKey(), JSON.stringify(normalizedSlots));
+  }
+
+  isValidSaveSlotNumber(slotNumber) {
+    return Number.isInteger(slotNumber) && slotNumber >= 1 && slotNumber <= this.getSaveSlotCount();
+  }
+
+  canSaveSnapshotNow() {
+    return this.state.scene === SCENES.STORY ||
+      this.state.scene === SCENES.PAMINI_BRIEFING ||
+      this.state.scene === SCENES.DOPAMINE_READY;
+  }
+
+  createSaveSnapshot() {
+    if (!this.canSaveSnapshotNow()) return null;
+    return {
+      scene: this.state.scene,
       episodeId: this.state.episodeId,
       nodeIndex: this.state.nodeIndex,
       dopamine: this.state.dopamine,
@@ -2750,42 +2919,299 @@ class Game {
       playerName: this.state.playerName || "진수",
       background: this.state.background,
       characters: this.state.characters,
+      currentBgm: this.state.currentBgm || null,
+      paminiBriefing: this.createPaminiBriefingSnapshot(),
+      selectedSubGame: this.state.selectedSubGame || null,
+      selectedSubGameReturn: this.state.selectedSubGameReturn || null,
+      selectedSubGameReturnNode: this.state.selectedSubGameReturnNode || null,
+      selectedSubGameOptions: this.state.selectedSubGameOptions || null,
       appliedDialogueEffectKeys: Array.from(this.appliedDialogueEffectKeys || [])
     };
+  }
+
+  saveSnapshot() {
+    const snapshot = this.createSaveSnapshot();
+    if (!snapshot) return false;
     localStorage.setItem("dopaSave", JSON.stringify(snapshot));
     localStorage.setItem("dopaPlayerName", snapshot.playerName);
+    return true;
+  }
+
+  saveToSlot(slotNumber) {
+    if (!this.isValidSaveSlotNumber(slotNumber)) return false;
+    const snapshot = this.createSaveSnapshot();
+    if (!snapshot) return false;
+
+    const slots = this.readSaveSlots();
+    slots[slotNumber - 1] = {
+      savedAt: new Date().toISOString(),
+      label: this.getSaveSlotLabel(snapshot),
+      snapshot
+    };
+    this.writeSaveSlots(slots);
+    localStorage.setItem("dopaSave", JSON.stringify(snapshot));
+    localStorage.setItem("dopaPlayerName", snapshot.playerName);
+    this.closeSaveSlotOverlay();
+    return true;
+  }
+
+  getSaveSlotLabel(snapshot) {
+    const sceneLabel = snapshot.scene === SCENES.DOPAMINE_READY ? "도파민 준비" : "스토리";
+    return `${sceneLabel} · ${snapshot.episodeId || "EP"}`;
   }
 
   loadSnapshot() {
-    const raw = localStorage.getItem("dopaSave");
+    return this.loadSnapshotRaw(localStorage.getItem("dopaSave"));
+  }
+
+  loadFromSlot(slotNumber) {
+    if (this.state.scene === SCENES.MINIGAME || !this.isValidSaveSlotNumber(slotNumber)) return false;
+    const slot = this.readSaveSlots()[slotNumber - 1];
+    if (!slot || !slot.snapshot) return false;
+    const loaded = this.applySaveSnapshot(slot.snapshot);
+    if (loaded) this.closeSaveSlotOverlay();
+    return loaded;
+  }
+
+  loadSnapshotRaw(raw) {
     if (!raw) {
       this.showNameEntry();
-      return;
+      return false;
     }
 
     try {
-      const snapshot = JSON.parse(raw);
-      this.state.episodeId = EPISODES[snapshot.episodeId] ? snapshot.episodeId : this.getStartEpisodeId();
-      this.state.nodeIndex = snapshot.nodeIndex || 0;
-      this.state.dopamine = snapshot.dopamine ?? CONFIG.initialDopamine;
-      this.state.affection = snapshot.affection ?? CONFIG.initialAffection;
-      this.state.episodeAffectionDelta = snapshot.episodeAffectionDelta || 0;
-      this.state.playerName = snapshot.playerName || "진수";
-      this.state.pendingNodes = [];
-      this.appliedDialogueEffectKeys = new Set(Array.isArray(snapshot.appliedDialogueEffectKeys) ? snapshot.appliedDialogueEffectKeys : []);
-      this.state.characters = Array.isArray(snapshot.characters) ? snapshot.characters : [];
-      this.character = {};
-      this.state.characters.forEach((name) => {
-        const image = this.getCharacterAsset(name, "일반");
-        this.character[name] = image ? new CharacterImage(image) : null;
-      });
-      this.state.background = snapshot.background || null;
-      const image = this.assets.backgrounds[this.state.background];
-      this.backgroundImage = image ? new BackgroundImage(image) : null;
-      this.changeScene(SCENES.STORY);
+      return this.applySaveSnapshot(JSON.parse(raw));
     } catch (error) {
       console.warn("Cannot load save data", error);
       this.showNameEntry();
+      return false;
     }
+  }
+
+  applySaveSnapshot(snapshot) {
+    if (!snapshot || typeof snapshot !== "object") return false;
+
+    this.state.episodeId = EPISODES[snapshot.episodeId] ? snapshot.episodeId : this.getStartEpisodeId();
+    this.state.nodeIndex = snapshot.nodeIndex || 0;
+    this.state.dopamine = snapshot.dopamine ?? CONFIG.initialDopamine;
+    this.state.affection = snapshot.affection ?? CONFIG.initialAffection;
+    this.state.episodeAffectionDelta = snapshot.episodeAffectionDelta || 0;
+    this.state.playerName = snapshot.playerName || "진수";
+    this.state.pendingNodes = [];
+    const savedBgm = snapshot.currentBgm || null;
+    this.state.selectedSubGame = snapshot.selectedSubGame || null;
+    this.state.selectedSubGameReturn = snapshot.selectedSubGameReturn || null;
+    this.state.selectedSubGameReturnNode = snapshot.selectedSubGameReturnNode || null;
+    this.state.selectedSubGameOptions = snapshot.selectedSubGameOptions || null;
+    this.appliedDialogueEffectKeys = new Set(Array.isArray(snapshot.appliedDialogueEffectKeys) ? snapshot.appliedDialogueEffectKeys : []);
+    this.state.characters = Array.isArray(snapshot.characters) ? snapshot.characters : [];
+    this.character = {};
+    this.state.characters.forEach((name) => {
+      const image = this.getCharacterAsset(name, "일반");
+      this.character[name] = image ? new CharacterImage(image) : null;
+    });
+    this.state.background = snapshot.background || null;
+    const image = this.assets.backgrounds[this.state.background];
+    this.backgroundImage = image ? new BackgroundImage(image) : null;
+    this.choiceButtons = [];
+    this.choiceButtonsNodeKey = null;
+    this.subGame = null;
+    this.minigameTutorial = null;
+    this.paminiBriefing = this.restorePaminiBriefingSnapshot(snapshot.paminiBriefing);
+    this.backgroundTransition = null;
+    this.pendingBgmNode = null;
+    this.dopamineDeltaPopup = null;
+    localStorage.setItem("dopaPlayerName", this.state.playerName);
+
+    const scene = this.normalizeLoadedScene(snapshot.scene);
+    this.changeScene(scene);
+    this.restoreBgmFromSave(savedBgm);
+    return true;
+  }
+
+  restoreBgmFromSave(bgmName) {
+    if (!bgmName) {
+      this.stopCurrentBgm();
+      return;
+    }
+
+    this.handleBgmNode({
+      type: NODE_TYPES.SOUND,
+      soundType: "bgm",
+      name: bgmName
+    }, "play");
+  }
+
+  normalizeLoadedScene(scene) {
+    if (scene === SCENES.PAMINI_BRIEFING) return SCENES.PAMINI_BRIEFING;
+    if (scene === SCENES.DOPAMINE_READY) return SCENES.DOPAMINE_READY;
+    return SCENES.STORY;
+  }
+
+  createPaminiBriefingSnapshot() {
+    if (this.state.scene !== SCENES.PAMINI_BRIEFING || !this.paminiBriefing) return null;
+    return {
+      lines: Array.isArray(this.paminiBriefing.lines) ? [...this.paminiBriefing.lines] : [],
+      index: this.paminiBriefing.index || 0,
+      snapshot: this.paminiBriefing.snapshot || {},
+      visibleStartedAt: null,
+      fadeOutStartedAt: null
+    };
+  }
+
+  restorePaminiBriefingSnapshot(briefing) {
+    if (!briefing || typeof briefing !== "object") return null;
+    return {
+      lines: Array.isArray(briefing.lines) ? [...briefing.lines] : [],
+      index: briefing.index || 0,
+      snapshot: briefing.snapshot || {},
+      visibleStartedAt: null,
+      fadeOutStartedAt: null
+    };
+  }
+
+  openSaveSlotOverlay() {
+    if (!this.canSaveSnapshotNow()) return false;
+    this.saveSlotOverlay = { mode: "save", message: "" };
+    return true;
+  }
+
+  openLoadSlotOverlay() {
+    if (this.state.scene === SCENES.MINIGAME) {
+      this.saveSlotOverlay = null;
+      return false;
+    }
+    this.saveSlotOverlay = { mode: "load", message: "" };
+    return true;
+  }
+
+  closeSaveSlotOverlay() {
+    this.saveSlotOverlay = null;
+  }
+
+  getSaveSlotRects() {
+    const panelX = 352;
+    const startY = 190;
+    const slotW = 576;
+    const slotH = 58;
+    const gap = 12;
+
+    return Array.from({ length: this.getSaveSlotCount() }, (_, index) => ({
+      slotNumber: index + 1,
+      x: panelX,
+      y: startY + index * (slotH + gap),
+      w: slotW,
+      h: slotH
+    }));
+  }
+
+  getSaveSlotCloseRect() {
+    return { x: 890, y: 132, w: 38, h: 38 };
+  }
+
+  handleSaveSlotOverlayClick() {
+    const closeRect = this.getSaveSlotCloseRect();
+    if (this.isPointInRect(mouseX, mouseY, closeRect)) {
+      this.closeSaveSlotOverlay();
+      return;
+    }
+
+    const rect = this.getSaveSlotRects().find((slotRect) => this.isPointInRect(mouseX, mouseY, slotRect));
+    if (!rect) return;
+
+    if (this.saveSlotOverlay.mode === "save") {
+      this.saveToSlot(rect.slotNumber);
+      return;
+    }
+
+    this.loadFromSlot(rect.slotNumber);
+  }
+
+  isPointInRect(px, py, rect) {
+    return px >= rect.x && px <= rect.x + rect.w && py >= rect.y && py <= rect.y + rect.h;
+  }
+
+  drawSaveSlotOverlay() {
+    const slots = this.readSaveSlots();
+    const mode = this.saveSlotOverlay.mode;
+    const title = mode === "save" ? "SAVE SLOT" : "LOAD SLOT";
+
+    noStroke();
+    fill(0, 0, 0, 150);
+    rect(0, 0, width, height);
+
+    fill("#171a24");
+    stroke(255, 255, 255, 82);
+    strokeWeight(1.4);
+    rect(324, 112, 632, 456, 12);
+
+    noStroke();
+    fill("#fff5dc");
+    textAlign(LEFT, CENTER);
+    this.useFont("uiBold");
+    textSize(28);
+    text(title, 352, 151);
+
+    const closeRect = this.getSaveSlotCloseRect();
+    fill(this.isPointInRect(mouseX, mouseY, closeRect) ? "#ff7ba6" : "rgba(255, 255, 255, 0.14)");
+    rect(closeRect.x, closeRect.y, closeRect.w, closeRect.h, 10);
+    fill("#ffffff");
+    textAlign(CENTER, CENTER);
+    textSize(22);
+    text("X", closeRect.x + closeRect.w / 2, closeRect.y + closeRect.h / 2);
+
+    this.getSaveSlotRects().forEach((slotRect, index) => {
+      this.drawSaveSlotRow(slotRect, slots[index], mode);
+    });
+  }
+
+  drawSaveSlotRow(slotRect, slot, mode) {
+    const disabled = mode === "load" && !slot;
+    const hover = !disabled && this.isPointInRect(mouseX, mouseY, slotRect);
+    const fillColor = disabled
+      ? "rgba(255, 255, 255, 0.07)"
+      : (hover ? "rgba(255, 211, 90, 0.28)" : "rgba(255, 255, 255, 0.12)");
+
+    fill(fillColor);
+    stroke(disabled ? "rgba(255, 255, 255, 0.12)" : "rgba(255, 255, 255, 0.32)");
+    strokeWeight(1);
+    rect(slotRect.x, slotRect.y, slotRect.w, slotRect.h, 10);
+
+    noStroke();
+    fill(disabled ? "rgba(255, 255, 255, 0.42)" : "#ffffff");
+    textAlign(LEFT, CENTER);
+    this.useFont("uiBold");
+    textSize(18);
+    text(`슬롯 ${slotRect.slotNumber}`, slotRect.x + 22, slotRect.y + 20);
+
+    this.useFont("ui");
+    textSize(14);
+    const description = slot ? this.formatSaveSlotDescription(slot) : "비어 있음";
+    fill(disabled ? "rgba(255, 255, 255, 0.38)" : "rgba(255, 255, 255, 0.78)");
+    text(description, slotRect.x + 22, slotRect.y + 42);
+
+    fill(disabled ? "rgba(255, 255, 255, 0.28)" : "#ffd35a");
+    textAlign(RIGHT, CENTER);
+    this.useFont("uiBold");
+    textSize(15);
+    text(mode === "save" ? "저장" : "불러오기", slotRect.x + slotRect.w - 22, slotRect.y + slotRect.h / 2);
+  }
+
+  formatSaveSlotDescription(slot) {
+    const snapshot = slot.snapshot || {};
+    const savedAt = this.formatSaveSlotTime(slot.savedAt);
+    const label = slot.label || this.getSaveSlotLabel(snapshot);
+    return savedAt ? `${label} · ${savedAt}` : label;
+  }
+
+  formatSaveSlotTime(savedAt) {
+    if (!savedAt) return "";
+    const date = new Date(savedAt);
+    if (Number.isNaN(date.getTime())) return "";
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hour = String(date.getHours()).padStart(2, "0");
+    const minute = String(date.getMinutes()).padStart(2, "0");
+    return `${month}/${day} ${hour}:${minute}`;
   }
 }
