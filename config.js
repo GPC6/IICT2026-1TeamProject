@@ -11,7 +11,8 @@ const SCENES = {
   PAMINI_BRIEFING: "paminiBriefing",
   DOPAMINE_READY: "dopamineReady",
   MINIGAME: "minigame",
-  ENDING: "ending"
+  ENDING: "ending",
+  CREDITS: "credits"
 };
 
 const NODE_TYPES = {
@@ -59,6 +60,7 @@ const ASSET_MANIFEST = {
     title: "./assets/font/시원한 설레임체 - 굵은글씨/SEOLEIMcool.ttf"
   },
   backgrounds: {
+    start_screen:"./assets/bg/start_screen.png",
     convenienceStore: "./assets/bg/convenience_store_night.png",
     bedroomNight: "./assets/bg/protagonist_bedroom_night.png",
     "도서관 열람실": "./assets/bg/library_reading_room.png",
@@ -96,7 +98,8 @@ const ASSET_MANIFEST = {
     "밤, 대학가": "./assets/bg/campus_night.png",
     "(CG) 서로 바라보는 둘": "./assets/bg/ending_looking_at_each_other_cg.png",
     "(CG) 손을 잡는 둘": "./assets/bg/ending_holding_hands_cg.png",
-    "(CG) 혼자 남은 주인공)": "./assets/bg/bad_ending_alone_protagonist_cg.png"
+    "(CG) 혼자 남은 주인공)": "./assets/bg/bad_ending_alone_protagonist_cg.png",
+    happyendcredit: "./assets/bg/happyend_cg.png"
   },
   sounds: {
     bgm: {

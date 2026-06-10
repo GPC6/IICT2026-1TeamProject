@@ -26,9 +26,10 @@ class Game {
 
     this.bindNameOverlay();
 
-    this.titleButton = new Button(538, 522, 204, 54, "START", () => {
+    this.titleButton = new Button(408, 600, 204, 54, "START", () => {
       this.showNameEntry();
     }, {
+      stroke: "#ef4778",
       fill: "#ffffff",
       hoverFill: "#ff7ba6",
       text: "#ef4778",
@@ -36,9 +37,10 @@ class Game {
       textSize: 18
     });
 
-    this.loadButton = new Button(538, 590, 204, 48, "LOAD", () => {
+    this.loadButton = new Button(668, 600, 204, 54, "LOAD", () => {
       this.loadSnapshot();
     }, {
+      stroke: "#ffd35a",
       fill: "rgba(255, 255, 255, 0.82)",
       hoverFill: "#ffd35a",
       text: "#40445a",
@@ -47,7 +49,7 @@ class Game {
     });
 
     this.restartButton = new Button(500, 560, 280, 64, "타이틀로", () => {
-      location.reload();
+      this.resetGameToTitle();
     });
 
     this.textBox = new TextBox(0, 452, CONFIG.width, 268);
@@ -220,6 +222,7 @@ class Game {
       if (this.hasActiveMinigameTutorial()) this.drawMinigameTutorialOverlay();
     }
     if (this.state.scene === SCENES.ENDING) this.drawEnding();
+    if (this.state.scene === SCENES.CREDITS) this.drawCredits();
     if (this.logPanelOpen) this.drawDialogueLogOverlay();
   }
 
@@ -261,7 +264,11 @@ class Game {
       this.subGame.mousePressed();
       return;
     }
-    if (scene === SCENES.ENDING) this.restartButton.mousePressed();
+    if (scene === SCENES.ENDING) {
+      this.handleEndingClick();
+      return;
+    }
+    if (scene === SCENES.CREDITS) this.handleCreditsClick();
   }
 
   isDisabledChoiceButtonAt(px, py) {
@@ -304,32 +311,7 @@ class Game {
   }
 
   drawTitle() {
-    this.drawSceneImage("convenienceStore", true);
-    fill(255, 255, 255, 176);
-    rect(0, 0, width, height);
-
-    noStroke();
-    fill("#ee3f73");
-    textAlign(CENTER, CENTER);
-    textStyle(BOLD);
-    this.useFont("title");
-    textSize(72);
-    text("도파민때문에", width / 2, 240);
-    textStyle(NORMAL);
-
-    stroke("#ee3f73");
-    strokeWeight(4);
-    line(width / 2 - 205, 188, width / 2 + 205, 188);
-    line(width / 2 - 205, 292, width / 2 + 205, 292);
-    noStroke();
-
-    fill("#5b5f70");
-    this.useFont("uiBold");
-    textSize(16);
-    text("SOME HOW STOPS LOVE CONVENIENCE STORY", width / 2, 310);
-    this.useFont("ui");
-    textSize(18);
-    text("감정을 너무 낮추지도, 너무 과열시키지도 말 것", width / 2, 354);
+    this.drawSceneImage("start_screen", false);
 
     this.titleButton.draw();
     this.loadButton.draw();
@@ -376,29 +358,116 @@ class Game {
   }
 
   drawEnding() {
-    background("#171b24");
-
-    const endingText = {
-      low: "LowDo 엔딩: 마음이 식거나 용기가 부족했다.",
-      high: "HighDo 엔딩: 감정이 너무 앞서버렸다.",
-      bad: "배드 엔딩: 호감도가 충분히 쌓이지 않았다.",
-      good: "Good 엔딩: 적당한 설렘으로 고백에 성공했다.",
-      "TRUE END": "TRUE END",
-      "BAD END": "BAD END"
-    };
+    this.drawSceneImage("(CG) 손을 잡는 둘")
 
     fill("#f6d365");
     textAlign(CENTER, CENTER);
     this.useFont("title");
     textSize(42);
-    text(endingText[this.state.ending] || this.state.endingText || "END", width / 2, 280);
+    text(this.state.endingText || "END", width / 2, 280);
 
     fill("#f5f2ea");
     this.useFont("ui");
     textSize(24);
     text(`도파민 ${Math.round(this.state.dopamine)} / 호감도 ${Math.round(this.state.affection)}`, width / 2, 360);
 
+    this.restartButton.label = this.isHappyEnding() ? "크레딧으로" : "타이틀로";
     this.restartButton.draw();
+  }
+
+  handleEndingClick() {
+    if (!this.restartButton.contains(mouseX, mouseY)) return;
+
+    if (this.isHappyEnding()) {
+      this.changeScene(SCENES.CREDITS);
+      return;
+    }
+
+    this.resetGameToTitle();
+  }
+
+  isHappyEnding() {
+    return this.state.endingText === "해피엔딩";
+  }
+
+  drawCredits() {
+    this.drawSceneImage("happyendcredit", false)
+
+    fill("#f6d365");
+    textAlign(CENTER, CENTER);
+    this.useFont("title");
+    textSize(48);
+    text("CREDITS", width / 2, 190);
+
+    fill("#f5f2ea");
+    this.useFont("ui");
+    textSize(24);
+    text("임시 크레딧", width / 2, 282);
+    textSize(18);
+    text("도파민때문에 제작팀", width / 2, 326);
+    text("Thanks for playing", width / 2, 364);
+
+    this.restartButton.label = "타이틀로";
+    this.restartButton.draw();
+  }
+
+  handleCreditsClick() {
+    if (this.restartButton.contains(mouseX, mouseY)) {
+      this.resetGameToTitle();
+    }
+  }
+
+  resetGameToTitle() {
+    this.stopCurrentBgm();
+
+    this.state = {
+      scene: SCENES.TITLE,
+      episodeId: this.getStartEpisodeId(),
+      nodeIndex: 0,
+      dopamine: CONFIG.initialDopamine,
+      affection: CONFIG.initialAffection,
+      episodeAffectionDelta: 0,
+      ending: null,
+      characters: [],
+      background: null,
+      currentBgm: null,
+      selectedSubGame: null,
+      selectedSubGameReturn: null,
+      selectedSubGameReturnNode: null,
+      selectedSubGameOptions: null,
+      pendingNodes: [],
+      playerName: "",
+      endingText: null
+    };
+
+    this.choiceButtons = [];
+    this.choiceButtonsNodeKey = null;
+    this.subGame = null;
+    this.minigameTutorial = null;
+    this.paminiBriefing = null;
+    this.backgroundImage = null;
+    this.backgroundTransition = null;
+    this.pendingBgmNode = null;
+    this.currentBgmLoop = null;
+    this.character = {};
+    this.dopamineDeltaPopup = null;
+    this.dialogueLog = [];
+    this.loggedDialogueKeys = new Set();
+    this.appliedDialogueEffectKeys = new Set();
+    this.logPanelOpen = false;
+    this.logScrollIndex = 0;
+    this.typewriter = {
+      nodeKey: null,
+      visibleChars: 0,
+      speed: 0.82,
+      fullText: ""
+    };
+
+    if (this.nameOverlay) {
+      this.nameOverlay.hidden = true;
+      this.nameEntry.hidden = true;
+      this.nameConfirm.hidden = true;
+    }
   }
 
   drawBackground() {
