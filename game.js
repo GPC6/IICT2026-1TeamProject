@@ -2420,7 +2420,8 @@ class Game {
     const options = this.state.selectedSubGameOptions || {};
     this.playSubGameBgm(subGame);
     this.minigameTutorial = this.createMinigameTutorial(options);
-    this.subGame = new SubGameClass(this.state.dopamine, this.getPlayableSubGameOptions(options));
+    const minigameAssets = (this.assets.minigames && this.assets.minigames[subGameId]) || {};
+    this.subGame = new SubGameClass(this.state.dopamine, this.getPlayableSubGameOptions(options), minigameAssets);
   }
 
   createMinigameTutorial(options) {

@@ -1,5 +1,6 @@
 class BrickBreakerGame {
-  constructor(initialDopamine, options = {}) {
+  constructor(initialDopamine, options = {}, minigameAssets = {}) {
+    this.assets = minigameAssets || {};
     this.w = 980;
     this.h = 640;
     this.cols = 9;
@@ -68,6 +69,7 @@ class BrickBreakerGame {
       recoverBoost: 1,
       ballColor: "#f6f1df",
       brickTint: null,
+      assetKey: null,
       name: "기본"
     };
   }
@@ -132,11 +134,30 @@ class BrickBreakerGame {
     push();
     translate(this.offsetX, this.offsetY);
     background("#111820");
+    this.drawImageTopLeft(this.assets.background, 0, 0, this.w, this.h);
     this.drawHeader();
     this.drawBoard();
     this.drawAim();
     this.drawOverlay();
     pop();
+  }
+
+  drawImageTopLeft(img, x, y, w, h) {
+    if (!img) return false;
+    push();
+    imageMode(CORNER);
+    image(img, x, y, w, h);
+    pop();
+    return true;
+  }
+
+  drawImageCentered(img, x, y, w, h) {
+    if (!img) return false;
+    push();
+    imageMode(CORNER);
+    image(img, x - w / 2, y - h / 2, w, h);
+    pop();
+    return true;
   }
 
   mousePressed() {
@@ -291,6 +312,7 @@ class BrickBreakerGame {
     this.effectFlash = 54;
     this.turnBuff.ballColor = info.color;
     this.turnBuff.brickTint = info.color;
+    this.turnBuff.assetKey = type;
     this.turnBuff.name = info.name;
 
     if (type === "calm") {
@@ -652,9 +674,13 @@ class BrickBreakerGame {
     for (const brick of this.bricks) {
       const x = this.getCellX(brick.c);
       const y = this.getCellY(brick.r);
-      fill(this.getBrickColor(brick.kind));
-      rect(x, y, 60, 38, 6);
-      if (this.turnBuff.brickTint) {
+      const brickImg = this.assets.bricks && this.assets.bricks[brick.kind];
+      if (!this.drawImageTopLeft(brickImg, x, y, 60, 38)) {
+        fill(this.getBrickColor(brick.kind));
+        rect(x, y, 60, 38, 6);
+      }
+      const tintImg = this.assets.brickTints && this.assets.brickTints[this.turnBuff.assetKey];
+      if (!this.drawImageTopLeft(tintImg, x, y, 60, 38) && this.turnBuff.brickTint) {
         fill(this.turnBuff.brickTint + "55");
         rect(x, y, 60, 38, 6);
       }
@@ -667,27 +693,45 @@ class BrickBreakerGame {
     this.drawItems();
 
     fill(this.turnBuff.ballColor);
+    const ballImg = this.getBallAsset();
     for (const ball of this.balls) {
       if (ball.alive && ball.active) {
-        circle(ball.x, ball.y, 12);
+        if (!this.drawImageCentered(ballImg, ball.x, ball.y, 12, 12)) {
+          circle(ball.x, ball.y, 12);
+        }
         if (this.effectFlash > 0) {
-          noFill();
-          stroke(this.turnBuff.ballColor);
-          strokeWeight(2);
-          circle(ball.x, ball.y, 22);
-          noStroke();
-          fill(this.turnBuff.ballColor);
+          if (!this.drawImageCentered(this.assets.effectRing, ball.x, ball.y, 22, 22)) {
+            noFill();
+            stroke(this.turnBuff.ballColor);
+            strokeWeight(2);
+            circle(ball.x, ball.y, 22);
+            noStroke();
+            fill(this.turnBuff.ballColor);
+          }
         }
       }
     }
     if (this.aiming) {
       fill("#f8e7a2");
-      circle(this.launchX, this.launchY, 18);
+      if (!this.drawImageCentered(this.assets.launchMarker, this.launchX, this.launchY, 18, 18)) {
+        circle(this.launchX, this.launchY, 18);
+      }
     }
     if (this.nextLaunchX !== null && !this.aiming) {
       fill("#7be0b7");
-      circle(this.nextLaunchX, this.launchY, 10);
+      if (!this.drawImageCentered(this.assets.nextLaunchMarker, this.nextLaunchX, this.launchY, 10, 10)) {
+        circle(this.nextLaunchX, this.launchY, 10);
+      }
     }
+  }
+
+  getBallAsset() {
+    if (this.turnBuff.assetKey === "calm") return this.assets.ballCalm || this.assets.ballDefault;
+    if (this.turnBuff.assetKey === "focus" || this.turnBuff.assetKey === "stabilize") {
+      return this.assets.ballFocus || this.assets.ballDefault;
+    }
+    if (this.turnBuff.assetKey) return this.assets.ballStim || this.assets.ballDefault;
+    return this.assets.ballDefault;
   }
 
   getBrickColor(kind) {
@@ -697,6 +741,8 @@ class BrickBreakerGame {
   }
 
   drawPlayWalls() {
+    if (this.drawImageTopLeft(this.assets.frame, 0, 0, this.w, this.h)) return;
+
     noFill();
     stroke("#7f8ea3");
     strokeWeight(4);
@@ -724,15 +770,18 @@ class BrickBreakerGame {
       const info = this.itemInfo(item.type);
       const x = this.getCellX(item.c) + 30;
       const y = this.getCellY(item.r) + 19;
-      fill(info.color);
-      stroke("#f6f1df");
-      strokeWeight(2);
-      circle(x, y, 30);
-      noStroke();
-      fill("#111820");
-      textAlign(CENTER, CENTER);
-      textSize(info.label.length > 2 ? 10 : 12);
-      text(info.label, x, y);
+      const itemImg = this.assets.items && this.assets.items[item.type];
+      if (!this.drawImageCentered(itemImg, x, y, 30, 30)) {
+        fill(info.color);
+        stroke("#f6f1df");
+        strokeWeight(2);
+        circle(x, y, 30);
+        noStroke();
+        fill("#111820");
+        textAlign(CENTER, CENTER);
+        textSize(info.label.length > 2 ? 10 : 12);
+        text(info.label, x, y);
+      }
     }
   }
 

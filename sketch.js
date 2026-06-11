@@ -3,11 +3,22 @@ let assets = {
   fonts: {},
   backgrounds: {},
   characters: {},
+  minigames: {},
   sounds: {
     bgm: {},
     effects: {}
   }
 };
+
+function loadImageAssetTree(tree, basePath = "") {
+  if (typeof tree === "string") return loadImage(basePath + tree);
+
+  const loaded = {};
+  Object.entries(tree || {}).forEach(([name, value]) => {
+    loaded[name] = loadImageAssetTree(value, basePath);
+  });
+  return loaded;
+}
 
 function preload() {
   Object.entries(ASSET_MANIFEST.fonts || {}).forEach(([name, path]) => {
@@ -24,6 +35,10 @@ function preload() {
     Object.entries(emotions).forEach(([emotion, path]) => {
       assets.characters[name][emotion] = loadImage(path);
     });
+  });
+
+  Object.entries(ASSET_MANIFEST.minigames || {}).forEach(([name, config]) => {
+    assets.minigames[name] = loadImageAssetTree(config.assets || {}, config.basePath || "");
   });
 
   Object.entries(ASSET_MANIFEST.sounds.bgm || {}).forEach(([name, config]) => {

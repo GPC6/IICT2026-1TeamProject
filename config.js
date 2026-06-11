@@ -196,5 +196,95 @@ const ASSET_MANIFEST = {
       일반: "./assets/mascot/dopamine_mascot_concept_v1.png",
       Normal: "./assets/mascot/dopamine_mascot_concept_v1.png"
     }
+  },
+  minigames: {
+    brickBreaker: {
+      basePath: "./assets/minigame/breakblocks/original/",
+      assets: {
+        background: "game_background.png",
+        frame: "playfield_frame_exact.png",
+        floorDanger: "floor_danger_line.png",
+        ballDefault: "ball_default.png",
+        ballCalm: "ball_calm_effect.png",
+        ballStim: "ball_stim_effect.png",
+        ballFocus: "ball_focus_effect.png",
+        effectRing: "effect_flash_ring.png",
+        launchMarker: "launch_origin_marker.png",
+        nextLaunchMarker: "next_launch_marker.png",
+        bricks: {
+          normal: "brick_normal.png",
+          stim: "brick_stim.png",
+          recover: "brick_recover.png"
+        },
+        brickTints: {
+          calm: "brick_tint_calm.png",
+          boost: "brick_tint_boost.png",
+          power: "brick_tint_power.png",
+          pierce: "brick_tint_pierce.png",
+          warmup: "brick_tint_warmup.png",
+          stabilize: "brick_tint_stabilize.png",
+          focus: "brick_tint_focus.png"
+        },
+        items: {
+          calm: "item_calm.png",
+          boost: "item_boost.png",
+          power: "item_power.png",
+          pierce: "item_pierce.png",
+          warmup: "item_warmup.png",
+          stabilize: "item_stabilize.png",
+          focus: "item_focus.png"
+        }
+      }
+    },
+    sideShooter: {
+      basePath: "./assets/minigame/shooting/original/",
+      assets: {
+        background: "bg_starfield_full.png",
+        hudTopPanel: "hud_top_panel_blank.png",
+        messagePanel: "message_panel_blank.png",
+        powerMeter: "power_meter_empty_cells.png",
+        starParticle: "star_particle.png",
+        player: {
+          base: "player_ship_base.png",
+          speed: "player_ship_speed_boost.png",
+          overdrive: "player_ship_overdrive.png",
+          shield: "player_shield_ring.png"
+        },
+        optionDrone: "option_drone.png",
+        receptorGate: "receptor_gate.png",
+        shots: {
+          normal: "shot_normal.png",
+          laser: "shot_laser.png"
+        },
+        enemyBullet: "enemy_bullet.png",
+        enemies: {
+          drone: "enemy_drone.png",
+          shooter: "enemy_shooter.png",
+          tank: "enemy_tank.png"
+        },
+        items: {
+          calm: "item_calm_capsule.png",
+          power: "item_power_capsule.png",
+          stim: "item_stim_capsule.png"
+        },
+        skills: {
+          absorb: "skill_absorb_rings.png",
+          double: "skill_double_pulse.png",
+          speed: "skill_speed_trails.png",
+          laser: "skill_laser_pulse.png",
+          option: "skill_option_pulse.png",
+          shield: "skill_shield_pulse.png"
+        },
+        upgrades: {
+          absorb: "upgrade_absorb_filter_icon.png",
+          double: "upgrade_double_shot_icon.png",
+          speed: "upgrade_speed_icon.png",
+          laser: "upgrade_laser_icon.png",
+          option: "upgrade_option_pet_icon.png",
+          shield: "upgrade_shield_icon.png"
+        },
+        life: "life_core_icon.png"
+      }
+    }
   }
 };

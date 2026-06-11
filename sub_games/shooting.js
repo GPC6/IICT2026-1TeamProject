@@ -1,5 +1,6 @@
 class SideShooterGame {
-  constructor(initialDopamine, options = {}) {
+  constructor(initialDopamine, options = {}, minigameAssets = {}) {
+    this.assets = minigameAssets || {};
     this.w = 980;
     this.h = 620;
     this.maxDopamine = 100;
@@ -77,11 +78,32 @@ class SideShooterGame {
     push();
     translate((width - this.w) / 2, (height - this.h) / 2);
     background("#0e151c");
+    this.drawImageTopLeft(this.assets.background, 0, 0, this.w, this.h, 125);
     this.drawStars();
     this.drawGame();
     this.drawHud();
     if (this.gameOver) this.drawEnd();
     pop();
+  }
+
+  drawImageTopLeft(img, x, y, w, h, alpha = 255) {
+    if (!img) return false;
+    push();
+    imageMode(CORNER);
+    if (alpha < 255) tint(255, alpha);
+    image(img, x, y, w, h);
+    pop();
+    return true;
+  }
+
+  drawImageCentered(img, x, y, w, h, alpha = 255) {
+    if (!img) return false;
+    push();
+    imageMode(CORNER);
+    if (alpha < 255) tint(255, alpha);
+    image(img, x - w / 2, y - h / 2, w, h);
+    pop();
+    return true;
   }
 
   mousePressed() {
@@ -688,49 +710,66 @@ class SideShooterGame {
   }
 
   drawGame() {
-    fill("#7be0b7");
-    triangle(this.player.x - 18, this.player.y - 16, this.player.x - 18, this.player.y + 16, this.player.x + 24, this.player.y);
-    fill("#e9fff4");
-    circle(this.player.x - 4, this.player.y, 8);
+    const playerImg = this.getPlayerAsset();
+    if (!this.drawImageCentered(playerImg, this.player.x + 3, this.player.y, 64, 48)) {
+      fill("#7be0b7");
+      triangle(this.player.x - 18, this.player.y - 16, this.player.x - 18, this.player.y + 16, this.player.x + 24, this.player.y);
+      fill("#e9fff4");
+      circle(this.player.x - 4, this.player.y, 8);
+    }
     this.drawSkillVisual();
 
     if (this.player.shield > 0) {
-      noFill();
-      stroke("#68a7ff");
-      strokeWeight(2);
-      circle(this.player.x, this.player.y, 56);
-      noStroke();
+      if (!this.drawImageCentered(this.assets.player && this.assets.player.shield, this.player.x, this.player.y, 56, 56)) {
+        noFill();
+        stroke("#68a7ff");
+        strokeWeight(2);
+        circle(this.player.x, this.player.y, 56);
+        noStroke();
+      }
     }
 
     if (this.optionDrone) {
       fill("#68a7ff");
-      circle(this.optionDrone.x, this.optionDrone.y, 16);
+      if (!this.drawImageCentered(this.assets.optionDrone, this.optionDrone.x, this.optionDrone.y, 32, 32)) {
+        circle(this.optionDrone.x, this.optionDrone.y, 16);
+      }
     }
 
     for (const gate of this.gates) {
-      noFill();
-      stroke("#7be0b7");
-      strokeWeight(4);
-      circle(gate.x, gate.y, gate.r * 2);
-      noStroke();
+      if (!this.drawImageCentered(this.assets.receptorGate, gate.x, gate.y, gate.r * 2, gate.r * 2)) {
+        noFill();
+        stroke("#7be0b7");
+        strokeWeight(4);
+        circle(gate.x, gate.y, gate.r * 2);
+        noStroke();
+      }
     }
 
     for (const item of this.items) {
-      fill(this.itemColor(item.type));
-      stroke("#f6f1df");
-      strokeWeight(2);
-      circle(item.x, item.y, item.r * 2);
-      noStroke();
-      fill("#111820");
-      textAlign(CENTER, CENTER);
-      textSize(10);
-      text(this.itemLabel(item.type), item.x, item.y);
+      const itemImg = this.assets.items && this.assets.items[item.type];
+      if (!this.drawImageCentered(itemImg, item.x, item.y, 32, 32)) {
+        fill(this.itemColor(item.type));
+        stroke("#f6f1df");
+        strokeWeight(2);
+        circle(item.x, item.y, item.r * 2);
+        noStroke();
+        fill("#111820");
+        textAlign(CENTER, CENTER);
+        textSize(10);
+        text(this.itemLabel(item.type), item.x, item.y);
+      }
     }
 
     for (const s of this.shots) {
-      fill(this.shotColor(s.kind));
-      if (s.kind === "laser") ellipse(s.x, s.y, 58, 8);
-      else ellipse(s.x, s.y, 18, 8);
+      const shotImg = this.assets.shots && this.assets.shots[s.kind === "laser" ? "laser" : "normal"];
+      const shotW = s.kind === "laser" ? 58 : 24;
+      const shotH = s.kind === "laser" ? 14 : 12;
+      if (!this.drawImageCentered(shotImg, s.x, s.y, shotW, shotH)) {
+        fill(this.shotColor(s.kind));
+        if (s.kind === "laser") ellipse(s.x, s.y, 58, 8);
+        else ellipse(s.x, s.y, 18, 8);
+      }
     }
 
     for (const enemy of this.enemies) {
@@ -738,14 +777,39 @@ class SideShooterGame {
     }
 
     fill("#ffc857");
-    for (const b of this.bullets) circle(b.x, b.y, 8);
+    for (const b of this.bullets) {
+      if (!this.drawImageCentered(this.assets.enemyBullet, b.x, b.y, 14, 14)) {
+        circle(b.x, b.y, 8);
+      }
+    }
 
     this.drawFloatingTexts();
+  }
+
+  getPlayerAsset() {
+    if (this.upgrades && this.upgrades.speed && this.assets.player && this.assets.player.speed) {
+      return this.assets.player.speed;
+    }
+    if (this.dopamine >= 85 && this.assets.player && this.assets.player.overdrive) {
+      return this.assets.player.overdrive;
+    }
+    return this.assets.player && this.assets.player.base;
   }
 
   drawSkillVisual() {
     if (!this.skillVisual) return;
     const progress = this.skillVisual.age / this.skillVisual.duration;
+    const skillImg = this.assets.skills && this.assets.skills[this.skillVisual.key];
+    if (skillImg) {
+      const size = this.skillVisual.key === "absorb" ? 100 - progress * 28 : 74 + progress * 18;
+      if (this.skillVisual.key === "speed") {
+        this.drawImageCentered(skillImg, this.player.x - 36, this.player.y, 96, 56, 210);
+      } else {
+        this.drawImageCentered(skillImg, this.player.x, this.player.y, size, size, 210);
+      }
+      return;
+    }
+
     noFill();
     stroke(this.skillVisual.color);
     strokeWeight(3);
@@ -796,6 +860,13 @@ class SideShooterGame {
   drawEnemy(enemy) {
     const x = enemy.x;
     const y = enemy.y;
+    const enemyImg = this.assets.enemies && this.assets.enemies[enemy.type];
+    if (enemyImg) {
+      const size = this.getEnemyImageSize(enemy.type);
+      this.drawImageCentered(enemyImg, x, y, size.w, size.h);
+      return;
+    }
+
     fill(this.enemyColor(enemy.type));
     stroke("#101419");
     strokeWeight(2);
@@ -823,6 +894,12 @@ class SideShooterGame {
     text(this.enemyLabel(enemy.type), x, y);
   }
 
+  getEnemyImageSize(type) {
+    if (type === "shooter") return { w: 64, h: 50 };
+    if (type === "tank") return { w: 72, h: 56 };
+    return { w: 48, h: 48 };
+  }
+
   enemyColor(type) {
     if (type === "shooter") return "#ff7b8d";
     if (type === "tank") return "#d86c7f";
@@ -842,6 +919,9 @@ class SideShooterGame {
   }
 
   drawHud() {
+    this.drawImageTopLeft(this.assets.hudTopPanel, 0, 0, this.w, 102, 210);
+    this.drawImageTopLeft(this.assets.messagePanel, 0, this.h - 48, this.w, 48, 210);
+
     fill("#f8e7a2");
     textAlign(LEFT, CENTER);
     textSize(27);
@@ -899,8 +979,10 @@ class SideShooterGame {
   drawPowerMeter(x, y, w) {
     const upgrades = this.getUpgradeCatalog();
     const cellW = w / upgrades.length;
-    fill("#17222b");
-    rect(x, y, w, 58, 6);
+    if (!this.drawImageTopLeft(this.assets.powerMeter, x, y, w, 58, 230)) {
+      fill("#17222b");
+      rect(x, y, w, 58, 6);
+    }
 
     for (let i = 0; i < upgrades.length; i++) {
       const upgrade = upgrades[i];
@@ -927,10 +1009,15 @@ class SideShooterGame {
         rect(cellX + 2, y + 6, cellW - 4, 24, 5);
         noStroke();
       }
-      fill("#111820");
-      textAlign(CENTER, CENTER);
-      textSize(10);
-      text(consumed ? "" : upgrade.name.slice(0, 2), cellX + cellW / 2, y + 18);
+      const icon = this.assets.upgrades && this.assets.upgrades[upgrade.key];
+      if (!consumed && icon) {
+        this.drawImageCentered(icon, cellX + cellW / 2, y + 18, 24, 24);
+      } else {
+        fill("#111820");
+        textAlign(CENTER, CENTER);
+        textSize(10);
+        text(consumed ? "" : upgrade.name.slice(0, 2), cellX + cellW / 2, y + 18);
+      }
     }
 
     const selected = this.getSelectedUpgrade();
