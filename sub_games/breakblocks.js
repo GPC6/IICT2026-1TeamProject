@@ -684,10 +684,7 @@ class BrickBreakerGame {
         fill(this.turnBuff.brickTint + "55");
         rect(x, y, 60, 38, 6);
       }
-      fill("#111820");
-      textAlign(CENTER, CENTER);
-      textSize(18);
-      text(Math.max(0, brick.hp), x + 30, y + 19);
+      this.drawBrickHpLabel(Math.max(0, brick.hp), x + 30, y + 19);
     }
 
     this.drawItems();
@@ -740,6 +737,22 @@ class BrickBreakerGame {
     return "#a8b2bf";
   }
 
+  drawBrickHpLabel(hp, x, y) {
+    push();
+    rectMode(CENTER);
+    noStroke();
+    fill(0, 185);
+    rect(x, y, 30, 22, 8);
+    stroke("#f6f1df");
+    strokeWeight(3);
+    fill("#ffffff");
+    textAlign(CENTER, CENTER);
+    textSize(17);
+    textStyle(BOLD);
+    text(hp, x, y);
+    pop();
+  }
+
   drawPlayWalls() {
     if (this.drawImageTopLeft(this.assets.frame, 0, 0, this.w, this.h)) return;
 
@@ -781,8 +794,24 @@ class BrickBreakerGame {
         textAlign(CENTER, CENTER);
         textSize(info.label.length > 2 ? 10 : 12);
         text(info.label, x, y);
+      } else {
+        this.drawItemLabel(info.label, x, y + 19);
       }
     }
+  }
+
+  drawItemLabel(label, x, y) {
+    push();
+    rectMode(CENTER);
+    noStroke();
+    fill(0, 175);
+    rect(x, y, Math.max(28, label.length * 11), 14, 7);
+    fill("#ffffff");
+    textAlign(CENTER, CENTER);
+    textSize(label.length > 2 ? 9 : 10);
+    textStyle(BOLD);
+    text(label, x, y);
+    pop();
   }
 
   drawAim() {

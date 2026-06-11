@@ -7,8 +7,22 @@ const projectRoot = path.join(__dirname, "..");
 
 function loadSideShooter() {
   let now = 0;
+  const bodyClasses = new Set();
   const context = {
     window: {},
+    document: {
+      body: {
+        classList: {
+          toggle(name, force) {
+            if (force) bodyClasses.add(name);
+            else bodyClasses.delete(name);
+          },
+          contains(name) {
+            return bodyClasses.has(name);
+          }
+        }
+      }
+    },
     Math,
     width: 1280,
     height: 720,
@@ -29,6 +43,7 @@ function loadSideShooter() {
     setMillis: (value) => {
       now = value;
     },
+    isBodyClassSet: (name) => bodyClasses.has(name),
     keyIsDown: () => false,
     random: () => 0.99,
     constrain: (value, min, max) => Math.max(min, Math.min(max, value)),
@@ -63,11 +78,16 @@ function runTests() {
   assert.strictEqual(upgrades[0].key, "absorb", "absorb skill is the first power slot");
   assert.strictEqual(upgrades[2].key, "speed", "speed skill moves to the third power slot");
   assert.strictEqual(calm.enemyKillDopamine, 3, "enemy defeats raise dopamine by 3");
+  assert.ok(calm.powerDropChance >= 0.35, "enemy item drop chance is high enough to see items regularly");
   assert.strictEqual(calm.getDopamineDeltaColor(1), "#ff5d73", "positive dopamine delta uses red");
   assert.strictEqual(calm.getDopamineDeltaColor(-1), "#7be0b7", "negative dopamine delta uses green");
   assert.ok(calm.getEnemyRoleText("drone").includes("+3"), "drone explains dopamine gain");
   assert.ok(calm.getEnemyRoleText("shooter").includes("+3"), "shooter explains dopamine gain");
   assert.ok(calm.getEnemyRoleText("tank").includes("+3"), "tank explains dopamine gain");
+  calm.setCursorHidden(true);
+  assert.strictEqual(context.isBodyClassSet("hide-game-cursor"), true, "sideShooter can hide the page cursor");
+  calm.cleanup();
+  assert.strictEqual(context.isBodyClassSet("hide-game-cursor"), false, "sideShooter restores the page cursor on cleanup");
 
   assert.ok(
     high.getDopamineDecayPerFrame() > calm.getDopamineDecayPerFrame(),
@@ -122,6 +142,13 @@ function runTests() {
   assert.ok(
     defeatGame.floatTexts.some((entry) => entry.text.includes("+3") && entry.color === "#ff5d73"),
     "enemy defeat creates red floating dopamine feedback"
+  );
+
+  const itemGame = new SideShooterGame(55, { durationSeconds: 120 });
+  itemGame.collectItem({ x: 320, y: 240, r: 13, vx: -2.8, type: "stim" });
+  assert.ok(
+    itemGame.floatTexts.some((entry) => entry.text === "+8" && entry.x === 320 && entry.y === 222),
+    "item dopamine feedback appears at the collected item position"
   );
 
   const speedGame = new SideShooterGame(55, { durationSeconds: 120 });

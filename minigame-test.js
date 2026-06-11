@@ -142,6 +142,10 @@ function setupTestPanel() {
 }
 
 function startTestSubGame() {
+  if (testSubGame && typeof testSubGame.cleanup === "function") {
+    testSubGame.cleanup();
+  }
+
   const subGame = SUB_GAME_MANIFEST[testSubGameId];
   const SubGameClass = subGame ? window[subGame.className] : null;
 

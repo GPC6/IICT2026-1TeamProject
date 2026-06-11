@@ -12,7 +12,7 @@ const context = {
 
 const configCode = fs.readFileSync(path.join(projectRoot, "config.js"), "utf8");
 vm.runInNewContext(
-  configCode + "\nthis.ASSET_MANIFEST = ASSET_MANIFEST; this.SUB_GAME_MANIFEST = SUB_GAME_MANIFEST; this.SUB_GAMES = SUB_GAMES;",
+  configCode + "\nthis.ASSET_MANIFEST = ASSET_MANIFEST; this.SUB_GAME_MANIFEST = SUB_GAME_MANIFEST; this.SUB_GAMES = SUB_GAMES; this.SCENES = SCENES;",
   context,
   { filename: "config.js" }
 );
@@ -62,5 +62,17 @@ game.startSelectedSubGame();
 assert.deepStrictEqual(receivedAssets, { sprite: "loaded-image" }, "selected minigame assets are passed into subgame");
 assert.strictEqual(game.subGame.initialDopamine, 61, "current dopamine is still passed into subgame");
 assert.strictEqual(game.subGame.options.maxTurns, 3, "playable options are still passed into subgame");
+
+let cleanupCalled = false;
+const cleanupGame = Object.create(context.Game.prototype);
+cleanupGame.state = { scene: context.SCENES.MINIGAME };
+cleanupGame.subGame = {
+  cleanup() {
+    cleanupCalled = true;
+  }
+};
+cleanupGame.refreshChoices = () => {};
+cleanupGame.changeScene(context.SCENES.STORY);
+assert.strictEqual(cleanupCalled, true, "leaving a minigame runs subgame cleanup");
 
 console.log("minigame-assets tests passed");

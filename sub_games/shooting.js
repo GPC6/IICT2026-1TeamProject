@@ -7,7 +7,7 @@ class SideShooterGame {
     this.durationSeconds = this.parseDurationSeconds(options.durationSeconds || options.maxDuration || options.maxSeconds);
     this.difficulty = this.parseDifficulty(options.difficulty);
     this.enemyKillDopamine = 3;
-    this.powerDropChance = 0.22;
+    this.powerDropChance = 0.38;
     this.stimItemDopamine = 8;
     this.calmItemDopamine = -10;
     this.absorbSkillDopamine = -25;
@@ -75,6 +75,7 @@ class SideShooterGame {
   }
 
   draw() {
+    this.setCursorHidden(true);
     push();
     translate((width - this.w) / 2, (height - this.h) / 2);
     background("#0e151c");
@@ -84,6 +85,15 @@ class SideShooterGame {
     this.drawHud();
     if (this.gameOver) this.drawEnd();
     pop();
+  }
+
+  setCursorHidden(hidden) {
+    if (typeof document === "undefined" || !document.body) return;
+    document.body.classList.toggle("hide-game-cursor", hidden);
+  }
+
+  cleanup() {
+    this.setCursorHidden(false);
   }
 
   drawImageTopLeft(img, x, y, w, h, alpha = 255) {
@@ -570,6 +580,8 @@ class SideShooterGame {
   }
 
   collectItem(item) {
+    const collectedX = item.x;
+    const collectedY = item.y;
     item.x = -100;
     if (item.type === "power") {
       this.advancePowerMeter();
@@ -579,12 +591,12 @@ class SideShooterGame {
     }
     if (item.type === "calm") {
       this.addDopamine(this.calmItemDopamine);
-      this.addFloatingText(`${this.calmItemDopamine}`, item.x, item.y - 18, this.calmItemDopamine);
+      this.addFloatingText(`${this.calmItemDopamine}`, collectedX, collectedY - 18, this.calmItemDopamine);
       this.resultText = `안정 캡슐: 도파민 ${this.calmItemDopamine}`;
       return;
     }
     this.addDopamine(this.stimItemDopamine);
-    this.addFloatingText(`+${this.stimItemDopamine}`, item.x, item.y - 18, this.stimItemDopamine);
+    this.addFloatingText(`+${this.stimItemDopamine}`, collectedX, collectedY - 18, this.stimItemDopamine);
     this.resultText = `자극 캡슐: 도파민 +${this.stimItemDopamine}`;
   }
 

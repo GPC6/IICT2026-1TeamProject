@@ -189,6 +189,10 @@ class Game {
   }
 
   changeScene(scene) {
+    if (this.state.scene === SCENES.MINIGAME && scene !== SCENES.MINIGAME) {
+      this.cleanupSubGame();
+    }
+
     this.state.scene = scene;
 
     if (scene === SCENES.STORY) {
@@ -197,6 +201,12 @@ class Game {
 
     if (scene === SCENES.MINIGAME) {
       this.startSelectedSubGame();
+    }
+  }
+
+  cleanupSubGame() {
+    if (this.subGame && typeof this.subGame.cleanup === "function") {
+      this.subGame.cleanup();
     }
   }
 
@@ -441,6 +451,7 @@ class Game {
 
   resetGameToTitle() {
     this.stopCurrentBgm();
+    this.cleanupSubGame();
 
     this.state = {
       scene: SCENES.TITLE,
@@ -2614,6 +2625,7 @@ class Game {
       this.state.dopamine = constrain(this.subGame.getDopamine(), 0, 100);
     }
 
+    this.cleanupSubGame();
     this.subGame = null;
     this.minigameTutorial = null;
     const returnEpisodeId = this.state.selectedSubGameReturn || "EP_AFTER_MINIGAME";

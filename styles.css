@@ -24,6 +24,13 @@
   cursor: var(--game-cursor);
 }
 
+body.hide-game-cursor,
+body.hide-game-cursor *,
+body.hide-game-cursor *::before,
+body.hide-game-cursor *::after {
+  cursor: none !important;
+}
+
 html,
 body {
   margin: 0;
