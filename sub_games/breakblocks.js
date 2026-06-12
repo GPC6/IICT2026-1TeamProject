@@ -19,7 +19,7 @@ class BrickBreakerGame {
     this.offsetY = 0;
     this.maxDopamine = 100;
     this.stimAmount = 1;
-    this.recoverAmount = 8;
+    this.recoverAmount = 1;
     this.maxTurns = this.parseMaxTurns(options.maxTurns);
     this.initialDopamine = this.clampDopamine(initialDopamine);
     this.finished = false;
@@ -52,9 +52,6 @@ class BrickBreakerGame {
     this.nextLaunchX = null;
     this.nextLaunchCaptured = false;
     this.effectFlash = 0;
-    this.lastItemName = "";
-    this.rowsUntilNextItem = 1;
-    this.permanentBallBonus = 0;
     this.resetTurnPacing();
     this.resetTurnBuff();
 
@@ -63,10 +60,7 @@ class BrickBreakerGame {
 
   resetTurnBuff() {
     this.turnBuff = {
-      noGain: false,
-      boost: 1,
       power: 1,
-      recoverBoost: 1,
       ballColor: "#f6f1df",
       brickTint: null,
       assetKey: null,
@@ -195,7 +189,7 @@ class BrickBreakerGame {
       });
     }
     this.aiming = false;
-    this.message = `${count}개 발사 / P=공+1, 관통=블럭 통과, 완화=자극 차단`;
+    this.message = `${count}개 발사 / 빨강은 상승, 초록은 맞을 때마다 감소`;
   }
 
   keyPressed() {
@@ -205,12 +199,11 @@ class BrickBreakerGame {
   }
 
   getBallCount() {
-    return Math.max(1, Math.min(10, Math.floor(this.dopamine / 5) + this.permanentBallBonus));
+    return Math.max(1, Math.min(10, Math.floor(this.dopamine / 5)));
   }
 
   addBrickRow(rowIndex = 0) {
     const openCol = Math.floor(random(this.cols));
-    this.tryAddItem(openCol, rowIndex);
 
     for (let c = 0; c < this.cols; c++) {
       if (c !== openCol) this.addBrick(c, rowIndex);
@@ -263,98 +256,11 @@ class BrickBreakerGame {
   }
 
   tryAddItem(col, rowIndex) {
-    if (rowIndex !== 0) return false;
-    if (this.rowsUntilNextItem > 0) return false;
-    if (this.items.some((item) => item.r === rowIndex)) return false;
-    if (random() > 0.38) return false;
-
-    this.items.push({
-      c: col,
-      r: rowIndex,
-      type: this.randomItemType(),
-      collected: false
-    });
-    this.rowsUntilNextItem = this.randomInt(2, 4);
-    return true;
+    return false;
   }
 
   randomInt(min, max) {
     return Math.floor(random(min, max));
-  }
-
-  randomItemType() {
-    const roll = random();
-    if (roll < 0.12) return "calm";
-    if (roll < 0.34) return "boost";
-    if (roll < 0.56) return "power";
-    if (roll < 0.72) return "pierce";
-    if (roll < 0.82) return "warmup";
-    if (roll < 0.92) return "stabilize";
-    return "focus";
-  }
-
-  itemInfo(type) {
-    const infos = {
-      calm: { label: "완화", color: "#7be0b7", name: "완화 큐브" },
-      boost: { label: "자극", color: "#ff72a0", name: "고자극 큐브" },
-      power: { label: "강화", color: "#ffd166", name: "강화 큐브" },
-      pierce: { label: "관통", color: "#c99cff", name: "관통 큐브" },
-      warmup: { label: "예열", color: "#ffb15d", name: "예열 큐브" },
-      stabilize: { label: "안정", color: "#55c99f", name: "안정화 큐브" },
-      focus: { label: "재흡수", color: "#68a7ff", name: "재흡수 큐브" }
-    };
-    return infos[type] || infos.stabilize;
-  }
-
-  applyItem(type) {
-    const info = this.itemInfo(type);
-    this.lastItemName = info.name;
-    this.effectFlash = 54;
-    this.turnBuff.ballColor = info.color;
-    this.turnBuff.brickTint = info.color;
-    this.turnBuff.assetKey = type;
-    this.turnBuff.name = info.name;
-
-    if (type === "calm") {
-      this.turnBuff.noGain = true;
-      this.message = "완화 큐브: 이번 턴 자극 증가 차단";
-      return;
-    }
-
-    if (type === "boost") {
-      this.turnBuff.boost = Math.max(this.turnBuff.boost, 1.5);
-      this.message = "고자극 큐브: 이번 턴 자극 증가량 상승";
-      return;
-    }
-
-    if (type === "power") {
-      this.turnBuff.power = Math.max(this.turnBuff.power, 2);
-      this.message = "강화 큐브: 이번 턴 블럭 피해량 상승";
-      return;
-    }
-
-    if (type === "focus") {
-      this.turnBuff.recoverBoost = Math.max(this.turnBuff.recoverBoost, 1.2);
-      this.message = "재흡수 큐브: 이번 턴 회복 블럭 효과 상승";
-      return;
-    }
-
-    if (type === "pierce") {
-      for (const ball of this.balls) {
-        if (ball.alive) ball.pierceHits = Math.max(ball.pierceHits || 0, 3);
-      }
-      this.message = "관통 큐브: 이번 턴 블럭 3회 관통";
-      return;
-    }
-
-    if (type === "warmup") {
-      this.permanentBallBonus++;
-      this.message = `예열 큐브: 이후 발사 공 +1 (누적 +${this.permanentBallBonus})`;
-      return;
-    }
-
-    this.dopamine = this.clampDopamine(Math.round(this.dopamine + (65 - this.dopamine) * 0.25));
-    this.message = "안정화 큐브: 도파민이 안정 구간으로 이동";
   }
 
   updateBalls() {
@@ -380,12 +286,10 @@ class BrickBreakerGame {
       }
       if (ball.forceDropping) continue;
 
-      this.collectItems(ball);
       this.hitBricks(ball);
     }
 
     this.bricks = this.bricks.filter((brick) => brick.hp > 0);
-    this.items = this.items.filter((item) => !item.collected && this.getCellY(item.r) < this.floor - 12);
   }
 
   updateSlidingBall(ball) {
@@ -416,20 +320,6 @@ class BrickBreakerGame {
     if (this.nextLaunchCaptured) return;
     this.nextLaunchX = Math.max(this.wallLeft + 24, Math.min(this.wallRight - 24, x));
     this.nextLaunchCaptured = true;
-  }
-
-  collectItems(ball) {
-    for (const item of this.items) {
-      if (item.collected) continue;
-      const itemX = this.getCellX(item.c) + 30;
-      const itemY = this.getCellY(item.r) + 19;
-      const dx = ball.x - itemX;
-      const dy = ball.y - itemY;
-      if (dx * dx + dy * dy <= 20 * 20) {
-        item.collected = true;
-        this.applyItem(item.type);
-      }
-    }
   }
 
   hitBricks(ball) {
@@ -510,11 +400,11 @@ class BrickBreakerGame {
 
   hitBrick(brick) {
     brick.hp -= this.turnBuff.power;
-    if (brick.kind === "stim" && !this.turnBuff.noGain) {
-      this.addDopamine(this.stimAmount * this.turnBuff.boost);
+    if (brick.kind === "stim") {
+      this.addDopamine(this.stimAmount);
     }
-    if (brick.kind === "recover" && brick.hp <= 0) {
-      this.addDopamine(-this.recoverAmount * this.turnBuff.recoverBoost);
+    if (brick.kind === "recover") {
+      this.addDopamine(-this.recoverAmount);
     }
   }
 
@@ -536,8 +426,6 @@ class BrickBreakerGame {
 
     this.resetTurnPacing();
     for (const brick of this.bricks) brick.r++;
-    for (const item of this.items) item.r++;
-    if (this.rowsUntilNextItem > 0) this.rowsUntilNextItem--;
     this.addBrickRow(0);
     if (this.bricks.some((brick) => this.getCellY(brick.r) + 38 > this.floor - 18)) {
       this.endGame("블럭이 내려와 현재 도파민으로 종료");
@@ -545,7 +433,7 @@ class BrickBreakerGame {
     }
     this.resetTurnBuff();
     this.aiming = true;
-    this.message = "다음 턴: 현재 수치를 보고 목표 블럭과 아이템을 선택";
+    this.message = "다음 턴: 현재 수치를 보고 목표 블럭을 선택";
   }
 
   endGame(message) {
@@ -592,12 +480,6 @@ class BrickBreakerGame {
       text("2배속", this.w - 34, 100);
     }
 
-    if (this.turnBuff.name !== "기본" || this.effectFlash > 0) {
-      fill(this.turnBuff.ballColor);
-      textAlign(LEFT, CENTER);
-      textSize(14);
-      text(`효과: ${this.lastItemName || this.turnBuff.name}`, 620, 92);
-    }
   }
 
   drawEffectLegend(x, y) {
@@ -687,8 +569,6 @@ class BrickBreakerGame {
       this.drawBrickHpLabel(Math.max(0, brick.hp), x + 30, y + 19);
     }
 
-    this.drawItems();
-
     fill(this.turnBuff.ballColor);
     const ballImg = this.getBallAsset();
     for (const ball of this.balls) {
@@ -775,43 +655,6 @@ class BrickBreakerGame {
 
     fill("#ff6b7a");
     rect(this.wallLeft - 6, this.floor - 3, this.wallRight - this.wallLeft + 12, 6, 3);
-  }
-
-  drawItems() {
-    for (const item of this.items) {
-      if (item.collected) continue;
-      const info = this.itemInfo(item.type);
-      const x = this.getCellX(item.c) + 30;
-      const y = this.getCellY(item.r) + 19;
-      const itemImg = this.assets.items && this.assets.items[item.type];
-      if (!this.drawImageCentered(itemImg, x, y, 30, 30)) {
-        fill(info.color);
-        stroke("#f6f1df");
-        strokeWeight(2);
-        circle(x, y, 30);
-        noStroke();
-        fill("#111820");
-        textAlign(CENTER, CENTER);
-        textSize(info.label.length > 2 ? 10 : 12);
-        text(info.label, x, y);
-      } else {
-        this.drawItemLabel(info.label, x, y + 19);
-      }
-    }
-  }
-
-  drawItemLabel(label, x, y) {
-    push();
-    rectMode(CENTER);
-    noStroke();
-    fill(0, 175);
-    rect(x, y, Math.max(28, label.length * 11), 14, 7);
-    fill("#ffffff");
-    textAlign(CENTER, CENTER);
-    textSize(label.length > 2 ? 9 : 10);
-    textStyle(BOLD);
-    text(label, x, y);
-    pop();
   }
 
   drawAim() {
