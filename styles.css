@@ -187,6 +187,7 @@ canvas {
 }
 
 .name-card input::placeholder {
+  font-size: 15px;
   color: #9499a6;
 }
 

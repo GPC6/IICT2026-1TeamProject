@@ -41,6 +41,15 @@ function runTests() {
     "high dopamine makes recover bricks substantially more common"
   );
 
+  const noItemGame = new BrickBreakerGame(55);
+  noItemGame.items = [];
+  assert.strictEqual(noItemGame.tryAddItem(0, 0), false, "brickBreaker no longer creates items");
+  assert.strictEqual(noItemGame.items.length, 0, "item creation stays disabled");
+
+  const recoverHitGame = new BrickBreakerGame(55);
+  recoverHitGame.hitBrick({ kind: "recover", hp: 3 });
+  assert.strictEqual(recoverHitGame.dopamine, 54, "recover bricks lower dopamine by 1 on every hit");
+
   const firstBrickBreaker = findFirstBrickBreaker(loadEpisodes());
   assert.ok(firstBrickBreaker, "first story brickBreaker exists");
   assert.ok(firstBrickBreaker.options.maxTurns <= 5, "first story brickBreaker is at most 5 turns");
