@@ -2760,17 +2760,11 @@ const EPISODES = {
         {
           "text": "왜? 피아노과면 그래도 무대 경험 많지 않아?",
           "follow": [],
-          "effects": {
-            "affection": 5
-          },
           "nextNode": 33
         },
         {
           "text": "에이, 너 공연도 엄청 자주 하고 잘 하잖아!",
           "follow": [],
-          "effects": {
-            "affection": 5
-          },
           "nextNode": 33
         }
       ],
@@ -2786,6 +2780,9 @@ const EPISODES = {
       "type": "dialogue",
       "speaker": "수진",
       "text": "피아노도 항상 무대 오르면 떨리는데, 게다가 무대 스태프는 처음이잖아.",
+      "effects": {
+        "affection": 5
+      },
       "id": 34
     },
     {
