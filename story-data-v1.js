@@ -462,7 +462,7 @@ const EPISODES = {
       "speaker": "지시문",
       "text": "(수진이 저 끝에 앉아 있다.)",
       "effects": {
-        "dopamine": 5
+        "dopamine": 3
       },
       "id": 10
     },
@@ -498,7 +498,7 @@ const EPISODES = {
           "text": "(수진의 옆자리에 앉는다)",
           "follow": [],
           "effects": {
-            "dopamine": 3
+            "dopamine": 5
           },
           "sound": {
             "type": "sound",
@@ -512,7 +512,7 @@ const EPISODES = {
           "text": "(수진의 뒷자리에 앉는다)",
           "follow": [],
           "effects": {
-            "dopamine": -3
+            "dopamine": -5
           },
           "sound": {
             "type": "sound",
@@ -545,7 +545,7 @@ const EPISODES = {
           "text": "(당연히 기억 못 하겠지) 안녕하세요~ 건축학과 00입니다",
           "follow": [],
           "effects": {
-            "dopamine": -3
+            "dopamine": -5
           },
           "nextNode": 19
         },
@@ -575,7 +575,7 @@ const EPISODES = {
             }
           ],
           "effects": {
-            "dopamine": 3
+            "dopamine": 5
           },
           "nextNode": 19
         }
@@ -757,7 +757,7 @@ const EPISODES = {
       "speaker": "건호",
       "text": "난 몸 쓰는 거 말곤 젬병인데 도면 같은 건 00이 네가 다 짜주는 거지? 든든하다 야!",
       "effects": {
-        "dopamine": -5
+        "dopamine": -3
       },
       "id": 43
     },
