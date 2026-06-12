@@ -65,6 +65,19 @@ class SideShooterGame {
     this.drawHud();
     if (this.gameOver) this.drawEnd();
     pop();
+    this.drawShooterCursor();
+  }
+
+  drawShooterCursor() {
+    push();
+    noStroke();
+    fill("#ff2f4f");
+    ellipse(mouseX, mouseY, 9, 9);
+    noFill();
+    stroke(255, 47, 79, 160);
+    strokeWeight(2);
+    ellipse(mouseX, mouseY, 18, 18);
+    pop();
   }
 
   setCursorHidden(hidden) {

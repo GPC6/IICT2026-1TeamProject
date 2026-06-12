@@ -51,6 +51,8 @@ class Game {
     this.restartButton = new Button(500, 560, 280, 64, "타이틀로", () => {
       this.resetGameToTitle();
     });
+    this.titleReturnButton = this.createTitleReturnButton();
+    this.titleReturnConfirmOpen = false;
 
     this.textBox = new TextBox(0, 452, CONFIG.width, 268);
     this.choiceButtons = [];
@@ -64,6 +66,7 @@ class Game {
     this.currentBgmLoop = null;
     this.character = {};
     this.dopamineDeltaPopup = null;
+    this.affectionDeltaPopup = null;
     this.lastClickSoundAt = 0;
     this.dialogueLog = [];
     this.loggedDialogueKeys = new Set();
@@ -109,7 +112,7 @@ class Game {
       radius: 28,
       textSize: 20
     });
-    this.dopamineSkipButton = new Button(826, 444, 312, 58, "건너뛰기(개발단계용)", () => {
+    this.dopamineSkipButton = new Button(826, 444, 312, 58, "미니게임 건너뛰기", () => {
       this.skipSelectedSubGame();
     }, {
       fill: "#d1b5ff",
@@ -117,6 +120,20 @@ class Game {
       text: "#221a44",
       radius: 28,
       textSize: 18
+    });
+  }
+
+  createTitleReturnButton() {
+    return new Button(CONFIG.width - 156, 58, 136, 36, "타이틀", () => {
+      this.openTitleReturnConfirm();
+    }, {
+      fill: "rgba(0, 0, 0, 0.56)",
+      hoverFill: "rgba(255, 111, 169, 0.9)",
+      stroke: "rgba(255, 255, 255, 0.46)",
+      hoverStroke: "#ffffff",
+      text: "#ffffff",
+      radius: 18,
+      textSize: 14
     });
   }
 
@@ -245,8 +262,10 @@ class Game {
     }
     if (this.state.scene === SCENES.ENDING) this.drawEnding();
     if (this.state.scene === SCENES.CREDITS) this.drawCredits();
+    this.drawTitleReturnButton();
     if (this.logPanelOpen) this.drawDialogueLogOverlay();
     if (this.saveSlotOverlay) this.drawSaveSlotOverlay();
+    if (this.titleReturnConfirmOpen) this.drawTitleReturnConfirmOverlay();
   }
 
   mousePressed() {
@@ -255,6 +274,13 @@ class Game {
     this.unlockAudio();
 
     const scene = this.state.scene;
+    if (this.titleReturnConfirmOpen) {
+      this.handleTitleReturnConfirmClick();
+      return;
+    }
+
+    if (this.handleTitleReturnClick()) return;
+
     if (this.saveSlotOverlay) {
       this.handleSaveSlotOverlayClick();
       return;
@@ -328,6 +354,14 @@ class Game {
       return;
     }
 
+    if (this.state.scene === SCENES.STORY && this.isAdvanceKey()) {
+      const node = this.getCurrentNode();
+      if (node && node.type === NODE_TYPES.DIALOGUE) {
+        this.handleStoryClick();
+      }
+      return;
+    }
+
     if (this.state.scene === SCENES.MINIGAME && this.subGame && this.subGame.keyPressed) {
       this.subGame.keyPressed();
     }
@@ -343,6 +377,104 @@ class Game {
 
     this.titleButton.draw();
     this.loadButton.draw();
+  }
+
+  drawTitleReturnButton() {
+    if (!this.shouldShowTitleReturnButton()) return;
+    this.titleReturnButton.draw();
+  }
+
+  handleTitleReturnClick() {
+    if (!this.shouldShowTitleReturnButton()) return false;
+    return this.pressButton(this.titleReturnButton);
+  }
+
+  shouldShowTitleReturnButton() {
+    if (this.state.scene === SCENES.TITLE || this.isNameOverlayOpen()) return false;
+    if (!this.titleReturnButton) return false;
+    return !this.titleReturnConfirmOpen && !this.saveSlotOverlay && !this.logPanelOpen && !this.backgroundTransition;
+  }
+
+  openTitleReturnConfirm() {
+    this.titleReturnConfirmOpen = true;
+  }
+
+  closeTitleReturnConfirm() {
+    this.titleReturnConfirmOpen = false;
+  }
+
+  getTitleReturnConfirmRects() {
+    const panelW = 500;
+    const panelH = 230;
+    const panelX = (CONFIG.width - panelW) / 2;
+    const panelY = (CONFIG.height - panelH) / 2;
+    const buttonW = 144;
+    const buttonH = 44;
+    const gap = 24;
+    const buttonY = panelY + 156;
+
+    return {
+      panel: { x: panelX, y: panelY, w: panelW, h: panelH },
+      cancel: { x: panelX + panelW / 2 - buttonW - gap / 2, y: buttonY, w: buttonW, h: buttonH },
+      confirm: { x: panelX + panelW / 2 + gap / 2, y: buttonY, w: buttonW, h: buttonH }
+    };
+  }
+
+  handleTitleReturnConfirmClick() {
+    const rects = this.getTitleReturnConfirmRects();
+
+    if (this.isPointInRect(mouseX, mouseY, rects.cancel)) {
+      this.closeTitleReturnConfirm();
+      return;
+    }
+
+    if (this.isPointInRect(mouseX, mouseY, rects.confirm)) {
+      this.closeTitleReturnConfirm();
+      this.resetGameToTitle();
+    }
+  }
+
+  drawTitleReturnConfirmOverlay() {
+    const rects = this.getTitleReturnConfirmRects();
+
+    noStroke();
+    fill(0, 0, 0, 156);
+    rect(0, 0, width, height);
+
+    fill("#171a24");
+    stroke(255, 255, 255, 86);
+    strokeWeight(1.4);
+    rect(rects.panel.x, rects.panel.y, rects.panel.w, rects.panel.h, 12);
+
+    noStroke();
+    fill("#fff5dc");
+    textAlign(CENTER, CENTER);
+    this.useFont("uiBold");
+    textSize(25);
+    text("타이틀 화면으로 돌아가겠습니까?", rects.panel.x + rects.panel.w / 2, rects.panel.y + 62);
+
+    fill("#dfe4f4");
+    this.useFont("ui");
+    textSize(17);
+    text("(저장되지 않은 게임은 사라집니다)", rects.panel.x + rects.panel.w / 2, rects.panel.y + 104);
+
+    this.drawTitleReturnConfirmButton(rects.cancel, "취소", false);
+    this.drawTitleReturnConfirmButton(rects.confirm, "돌아가기", true);
+  }
+
+  drawTitleReturnConfirmButton(buttonRect, label, danger) {
+    const hover = this.isPointInRect(mouseX, mouseY, buttonRect);
+    fill(danger ? (hover ? "#ff6fa9" : "#e9469a") : (hover ? "rgba(255, 255, 255, 0.24)" : "rgba(255, 255, 255, 0.14)"));
+    stroke(255, 255, 255, hover ? 180 : 78);
+    strokeWeight(1.2);
+    rect(buttonRect.x, buttonRect.y, buttonRect.w, buttonRect.h, 10);
+
+    noStroke();
+    fill("#ffffff");
+    textAlign(CENTER, CENTER);
+    this.useFont("uiBold");
+    textSize(16);
+    text(label, buttonRect.x + buttonRect.w / 2, buttonRect.y + buttonRect.h / 2);
   }
 
   drawStory() {
@@ -365,17 +497,17 @@ class Game {
       const displayText = this.getTypewriterText(node);
       this.textBox.draw(this.formatSpeaker(node.speaker), displayText, node.speaker);
       this.drawStoryQuickMenu();
-      this.drawDopamineDeltaPopup();
+      this.drawStatDeltaPopups();
       return;
     }
 
     if (node.type === NODE_TYPES.CHOICE) {
       this.drawCharacters();
       const visibleChoiceItems = this.getVisibleChoiceItems(node);
-      this.drawChoiceOverlay(this.formatStoryText(node.prompt), this.getChoiceImpactSummary(visibleChoiceItems.map((item) => item.choice)));
+      this.drawChoiceOverlay(this.formatStoryText(node.prompt), this.getChoiceImpactSummaryFromItems(visibleChoiceItems));
       this.choiceButtons.forEach((button) => button.draw());
       this.drawStoryQuickMenu();
-      this.drawDopamineDeltaPopup();
+      this.drawStatDeltaPopups();
       return;
     }
 
@@ -484,6 +616,8 @@ class Game {
     this.currentBgmLoop = null;
     this.character = {};
     this.dopamineDeltaPopup = null;
+    this.affectionDeltaPopup = null;
+    this.titleReturnConfirmOpen = false;
     this.dialogueLog = [];
     this.loggedDialogueKeys = new Set();
     this.appliedDialogueEffectKeys = new Set();
@@ -1584,6 +1718,8 @@ class Game {
   }
 
   updateBgmLoop() {
+    this.retryPendingBgmPlayback();
+
     if (!this.currentBgmLoop) return;
 
     const sound = this.getSoundAsset(this.currentBgmLoop.name, "bgm");
@@ -1597,6 +1733,16 @@ class Game {
     if (sound.currentTime() >= loopEnd - 0.04) {
       sound.jump(this.currentBgmLoop.loopStart || 0);
     }
+  }
+
+  retryPendingBgmPlayback() {
+    if (!this.pendingBgmNode || !this.state.currentBgm) return;
+
+    const sound = this.getSoundAsset(this.state.currentBgm, "bgm");
+    if (!sound) return;
+    if (typeof sound.isLoaded === "function" && !sound.isLoaded()) return;
+
+    this.playBgmSound(this.pendingBgmNode, sound);
   }
 
   getBgmConfig(name) {
@@ -2127,7 +2273,7 @@ class Game {
 
     this.choiceButtonsNodeKey = this.getChoiceNodeKey(node);
     const choiceItems = this.getVisibleChoiceItems(node);
-    const impactSummary = this.getChoiceImpactSummary(choiceItems.map((item) => item.choice));
+    const impactSummary = this.getChoiceImpactSummaryFromItems(choiceItems);
     const frameStyle = this.getChoiceButtonFrameStyle(impactSummary.type);
     const buttonW = 700;
     const buttonH = 56;
@@ -2166,7 +2312,7 @@ class Game {
         disabledStroke: lockedStyle.stroke,
         disabledStrokeWeight: lockedStyle.strokeWeight,
         disabledText: lockedStyle.text,
-        suffix: item.disabled ? lockedStyle.suffix : "",
+        suffix: "",
         suffixW: 120
       });
 
@@ -2237,6 +2383,13 @@ class Game {
       return { type: "dopamine", mixed: types.some((type) => type !== "dopamine") };
     }
     return { type: "none", mixed: false };
+  }
+
+  getChoiceImpactSummaryFromItems(choiceItems) {
+    const enabledChoices = choiceItems
+      .filter((item) => !item.disabled)
+      .map((item) => item.choice);
+    return this.getChoiceImpactSummary(enabledChoices);
   }
 
   addChoiceEffects(totalEffects, effects = {}) {
@@ -2640,7 +2793,26 @@ class Game {
       const before = this.state.affection;
       this.state.affection = constrain(this.state.affection + effects.affection, 0, 100);
       this.state.episodeAffectionDelta = (this.state.episodeAffectionDelta || 0) + this.state.affection - before;
+      this.showAffectionDeltaPopup(this.state.affection - before);
     }
+  }
+
+  showAffectionDeltaPopup(amount) {
+    if (amount === 0) return;
+
+    this.affectionDeltaPopup = {
+      amount,
+      label: this.getAffectionDeltaLabel(amount),
+      startedAt: this.getTimeMs(),
+      duration: 1600
+    };
+  }
+
+  getAffectionDeltaLabel(amount) {
+    if (amount >= 10) return "호감도 대폭증가";
+    if (amount > 0) return "호감도 소폭증가";
+    if (amount <= -10) return "호감도 대폭감소";
+    return "호감도 소폭감소";
   }
 
   addDopamine(amount) {
@@ -2782,6 +2954,47 @@ class Game {
     this.useFont("uiBold");
     textSize(18);
     text(label, 0, 0);
+    textStyle(NORMAL);
+    pop();
+  }
+
+  drawStatDeltaPopups() {
+    this.drawDopamineDeltaPopup();
+    this.drawAffectionDeltaPopup();
+  }
+
+  drawAffectionDeltaPopup() {
+    if (!this.affectionDeltaPopup) return;
+
+    const elapsed = this.getTimeMs() - this.affectionDeltaPopup.startedAt;
+    if (elapsed >= this.affectionDeltaPopup.duration) {
+      this.affectionDeltaPopup = null;
+      return;
+    }
+
+    const progress = elapsed / this.affectionDeltaPopup.duration;
+    const fadeProgress = progress < 0.35 ? 0 : (progress - 0.35) / 0.65;
+    const alpha = 255 * (1 - fadeProgress);
+    const offsetY = -16 * progress;
+    const scaleAmount = 1 + 0.08 * (1 - Math.min(1, progress * 4));
+    const positive = this.affectionDeltaPopup.amount > 0;
+    const popupW = 172;
+    const popupH = 38;
+    const popupX = this.textBox.x + 222;
+    const popupY = this.textBox.y - 50 + offsetY;
+
+    push();
+    translate(popupX + popupW / 2, popupY + popupH / 2);
+    scale(scaleAmount);
+    noStroke();
+    fill(0, 0, 0, alpha * 0.62);
+    rect(-popupW / 2, -popupH / 2, popupW, popupH, 19);
+    fill(positive ? 255 : 132, positive ? 153 : 198, positive ? 210 : 255, alpha);
+    textAlign(CENTER, CENTER);
+    textStyle(BOLD);
+    this.useFont("uiBold");
+    textSize(18);
+    text(this.affectionDeltaPopup.label, 0, 0);
     textStyle(NORMAL);
     pop();
   }
@@ -3019,6 +3232,8 @@ class Game {
     this.backgroundTransition = null;
     this.pendingBgmNode = null;
     this.dopamineDeltaPopup = null;
+    this.affectionDeltaPopup = null;
+    this.titleReturnConfirmOpen = false;
     localStorage.setItem("dopaPlayerName", this.state.playerName);
 
     const scene = this.normalizeLoadedScene(snapshot.scene);
