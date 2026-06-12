@@ -2185,40 +2185,33 @@ class Game {
 
   getVisibleChoiceItems(node) {
     const choices = Array.isArray(node.choices) ? node.choices : [];
-    const hasDopamineChoices = choices.some((choice) => this.getChoiceDopamineState(choice));
+    return choices.flatMap((choice) => {
+      if (this.canChoose(choice)) {
+        return [{ choice, disabled: false, lockReason: "" }];
+      }
 
-    if (!hasDopamineChoices) {
-      return choices
-        .filter((choice) => this.canChoose(choice))
-        .map((choice) => ({ choice, disabled: false, lockReason: "" }));
-    }
+      const lockReason = this.getDisabledPreviewLockReason(choice);
+      if (!lockReason) return [];
 
+      return [{ choice, disabled: true, lockReason }];
+    });
+  }
+
+  getDisabledPreviewLockReason(choice) {
+    if (!choice || choice.disabledPreview !== true) return "";
+
+    const choiceStates = this.getChoiceDopamineStates(choice);
     const currentState = this.getDopamineState(this.state.dopamine);
-    const enabledItems = choices
-      .filter((choice) => this.canChoose(choice))
-      .map((choice) => ({ choice, disabled: false, lockReason: "" }));
-
-    if (currentState === "LOW") {
-      return enabledItems.concat(this.getLockedChoiceItems(choices, "OPT", "low"));
-    }
-
-    if (currentState === "HIGH") {
-      return enabledItems.concat(this.getLockedChoiceItems(choices, "OPT", "high"));
-    }
-
-    return enabledItems.concat(this.getLockedChoiceItems(choices, "HIGH", "low").slice(0, 1));
+    if (choiceStates.includes("OPT") && currentState === "LOW") return "low";
+    if (choiceStates.includes("OPT") && currentState === "HIGH") return "high";
+    if (choiceStates.includes("HIGH") && currentState === "OPT") return "low";
+    return "";
   }
 
-  getLockedChoiceItems(choices, state, reason) {
-    return choices
-      .filter((choice) => this.getChoiceDopamineState(choice) === state && !this.canChoose(choice))
-      .map((choice) => ({ choice, disabled: true, lockReason: reason }));
-  }
-
-  getChoiceDopamineState(choice) {
+  getChoiceDopamineStates(choice) {
     const state = choice && choice.condition ? choice.condition.dopamineState : null;
-    if (Array.isArray(state)) return state.map((entry) => String(entry || "").toUpperCase()).join("|");
-    return state ? String(state).toUpperCase() : "";
+    const states = Array.isArray(state) ? state : [state];
+    return states.map((entry) => String(entry || "").toUpperCase()).filter(Boolean);
   }
 
   getChoiceImpact(choice) {
