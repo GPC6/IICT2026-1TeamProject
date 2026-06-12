@@ -131,7 +131,7 @@ const EPISODES = {
     {
       "type": "dialogue",
       "speaker": "주인공",
-      "text": "예쁘시네요",
+      "text": "예쁘시네요.",
       "id": 17
     },
     {
@@ -160,7 +160,7 @@ const EPISODES = {
     {
       "type": "dialogue",
       "speaker": "수진",
-      "text": "ㅎㅎ 네, 그럼 안녕히계세요.",
+      "text": "아 네, 그럼 안녕히 가세요!",
       "id": 20
     },
     {
@@ -310,7 +310,7 @@ const EPISODES = {
     {
       "type": "dialogue",
       "speaker": "파미니",
-      "text": "현재 너의 뇌 속은 과도한 밤샘 과제, 카페인 폭탄, 그리고 3시간 연속 숏폼 시청으로",
+      "text": "현재 너의 뇌 속은 과도한 밤샘 과제, 카페인 폭탄, 그리고 3시간 연속 숏폼 시청으로 인해,",
       "id": 44
     },
     {
@@ -387,8 +387,8 @@ const EPISODES = {
         "tutorial": [
           "첫 번째 게임은 벽돌깨기야.",
           "마우스로 각도를 정하고 클릭하면 공이 발사돼.",
-          "빨간 블럭은 맞힐 때마다 도파민 수치를 상승시키고, 초록색 블럭은 부숴질 때 도파민을 감소시켜!",
-          "블록에 적힌 숫자는 남은 내구도야",
+          "빨강색 블럭은 깨질 때마다 도파민 수치를 1 상승시키고, 초록색 블럭은 8 감소시켜!",
+          "블록에 적힌 숫자는 남은 내구도야.",
           "블럭이 바닥에 닿으면, 도파민은 그 상태로 유지된 채 게임 종료야!"
         ]
       },
@@ -462,7 +462,7 @@ const EPISODES = {
       "speaker": "지시문",
       "text": "(수진이 저 끝에 앉아 있다.)",
       "effects": {
-        "dopamine": 5
+        "dopamine": 3
       },
       "id": 10
     },
@@ -498,7 +498,7 @@ const EPISODES = {
           "text": "(수진의 옆자리에 앉는다)",
           "follow": [],
           "effects": {
-            "dopamine": 3
+            "dopamine": 5
           },
           "sound": {
             "type": "sound",
@@ -512,7 +512,7 @@ const EPISODES = {
           "text": "(수진의 뒷자리에 앉는다)",
           "follow": [],
           "effects": {
-            "dopamine": -3
+            "dopamine": -5
           },
           "sound": {
             "type": "sound",
@@ -542,10 +542,10 @@ const EPISODES = {
       "prompt": "안녕하세요!",
       "choices": [
         {
-          "text": "(당연히 기억 못 하겠지) 안녕하세요~ 건축학과 00입니다",
+          "text": "(당연히 기억 못 하겠지) 안녕하세요~ 건축학과 00입니다.",
           "follow": [],
           "effects": {
-            "dopamine": -3
+            "dopamine": -5
           },
           "nextNode": 19
         },
@@ -575,7 +575,7 @@ const EPISODES = {
             }
           ],
           "effects": {
-            "dopamine": 3
+            "dopamine": 5
           },
           "nextNode": 19
         }
@@ -757,7 +757,7 @@ const EPISODES = {
       "speaker": "건호",
       "text": "난 몸 쓰는 거 말곤 젬병인데 도면 같은 건 00이 네가 다 짜주는 거지? 든든하다 야!",
       "effects": {
-        "dopamine": -5
+        "dopamine": -3
       },
       "id": 43
     },
@@ -990,7 +990,7 @@ const EPISODES = {
         "difficulty": 0,
         "durationSeconds": 45,
         "tutorial": [
-          "다음 게임은 슈팅게임이야!",
+          "이번 게임은 슈팅게임이야!",
           "45초만 버티면 돼. 마우스로 움직이고 좌클릭으로 공격해.",
           "모든 적들은 처치하면 모두 도파민 +3 증가해.",
           "적에게 맞으면 도파민이 크게 올라. 빨간 표시는 도파민 상승이라고 보면 돼.",
@@ -1077,7 +1077,7 @@ const EPISODES = {
               "background": "(CG) 동아리방에 둘러앉은 넷",
               "clearCharacters": true,
               "speaker": "수진",
-              "text": "가야지! 너도 가자 00아"
+              "text": "가야지! 너도 가자 00아."
             },
             {
               "background": "(CG) 동아리방에 둘러앉은 넷",
@@ -2374,7 +2374,7 @@ const EPISODES = {
     {
       "type": "character in",
       "name": "수진",
-      "emotion": "Normal",
+      "emotion": "Flustered",
       "id": 66
     },
     {
@@ -3410,7 +3410,7 @@ const EPISODES = {
               "speaker": "주인공",
               "text": "조금 서운하네ㅎㅎ",
               "effects": {
-                "dopamine": 5,
+                "dopamine": 3,
                 "affection": 5
               }
             },
@@ -3461,7 +3461,7 @@ const EPISODES = {
               "speaker": "수진",
               "text": "(당황하며) 미팅은 진짜 어쩔 수 없이 나가는 거야.",
               "effects": {
-                "dopamine": 5
+                "dopamine": 3
               }
             },
             {
@@ -3671,9 +3671,6 @@ const EPISODES = {
       "type": "dialogue",
       "speaker": "수진",
       "text": "(귓속말로) 오늘 순조롭게 잘되고 있다!",
-      "effects": {
-        "dopamine": -5
-      },
       "id": 5
     },
     {
@@ -3824,12 +3821,12 @@ const EPISODES = {
     {
       "type": "dialogue",
       "speaker": "수진",
-      "text": "아 이게 왜 안들어가지..",
+      "text": "아 이게 왜 안 들어가지..",
       "id": 29
     },
     {
       "type": "choice",
-      "prompt": "아 이게 왜 안들어가지..",
+      "prompt": "아 이게 왜 안 들어가지..",
       "choices": [
         {
           "text": "(불안해하며) 아 어떡하지.. 곧 시작인데..",

@@ -1150,7 +1150,7 @@ class Game {
       this.getPaminiAffectionBriefingLine(snapshot),
       this.getPaminiDopamineBriefingLine(snapshot.dopamine),
       "앞으로 매일 밤 이렇게 잠깐 나타날게. 하루 동안 네 감정이 어떤 방향으로 움직였는지 같이 정리해보자.",
-      "그럼 이제 꿈속에서 내일의 도파민을 다시 맞춰보자. 너무 낮지도, 너무 과열되지도 않게."
+      "그럼 이제 꿈속에서 내일의 도파민을 다시 맞춰보자. 너무 무기력하지도, 너무 과열되지도 않게."
     ];
 
     return this.buildPaminiFirstMeetingLines(snapshot).concat(briefingLines);
