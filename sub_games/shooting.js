@@ -9,7 +9,7 @@ class SideShooterGame {
     this.enemyKillDopamine = 3;
     this.powerDropChance = 0.32;
     this.stimItemDopamine = 8;
-    this.calmItemDopamine = -10;
+    this.calmItemDopamine = -8;
     this.autoFireInterval = 5;
     this.dopamineUpColor = "#ff5d73";
     this.dopamineDownColor = "#7be0b7";
@@ -45,6 +45,7 @@ class SideShooterGame {
     this.autoFireCooldown = 0;
     this.floatTexts = [];
     this.hitFlash = 0;
+    this.invincibleFrames = 0;
     this.doubleShotActive = false;
     this.doubleShotCollected = false;
     this.finished = false;
@@ -142,6 +143,7 @@ class SideShooterGame {
     this.player.y = constrain(this.player.y, 92, this.h - 45);
 
     this.hitFlash = Math.max(0, this.hitFlash - 1);
+    this.invincibleFrames = Math.max(0, this.invincibleFrames - 1);
     this.updateFloatingTexts();
     this.updateAutoFire();
 
@@ -526,13 +528,25 @@ class SideShooterGame {
   }
 
   takeHit() {
+    if (this.isPlayerInvincible()) return;
+
     this.lives--;
-    this.hitFlash = 24;
+    this.hitFlash = 32;
+    this.invincibleFrames = 60;
     this.addDopamine(-10);
     this.addFloatingText("-10", this.player.x, this.player.y - 32, -10);
     if (this.lives <= 0) {
       this.endGame("라이프 소진: 현재 도파민으로 종료");
     }
+  }
+
+  isPlayerInvincible() {
+    return this.invincibleFrames > 0;
+  }
+
+  getHitOverlayAlpha() {
+    if (this.hitFlash <= 0) return 0;
+    return 46 * (this.hitFlash / 32);
   }
 
   endGame(text) {
@@ -642,15 +656,15 @@ class SideShooterGame {
 
   drawHitEffect() {
     if (this.hitFlash <= 0) return;
-    const progress = this.hitFlash / 24;
+    const progress = this.hitFlash / 32;
 
     noFill();
-    stroke(this.dopamineDownColor);
+    stroke("#ff5d73");
     strokeWeight(3);
     circle(this.player.x, this.player.y, 72 - progress * 18);
     noStroke();
 
-    fill(123, 224, 183, 42 * progress);
+    fill(255, 63, 87, this.getHitOverlayAlpha());
     rect(0, 0, this.w, this.h);
   }
 

@@ -399,6 +399,7 @@ class BrickBreakerGame {
   }
 
   hitBrick(brick) {
+    this.playBrickHitSound();
     brick.hp -= this.turnBuff.power;
     if (brick.kind === "stim") {
       this.addDopamine(this.stimAmount);
@@ -406,6 +407,16 @@ class BrickBreakerGame {
     if (brick.kind === "recover") {
       this.addDopamine(-this.recoverAmount);
     }
+  }
+
+  playBrickHitSound() {
+    const sound = this.assets.sounds && this.assets.sounds.brickHit;
+    if (!sound || typeof sound.play !== "function") return;
+    if (typeof sound.isLoaded === "function" && !sound.isLoaded()) return;
+    if (typeof sound.isPlaying === "function" && sound.isPlaying() && typeof sound.stop === "function") {
+      sound.stop();
+    }
+    sound.play();
   }
 
   checkTurnEnd() {

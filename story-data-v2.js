@@ -56,7 +56,13 @@ const EPISODES = {
         {
           "text": "(스누피 커피맛을 고른다)",
           "follow": [],
-          "nextNode": 8
+          "nextNode": 8,
+          "sound": {
+            "type": "sound",
+            "soundType": "effect",
+            "action": "play",
+            "name": "ep1Ding"
+          }
         }
       ],
       "id": 7
@@ -83,7 +89,7 @@ const EPISODES = {
     },
     {
       "type": "dialogue",
-      "speaker": "주인공",
+      "speaker": "독백",
       "text": "(몽롱하던 시야가 번쩍 뜨인다.)",
       "id": 11
     },
@@ -170,31 +176,31 @@ const EPISODES = {
     },
     {
       "type": "dialogue",
-      "speaker": "주인공",
+      "speaker": "독백",
       "text": "(...미친 건가… 왜 생각이 입 밖으로 튀어나왔지?)",
       "id": 22
     },
     {
       "type": "dialogue",
-      "speaker": "주인공",
+      "speaker": "독백",
       "text": "(밤을 새서 정신이 나갔나...)",
       "id": 23
     },
     {
       "type": "dialogue",
-      "speaker": "주인공",
+      "speaker": "독백",
       "text": "(이제 또 만날 일은 없겠지…?)",
       "id": 24
     },
     {
       "type": "dialogue",
-      "speaker": "주인공",
+      "speaker": "독백",
       "text": "(완전 내 스타일이었는데 아쉽다.)",
       "id": 25
     },
     {
       "type": "dialogue",
-      "speaker": "주인공",
+      "speaker": "독백",
       "text": "(이제 집에 가서 마저 공부해야지...)",
       "id": 26
     },
@@ -414,7 +420,7 @@ const EPISODES = {
     },
     {
       "type": "dialogue",
-      "speaker": "주인공",
+      "speaker": "독백",
       "text": "(으악 아직도 정신을 못 차리겠네… 실수하지 않게 조심해야겠다..)",
       "condition": {
         "dopamineState": "HIGH"
@@ -423,7 +429,7 @@ const EPISODES = {
     },
     {
       "type": "dialogue",
-      "speaker": "주인공",
+      "speaker": "독백",
       "text": "(휴… 다행히 짧게라도 푹 잤다… 오늘 예감이 좋은데?)",
       "condition": {
         "dopamineState": "OPT"
@@ -432,7 +438,7 @@ const EPISODES = {
     },
     {
       "type": "dialogue",
-      "speaker": "주인공",
+      "speaker": "독백",
       "text": "(하암… 영 집중이 잘 안된다. 온몸에 기운이 하나도 없네. 대충 구석에 박혀 있다 가야지… )",
       "condition": {
         "dopamineState": "LOW"
@@ -441,13 +447,13 @@ const EPISODES = {
     },
     {
       "type": "dialogue",
-      "speaker": "주인공",
+      "speaker": "독백",
       "text": "(그나저나 동아리는 처음이라 엄청 긴장되네…)",
       "id": 7
     },
     {
       "type": "dialogue",
-      "speaker": "주인공",
+      "speaker": "독백",
       "text": "(다들 벌써 친해진 것 같고. 난 어디 앉지?)",
       "id": 8
     },
@@ -542,7 +548,7 @@ const EPISODES = {
       "prompt": "안녕하세요!",
       "choices": [
         {
-          "text": "(당연히 기억 못 하겠지) 안녕하세요~ 건축학과 00입니다.",
+          "text": "(당연히 기억 못 하겠지) 안녕하세요~ 건축학과 000입니다.",
           "follow": [],
           "effects": {
             "dopamine": -5
@@ -571,7 +577,7 @@ const EPISODES = {
             {
               "background": "동아리방",
               "speaker": "주인공",
-              "text": "하하 저는 건축학과 00입니다."
+              "text": "하하 저는 건축학과 000입니다."
             }
           ],
           "effects": {
@@ -590,7 +596,7 @@ const EPISODES = {
     },
     {
       "type": "dialogue",
-      "speaker": "주인공",
+      "speaker": "독백",
       "text": "(헉 나도 무대제작부인데… 이런 우연이!!)",
       "id": 20
     },
@@ -633,65 +639,75 @@ const EPISODES = {
       "id": 24
     },
     {
+      "type": "background",
+      "name": "동아리방",
+      "id": 25,
+      "transition": "fadeBlack",
+      "transitionDuration": 1200
+    },
+    {
       "type": "sound",
       "soundType": "effect",
       "action": "play",
       "name": "crowd",
-      "id": 25
+      "id": 26
     },
     {
       "type": "dialogue",
       "speaker": "지시문",
       "text": "(시끄러운 소리가 들린다)",
-      "id": 26
+      "id": 27
     },
     {
       "type": "character in",
       "name": "혜지",
       "emotion": "Happy",
-      "id": 27
-    },
-    {
-      "type": "dialogue",
-      "speaker": "혜지",
-      "text": "야, 황건호! 여기 무대부 신입들은 벌써 도란도란 친해진 거 같은데?",
       "id": 28
     },
     {
       "type": "dialogue",
       "speaker": "혜지",
-      "text": "안녕하세요! 저는 연기부 신입 1학년 김혜지예요! 우리 다 동기 맞지?",
+      "text": "야, 황건호! 여기 무대부 신입들은 벌써 도란도란 친해진 거 같은데?",
       "id": 29
+    },
+    {
+      "type": "dialogue",
+      "speaker": "혜지",
+      "text": "안녕하세요! 저는 연기부 신입 1학년 김혜지예요! 우리 다 동기 맞지?",
+      "id": 30
     },
     {
       "type": "character in",
       "name": "건호",
       "emotion": "Happy",
-      "id": 30
-    },
-    {
-      "type": "dialogue",
-      "speaker": "건호",
-      "text": "어, 윤수진! 너 아까 음료수 사러 간다더니 여기 있었어?",
       "id": 31
     },
     {
       "type": "dialogue",
       "speaker": "건호",
-      "text": "안녕, 나도 이번에 무대부 신입으로 들어왔어. 잘 부탁해!",
+      "text": "어, 윤수진! 너 아까 음료수 사러 간다더니 여기 있었어?",
       "id": 32
+    },
+    {
+      "type": "dialogue",
+      "speaker": "건호",
+      "text": "안녕, 나도 이번에 무대부 신입으로 들어왔어. 잘 부탁해!",
+      "id": 33,
+      "effects": {
+        "dopamine": -3
+      }
     },
     {
       "type": "character in",
       "name": "수진",
       "emotion": "Surprised",
-      "id": 33
+      "id": 34
     },
     {
       "type": "dialogue",
       "speaker": "수진",
       "text": "아, 깜짝이야! 건호 너 언제 왔어?",
-      "id": 34
+      "id": 35
     },
     {
       "type": "choice",
@@ -700,90 +716,90 @@ const EPISODES = {
         {
           "text": "두 분은 원래 아는 사이에요?",
           "follow": [],
-          "nextNode": 36
+          "nextNode": 37
         },
         {
           "text": "수진 씨는 친구가 많네요…",
           "follow": [],
-          "nextNode": 36
+          "nextNode": 37
         }
       ],
-      "id": 35
+      "id": 36
     },
     {
       "type": "character in",
       "name": "수진",
       "emotion": "Normal",
-      "id": 36
+      "id": 37
     },
     {
       "type": "dialogue",
       "speaker": "수진",
       "text": "건호는 제 고등학교 동창인데 어쩌다 보니 동아리도 같이 들어왔어요.",
-      "id": 37
+      "id": 38
     },
     {
       "type": "character in",
       "name": "수진",
       "emotion": "Happy",
-      "id": 38
+      "id": 39
     },
     {
       "type": "dialogue",
       "speaker": "수진",
-      "text": "건호야, 이쪽은 건축학과 00님이야.",
-      "id": 39
+      "text": "건호야, 이쪽은 건축학과 OO님이야.",
+      "id": 40
     },
     {
       "type": "character in",
       "name": "건호",
       "emotion": "Surprised",
-      "id": 40
+      "id": 41
     },
     {
       "type": "dialogue",
       "speaker": "건호",
       "text": "오, 건축학과! 대박이다.",
-      "id": 41
+      "id": 42
     },
     {
       "type": "character in",
       "name": "건호",
       "emotion": "Happy",
-      "id": 42
-    },
-    {
-      "type": "dialogue",
-      "speaker": "건호",
-      "text": "난 몸 쓰는 거 말곤 젬병인데 도면 같은 건 00이 네가 다 짜주는 거지? 든든하다 야!",
-      "effects": {
-        "dopamine": -3
-      },
       "id": 43
     },
     {
       "type": "dialogue",
-      "speaker": "주인공",
-      "text": "(고등학교 동창? 되게 편해 보이네. 신경 쓰이게…)",
+      "speaker": "건호",
+      "text": "난 몸 쓰는 거 말곤 젬병인데 도면 같은 건 OO이 네가 다 짜주는 거지? 든든하다 야!",
+      "effects": {
+        "dopamine": -3
+      },
       "id": 44
+    },
+    {
+      "type": "dialogue",
+      "speaker": "독백",
+      "text": "(고등학교 동창? 되게 편해 보이네. 신경 쓰이게…)",
+      "id": 45
     },
     {
       "type": "character in",
       "name": "수진",
       "emotion": "Normal",
-      "id": 45
-    },
-    {
-      "type": "dialogue",
-      "speaker": "수진",
-      "text": "00님, 건호 얘 운동하는 애라 목소리만 크지 착해요.",
       "id": 46
     },
     {
       "type": "dialogue",
       "speaker": "수진",
-      "text": "너무 부담 갖지 마요, 알았죠?",
+      "text": "OO님, 건호 얘 운동하는 애라 목소리만 크지 착해요.",
       "id": 47
+    },
+    {
+      "type": "dialogue",
+      "speaker": "수진",
+      "text": "너무 부담 갖지 마요, 알았죠?",
+      "id": 48
     },
     {
       "type": "choice",
@@ -810,7 +826,7 @@ const EPISODES = {
           "condition": {
             "dopamineState": "LOW"
           },
-          "nextNode": 49
+          "nextNode": 50
         },
         {
           "text": "네.... 에너지가 조금 많이 넘치시네요....",
@@ -824,7 +840,7 @@ const EPISODES = {
                 }
               ],
               "speaker": "수진",
-              "text": "00씨 기 빨렸죠?ㅎㅎ 저도 가끔 그래요."
+              "text": "OO씨 기 빨렸죠?ㅎㅎ 저도 가끔 그래요."
             },
             {
               "background": "동아리방",
@@ -844,7 +860,7 @@ const EPISODES = {
           "condition": {
             "dopamineState": "LOW"
           },
-          "nextNode": 49
+          "nextNode": 50
         },
         {
           "text": "걱정 마세요ㅎㅎ",
@@ -855,7 +871,7 @@ const EPISODES = {
           "condition": {
             "dopamineState": "OPT"
           },
-          "nextNode": 49
+          "nextNode": 50
         },
         {
           "text": "네, 저희 다 같이 잘 지내봐요~",
@@ -867,7 +883,7 @@ const EPISODES = {
             "dopamineState": "OPT"
           },
           "disabledPreview": true,
-          "nextNode": 49
+          "nextNode": 50
         },
         {
           "text": "두 분 되게 친해 보이시네요?",
@@ -890,7 +906,7 @@ const EPISODES = {
           "condition": {
             "dopamineState": "HIGH"
           },
-          "nextNode": 49
+          "nextNode": 50
         },
         {
           "text": "전 또 남자친구인 줄 알았네요!",
@@ -936,50 +952,50 @@ const EPISODES = {
             "dopamineState": "HIGH"
           },
           "disabledPreview": true,
-          "nextNode": 49
+          "nextNode": 50
         }
       ],
-      "id": 48
+      "id": 49
     },
     {
       "type": "character in",
       "name": "혜지",
       "emotion": "Normal",
-      "id": 49
+      "id": 50
     },
     {
       "type": "dialogue",
       "speaker": "혜지",
       "text": "암튼! 이렇게 만난 것도 인연인데! 앞으로 동아리 잘 해보자~",
-      "id": 50
+      "id": 51
     },
     {
       "type": "character in",
       "name": "수진",
       "emotion": "Happy",
-      "id": 51
+      "id": 52
     },
     {
       "type": "dialogue",
       "speaker": "수진",
       "text": "그래! 기대된다 ㅎㅎ",
-      "id": 52
-    },
-    {
-      "type": "dialogue",
-      "speaker": "주인공",
-      "text": "(수진씨… 봐도 봐도 예쁘다...)",
       "id": 53
     },
     {
       "type": "dialogue",
-      "speaker": "주인공",
-      "text": "(내 첫사랑, 정말로 시작되는 건가?)",
+      "speaker": "독백",
+      "text": "(수진씨… 봐도 봐도 예쁘다...)",
       "id": 54
     },
     {
-      "type": "clear background",
+      "type": "dialogue",
+      "speaker": "독백",
+      "text": "(내 첫사랑, 정말로 시작되는 건가?)",
       "id": 55
+    },
+    {
+      "type": "clear background",
+      "id": 56
     },
     {
       "type": "move",
@@ -1000,7 +1016,7 @@ const EPISODES = {
           "3개의 라이프를 모두 소진하면 현재의 도파민 레벨 그대로 게임 종료야!"
         ]
       },
-      "id": 56
+      "id": 57
     }
   ],
   "EP3 동아리 MT": [
@@ -1076,7 +1092,7 @@ const EPISODES = {
               "background": "(CG) 동아리방에 둘러앉은 넷",
               "clearCharacters": true,
               "speaker": "수진",
-              "text": "가야지! 너도 가자 00아."
+              "text": "가야지! 너도 가자 OO아."
             },
             {
               "background": "(CG) 동아리방에 둘러앉은 넷",
@@ -1174,7 +1190,7 @@ const EPISODES = {
       "speaker": "건호",
       "text": "그래도 놀다가 힘들면 나한테 얘기해ㅋㅋ",
       "effects": {
-        "dopamine": 3
+        "dopamine": -3
       },
       "id": 18
     },
@@ -1194,7 +1210,8 @@ const EPISODES = {
       "type": "background",
       "name": "(CG) MT 장소에 둘러앉은 넷",
       "transition": {
-        "type": "fadeBlack"
+        "type": "fadeBlack",
+        "duration": 1200
       },
       "id": 21
     },
@@ -1257,7 +1274,10 @@ const EPISODES = {
       "type": "dialogue",
       "speaker": "혜지",
       "text": "와 수진이 걸렸다!",
-      "id": 31
+      "id": 31,
+      "effects": {
+        "dopamine": 3
+      }
     },
     {
       "type": "background",
@@ -1300,9 +1320,6 @@ const EPISODES = {
       "type": "dialogue",
       "speaker": "건호",
       "text": "(잔을 낚아채며) 야야 오늘 수진이 많이 마셨다, 좀 쉬어. (대신 마신다)",
-      "effects": {
-        "dopamine": 3
-      },
       "id": 37
     },
     {
@@ -1336,11 +1353,8 @@ const EPISODES = {
     },
     {
       "type": "dialogue",
-      "speaker": "주인공",
+      "speaker": "독백",
       "text": "(수진이는 건호가 많이 편해 보인다. 건호도 수진이를 잘 챙겨준다..)",
-      "effects": {
-        "dopamine": -5
-      },
       "id": 43
     },
     {
@@ -1353,7 +1367,10 @@ const EPISODES = {
       "type": "dialogue",
       "speaker": "건호",
       "text": "술 더 가져올게. 소주?맥주?",
-      "id": 45
+      "id": 45,
+      "effects": {
+        "dopamine": -5
+      }
     },
     {
       "type": "character in",
@@ -1380,7 +1397,7 @@ const EPISODES = {
     {
       "type": "dialogue",
       "speaker": "수진",
-      "text": "아 MT 재밌다! 건호랑 혜지 진짜 재밌다, 그지 00아?",
+      "text": "아 MT 재밌다! 건호랑 혜지 진짜 재밌다, 그지 OO아?",
       "id": 50
     },
     {
@@ -1399,7 +1416,7 @@ const EPISODES = {
                 }
               ],
               "speaker": "수진",
-              "text": "ㅋㅋㅋ 00아 힘들어? 왤케 피곤해보여ㅜ"
+              "text": "ㅋㅋㅋ OO아 힘들어? 왤케 피곤해보여ㅜ"
             },
             {
               "background": "MT 장소",
@@ -1736,7 +1753,7 @@ const EPISODES = {
     {
       "type": "dialogue",
       "speaker": "건호",
-      "text": "○○이스케이프에 XX테마가 진짜 잘 만들었대.",
+      "text": "OO이스케이프에 XX테마가 진짜 잘 만들었대.",
       "id": 9
     },
     {
@@ -1901,7 +1918,8 @@ const EPISODES = {
       "type": "background",
       "name": "공포방탈출 입구",
       "transition": {
-        "type": "fadeBlack"
+        "type": "fadeBlack",
+        "duration": 1200
       },
       "id": 24
     },
@@ -1956,7 +1974,10 @@ const EPISODES = {
       "type": "dialogue",
       "speaker": "건호",
       "text": "에이~ 방탈출 와서 안 무서우면 재미없지. 걱정 마. 내가 다 풀어줄게.",
-      "id": 33
+      "id": 33,
+      "effects": {
+        "dopamine": -3
+      }
     },
     {
       "type": "dialogue",
@@ -2038,8 +2059,11 @@ const EPISODES = {
     {
       "type": "dialogue",
       "speaker": "건호",
-      "text": "넵!",
-      "id": 44
+      "text": "예썰!",
+      "id": 44,
+      "effects": {
+        "dopamine": -3
+      }
     },
     {
       "type": "dialogue",
@@ -2051,7 +2075,8 @@ const EPISODES = {
       "type": "background",
       "name": "공포방탈출 내부",
       "transition": {
-        "type": "fadeBlack"
+        "type": "fadeBlack",
+        "duration": 1200
       },
       "id": 46
     },
@@ -2176,7 +2201,7 @@ const EPISODES = {
           "nextNode": 58
         },
         {
-          "text": "오 괜찮아? 무서운게 너무 많다 여기.. 혹시 힘들면 얘기해 수진아.",
+          "text": "(붙잡아주며) 오 괜찮아? 무서운게 너무 많다 여기.. 혹시 힘들면 얘기해 수진아.",
           "follow": [
             {
               "background": "공포방탈출 내부",
@@ -2223,7 +2248,7 @@ const EPISODES = {
           "nextNode": 58
         },
         {
-          "text": "오 괜찮아? 아니 건호가 너무 무서운 데를 찾아왔는데?",
+          "text": "(어깨를 감싸며) 오 괜찮아? 아니 건호가 너무 무서운 데를 찾아왔는데?",
           "follow": [
             {
               "background": "공포방탈출 내부",
@@ -2427,7 +2452,10 @@ const EPISODES = {
       "type": "dialogue",
       "speaker": "건호",
       "text": "(수진의 어깨를 두드린다) 다음에도 또 만나서 놀자 얘들아.",
-      "id": 72
+      "id": 72,
+      "effects": {
+        "dopamine": -5
+      }
     },
     {
       "type": "dialogue",
@@ -2437,7 +2465,7 @@ const EPISODES = {
     },
     {
       "type": "dialogue",
-      "speaker": "주인공",
+      "speaker": "독백",
       "text": "(건호가 수진이를 대하는 방식이 조금 신경 쓰인다.)",
       "id": 74
     },
@@ -2483,7 +2511,7 @@ const EPISODES = {
     {
       "type": "dialogue",
       "speaker": "수진",
-      "text": "00아, 내일 어디서 만날래?",
+      "text": "OO아, 내일 어디서 만날래?",
       "id": 5
     },
     {
@@ -2510,7 +2538,7 @@ const EPISODES = {
             {
               "background": "카톡방 화면",
               "speaker": "주인공",
-              "text": "파스타 좋지! 학교 앞에 ○○음식점이 파스타 맛있다던데 어때?"
+              "text": "파스타 좋지! 학교 앞에 OO음식점이 파스타 맛있다던데 어때?"
             },
             {
               "background": "카톡방 화면",
@@ -2551,7 +2579,7 @@ const EPISODES = {
             {
               "background": "카톡방 화면",
               "speaker": "주인공",
-              "text": "학교 앞에 ○○음식점이 파스타 맛있다던데 어때?"
+              "text": "학교 앞에 OO음식점이 파스타 맛있다던데 어때?"
             },
             {
               "background": "카톡방 화면",
@@ -2592,7 +2620,8 @@ const EPISODES = {
       "type": "background",
       "name": "(CG) 예쁜 파스타집에 앉은 수진",
       "transition": {
-        "type": "fadeBlack"
+        "type": "fadeBlack",
+        "duration": 1200
       },
       "id": 10
     },
@@ -2646,7 +2675,8 @@ const EPISODES = {
     {
       "type": "background",
       "name": "예쁜 파스타",
-      "id": 14
+      "id": 14,
+      "transitionDuration": 0
     },
     {
       "type": "dialogue",
@@ -2657,7 +2687,9 @@ const EPISODES = {
     {
       "type": "background",
       "name": "예쁜 파스타집",
-      "id": 16
+      "id": 16,
+      "transition": "fadeBlack",
+      "transitionDuration": 1200
     },
     {
       "type": "character in",
@@ -2731,7 +2763,7 @@ const EPISODES = {
     {
       "type": "dialogue",
       "speaker": "수진",
-      "text": "근데 어느새 한 학기가 거의 지났다 00아.",
+      "text": "근데 어느새 한 학기가 거의 지났다 OO아.",
       "id": 28
     },
     {
@@ -2780,8 +2812,8 @@ const EPISODES = {
       "speaker": "수진",
       "text": "피아노도 항상 무대 오르면 떨리는데, 게다가 무대 스태프는 처음이잖아.",
       "effects": {
-        "affection": 5
-      },
+            "affection": 5
+          },
       "id": 34
     },
     {
@@ -2838,7 +2870,7 @@ const EPISODES = {
     {
       "type": "dialogue",
       "speaker": "수진",
-      "text": "근데 00아, 나 궁금한 거 있어.",
+      "text": "근데 OO아, 나 궁금한 거 있어.",
       "id": 42
     },
     {
@@ -3062,7 +3094,7 @@ const EPISODES = {
     },
     {
       "type": "dialogue",
-      "speaker": "주인공",
+      "speaker": "독백",
       "text": "(공강인데 동아리방 가볼까? 수진이 있으려나?)",
       "id": 4
     },
@@ -3125,7 +3157,7 @@ const EPISODES = {
     },
     {
       "type": "dialogue",
-      "speaker": "주인공",
+      "speaker": "독백",
       "text": "(잠시만.. 수진이가 미팅 나간다고?)",
       "effects": {
         "dopamine": 3
@@ -3141,7 +3173,7 @@ const EPISODES = {
     {
       "type": "dialogue",
       "speaker": "수진",
-      "text": "00이 왔네, 안녕.",
+      "text": "OO이 왔네, 안녕.",
       "id": 16
     },
     {
@@ -3153,7 +3185,7 @@ const EPISODES = {
     {
       "type": "dialogue",
       "speaker": "혜지",
-      "text": "야 00아, 수진이 이번 주에 미팅 나간대!",
+      "text": "야 OO아, 수진이 이번 주에 미팅 나간대!",
       "effects": {
         "dopamine": 3
       },
@@ -3406,7 +3438,6 @@ const EPISODES = {
               "speaker": "주인공",
               "text": "조금 서운하네ㅎㅎ",
               "effects": {
-                "dopamine": 3,
                 "affection": 5
               }
             },
@@ -3455,10 +3486,7 @@ const EPISODES = {
                 }
               ],
               "speaker": "수진",
-              "text": "(당황하며) 미팅은 진짜 어쩔 수 없이 나가는 거야.",
-              "effects": {
-                "dopamine": 3
-              }
+              "text": "(당황하며) 미팅은 진짜 어쩔 수 없이 나가는 거야."
             },
             {
               "background": "동아리방",
@@ -3493,7 +3521,8 @@ const EPISODES = {
       "type": "background",
       "name": "카톡방 화면",
       "transition": {
-        "type": "fadeBlack"
+        "type": "fadeBlack",
+        "duration": 1200
       },
       "id": 29
     },
@@ -4186,7 +4215,7 @@ const EPISODES = {
     {
       "type": "dialogue",
       "speaker": "수진",
-      "text": "00아 정말 고마워...",
+      "text": "OO아 정말 고마워...",
       "id": 40
     },
     {
@@ -4449,7 +4478,7 @@ const EPISODES = {
     {
       "type": "dialogue",
       "speaker": "주인공",
-      "text": "아니.. 다행이다ㅎ 너무 좋다.",
+      "text": "아니… 진짜 다행이라서.",
       "id": 31
     },
     {

@@ -115,7 +115,7 @@ function runTests() {
   itemGame.collectItem({ x: 320, y: 240, r: 13, vx: -2.8, type: "stim" });
   assert.strictEqual(itemGame.dopamine, 63, "stim capsules raise dopamine");
   itemGame.collectItem({ x: 320, y: 240, r: 13, vx: -2.8, type: "calm" });
-  assert.strictEqual(itemGame.dopamine, 53, "calm capsules lower dopamine");
+  assert.strictEqual(itemGame.dopamine, 55, "calm capsules lower dopamine");
 
   const doubleGame = new SideShooterGame(55, { durationSeconds: 120 });
   doubleGame.collectItem({ x: 320, y: 240, r: 13, vx: -2.8, type: "double" });
@@ -134,6 +134,13 @@ function runTests() {
     hitGame.floatTexts.some((entry) => entry.text === "-10" && entry.color === "#7be0b7"),
     "enemy hit feedback uses green dopamine decrease text"
   );
+  const livesAfterFirstHit = hitGame.lives;
+  const dopamineAfterFirstHit = hitGame.dopamine;
+  hitGame.takeHit();
+  assert.strictEqual(hitGame.lives, livesAfterFirstHit, "invincibility prevents immediate repeated life loss");
+  assert.strictEqual(hitGame.dopamine, dopamineAfterFirstHit, "invincibility prevents immediate repeated dopamine loss");
+  assert.ok(hitGame.isPlayerInvincible(), "player is invincible during hit recovery");
+  assert.ok(hitGame.getHitOverlayAlpha() > 0, "hit recovery shows a red screen flash");
 
   const autoFireGame = new SideShooterGame(55, { durationSeconds: 120 });
   autoFireGame.spawnTimer = 9999;

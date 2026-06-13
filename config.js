@@ -132,6 +132,11 @@ const ASSET_MANIFEST = {
         path: "./assets/sound/bgm/Game2.mp3",
         loopStart: 16.854,
         loopEnd: 202.125
+      },
+      title: {
+        path: "./assets/sound/bgm/title_bgm.mp3",
+        loopStart: 14.34,
+        loopEnd: 171.938
       }
     },
     effects: {
@@ -145,7 +150,8 @@ const ASSET_MANIFEST = {
       screwdriver: "./assets/sound/effects/EP6 드라이버.mp3",
       episodeTransition: "./assets/sound/effects/에피소드 전환.mp3",
       click: "./assets/sound/effects/클릭.mp3",
-      clap: "./assets/sound/effects/EP6 박수.mp3"
+      clap: "./assets/sound/effects/EP6 박수.mp3",
+      gameEffect: "./assets/sound/effects/game_effect.mp3"
     }
   },
   characters: {

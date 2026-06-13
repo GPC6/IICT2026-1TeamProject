@@ -22,6 +22,10 @@ assert.ok(context.ASSET_MANIFEST.minigames.brickBreaker.assets.ballDefault, "bri
 assert.ok(context.ASSET_MANIFEST.minigames.brickBreaker.assets.bricks.stim, "brickBreaker stim brick asset is registered");
 assert.ok(context.ASSET_MANIFEST.minigames.sideShooter.assets.player.base, "sideShooter player asset is registered");
 assert.ok(context.ASSET_MANIFEST.minigames.sideShooter.assets.enemies.tank, "sideShooter tank asset is registered");
+assert.strictEqual(context.ASSET_MANIFEST.sounds.bgm.title.path, "./assets/sound/bgm/title_bgm.mp3", "title bgm is registered");
+assert.strictEqual(context.ASSET_MANIFEST.sounds.bgm.title.loopStart, 14.34, "title bgm loop start is registered");
+assert.strictEqual(context.ASSET_MANIFEST.sounds.bgm.title.loopEnd, 171.938, "title bgm loop end is registered");
+assert.strictEqual(context.ASSET_MANIFEST.sounds.effects.gameEffect, "./assets/sound/effects/game_effect.mp3", "brick hit effect is registered");
 
 let receivedAssets = null;
 context.window.TestSubGame = class {
@@ -62,6 +66,34 @@ game.startSelectedSubGame();
 assert.deepStrictEqual(receivedAssets, { sprite: "loaded-image" }, "selected minigame assets are passed into subgame");
 assert.strictEqual(game.subGame.initialDopamine, 61, "current dopamine is still passed into subgame");
 assert.strictEqual(game.subGame.options.maxTurns, 3, "playable options are still passed into subgame");
+
+const brickHitSound = { play() {} };
+context.window.BrickBreakerGame = context.window.TestSubGame;
+const brickAssetGame = Object.create(context.Game.prototype);
+brickAssetGame.assets = {
+  minigames: {
+    brickBreaker: {
+      sprite: "brick-image"
+    }
+  },
+  sounds: {
+    effects: {
+      gameEffect: brickHitSound
+    }
+  }
+};
+brickAssetGame.state = {
+  dopamine: 50,
+  selectedSubGame: context.SUB_GAMES.BRICK_BREAKER,
+  selectedSubGameOptions: {}
+};
+brickAssetGame.playSubGameBgm = () => {};
+brickAssetGame.createMinigameTutorial = () => null;
+
+brickAssetGame.startSelectedSubGame();
+
+assert.strictEqual(receivedAssets.sprite, "brick-image", "brickBreaker image assets are preserved");
+assert.strictEqual(receivedAssets.sounds.brickHit, brickHitSound, "brickBreaker receives the block hit sound");
 
 let cleanupCalled = false;
 const cleanupGame = Object.create(context.Game.prototype);

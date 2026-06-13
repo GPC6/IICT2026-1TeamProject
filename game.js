@@ -373,10 +373,20 @@ class Game {
   }
 
   drawTitle() {
+    this.ensureTitleBgm();
     this.drawSceneImage("start_screen", false);
 
     this.titleButton.draw();
     this.loadButton.draw();
+  }
+
+  ensureTitleBgm() {
+    if (this.state.currentBgm === "title") return;
+    this.handleBgmNode({
+      type: NODE_TYPES.SOUND,
+      soundType: "bgm",
+      name: "title"
+    });
   }
 
   drawTitleReturnButton() {
@@ -2577,8 +2587,21 @@ class Game {
     const options = this.state.selectedSubGameOptions || {};
     this.playSubGameBgm(subGame);
     this.minigameTutorial = this.createMinigameTutorial(options);
-    const minigameAssets = (this.assets.minigames && this.assets.minigames[subGameId]) || {};
+    const minigameAssets = this.getSubGameAssets(subGameId);
     this.subGame = new SubGameClass(this.state.dopamine, this.getPlayableSubGameOptions(options), minigameAssets);
+  }
+
+  getSubGameAssets(subGameId) {
+    const minigameAssets = (this.assets.minigames && this.assets.minigames[subGameId]) || {};
+    if (subGameId !== SUB_GAMES.BRICK_BREAKER) return minigameAssets;
+
+    return {
+      ...minigameAssets,
+      sounds: {
+        ...(minigameAssets.sounds || {}),
+        brickHit: this.getSoundAsset("gameEffect", "effects")
+      }
+    };
   }
 
   createMinigameTutorial(options) {

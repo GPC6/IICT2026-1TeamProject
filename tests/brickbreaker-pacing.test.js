@@ -50,6 +50,21 @@ function runTests() {
   recoverHitGame.hitBrick({ kind: "recover", hp: 3 });
   assert.strictEqual(recoverHitGame.dopamine, 54, "recover bricks lower dopamine by 1 on every hit");
 
+  let brickHitSoundPlays = 0;
+  const soundGame = new BrickBreakerGame(55, {}, {
+    sounds: {
+      brickHit: {
+        isLoaded: () => true,
+        isPlaying: () => false,
+        play: () => {
+          brickHitSoundPlays++;
+        }
+      }
+    }
+  });
+  soundGame.hitBrick({ kind: "normal", hp: 2 });
+  assert.strictEqual(brickHitSoundPlays, 1, "brick hit sound plays when a brick is touched");
+
   const firstBrickBreaker = findFirstBrickBreaker(loadEpisodes());
   assert.ok(firstBrickBreaker, "first story brickBreaker exists");
   assert.ok(firstBrickBreaker.options.maxTurns <= 5, "first story brickBreaker is at most 5 turns");
