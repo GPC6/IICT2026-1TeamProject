@@ -62,6 +62,7 @@ class Game {
     this.paminiBriefing = null;
     this.backgroundImage = null;
     this.backgroundTransition = null;
+    this.episodeTransition = null;
     this.pendingBgmNode = null;
     this.currentBgmLoop = null;
     this.character = {};
@@ -262,6 +263,7 @@ class Game {
     }
     if (this.state.scene === SCENES.ENDING) this.drawEnding();
     if (this.state.scene === SCENES.CREDITS) this.drawCredits();
+    if (this.drawEpisodeTransition()) return;
     this.drawTitleReturnButton();
     if (this.logPanelOpen) this.drawDialogueLogOverlay();
     if (this.saveSlotOverlay) this.drawSaveSlotOverlay();
@@ -270,6 +272,7 @@ class Game {
 
   mousePressed() {
     if (this.isNameOverlayOpen() || Date.now() < (this.ignoreCanvasClickUntil || 0)) return;
+    if (this.isEpisodeTransitionActive()) return;
 
     this.unlockAudio();
 
@@ -338,6 +341,7 @@ class Game {
 
   keyPressed() {
     this.unlockAudio();
+    if (this.isEpisodeTransitionActive()) return;
 
     if (this.logPanelOpen) {
       this.handleDialogueLogKey();
@@ -622,6 +626,7 @@ class Game {
     this.paminiBriefing = null;
     this.backgroundImage = null;
     this.backgroundTransition = null;
+    this.episodeTransition = null;
     this.pendingBgmNode = null;
     this.currentBgmLoop = null;
     this.character = {};
@@ -826,6 +831,79 @@ class Game {
     noStroke();
     fill(0, 0, 0, Math.max(0, Math.min(255, alpha)));
     rect(0, 0, width, height);
+  }
+
+  startEpisodeTransition(episodeId) {
+    const imageKey = this.getEpisodeTransitionKey(episodeId);
+    const image = imageKey && this.assets.episodeTransitions
+      ? this.assets.episodeTransitions[imageKey]
+      : null;
+
+    if (!image) return false;
+
+    const fadeInDuration = 500;
+    const holdDuration = 2000;
+    const fadeOutDuration = 500;
+
+    this.episodeTransition = {
+      imageKey,
+      image,
+      startedAt: this.getTimeMs(),
+      fadeInDuration,
+      holdDuration,
+      fadeOutDuration,
+      totalDuration: fadeInDuration + holdDuration + fadeOutDuration
+    };
+
+    return true;
+  }
+
+  getEpisodeTransitionKey(episodeId) {
+    const normalizedEpisodeId = String(episodeId || "").toUpperCase();
+    if (normalizedEpisodeId.includes("EP4-A")) return "Ep4A";
+    if (normalizedEpisodeId.includes("EP4-B")) return "Ep4B";
+
+    const match = normalizedEpisodeId.match(/EP([2-6])/);
+    return match ? "Ep" + match[1] : null;
+  }
+
+  isEpisodeTransitionActive() {
+    if (!this.episodeTransition) return false;
+
+    if (this.getTimeMs() - this.episodeTransition.startedAt >= this.episodeTransition.totalDuration) {
+      this.episodeTransition = null;
+      return false;
+    }
+
+    return true;
+  }
+
+  drawEpisodeTransition() {
+    if (!this.episodeTransition) return false;
+
+    const elapsed = this.getTimeMs() - this.episodeTransition.startedAt;
+    const totalDuration = this.episodeTransition.totalDuration;
+
+    if (elapsed >= totalDuration) {
+      this.episodeTransition = null;
+      return false;
+    }
+
+    const fadeInEnd = this.episodeTransition.fadeInDuration;
+    const fadeOutStart = fadeInEnd + this.episodeTransition.holdDuration;
+    let alpha = 255;
+
+    if (elapsed < fadeInEnd) {
+      alpha = 255 * (elapsed / fadeInEnd);
+      background("#000000");
+    } else if (elapsed > fadeOutStart) {
+      alpha = 255 * (1 - ((elapsed - fadeOutStart) / this.episodeTransition.fadeOutDuration));
+    } else {
+      background("#000000");
+    }
+
+    this.drawBackgroundAsset(this.episodeTransition.image, alpha);
+    return true;
   }
 
   drawDreamBackground() {
@@ -1507,6 +1585,7 @@ class Game {
 
   processStoryCommandNodes() {
     if (this.isBackgroundTransitionActive()) return null;
+    if (this.isEpisodeTransitionActive()) return null;
 
     let node = this.getCurrentNode();
     let processed = false;
@@ -1597,6 +1676,7 @@ class Game {
         }
 
         this.moveTo(node.next, node.nextNode);
+        if (this.isEpisodeTransitionActive()) return null;
         processed = true;
         node = this.getCurrentNode();
         continue;
@@ -1842,7 +1922,11 @@ class Game {
     this.state.episodeId = targetEpisodeId;
     this.state.nodeIndex = targetNodeIndex;
     if (previousEpisodeId !== targetEpisodeId) {
+      this.stopCurrentBgm();
       this.state.episodeAffectionDelta = 0;
+      if (targetNodeIndex === 0) {
+        this.startEpisodeTransition(targetEpisodeId);
+      }
     }
   }
 
@@ -3253,6 +3337,7 @@ class Game {
     this.minigameTutorial = null;
     this.paminiBriefing = this.restorePaminiBriefingSnapshot(snapshot.paminiBriefing);
     this.backgroundTransition = null;
+    this.episodeTransition = null;
     this.pendingBgmNode = null;
     this.dopamineDeltaPopup = null;
     this.affectionDeltaPopup = null;

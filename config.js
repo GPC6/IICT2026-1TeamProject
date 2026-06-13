@@ -59,6 +59,14 @@ const ASSET_MANIFEST = {
     dialogueBold: "./assets/font/IM 혜민체 - 대사/IM_Hyemin-Bold.ttf",
     title: "./assets/font/시원한 설레임체 - 굵은글씨/SEOLEIMcool.ttf"
   },
+  episodeTransitions: {
+    Ep2: "./assets/ep_transition/Ep2.png",
+    Ep3: "./assets/ep_transition/Ep3.png",
+    Ep4A: "./assets/ep_transition/Ep4A.png",
+    Ep4B: "./assets/ep_transition/Ep4B.png",
+    Ep5: "./assets/ep_transition/Ep5.png",
+    Ep6: "./assets/ep_transition/Ep6.png"
+  },
   backgrounds: {
     start_screen:"./assets/bg/start_screen.png",
     convenienceStore: "./assets/bg/convenience_store_night.png",

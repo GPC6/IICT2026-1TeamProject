@@ -1,6 +1,7 @@
 let game;
 let assets = {
   fonts: {},
+  episodeTransitions: {},
   backgrounds: {},
   characters: {},
   minigames: {},
@@ -23,6 +24,10 @@ function loadImageAssetTree(tree, basePath = "") {
 function preload() {
   Object.entries(ASSET_MANIFEST.fonts || {}).forEach(([name, path]) => {
     assets.fonts[name] = loadFont(path);
+  });
+
+  Object.entries(ASSET_MANIFEST.episodeTransitions || {}).forEach(([name, path]) => {
+    assets.episodeTransitions[name] = loadImage(path);
   });
 
   Object.entries(ASSET_MANIFEST.backgrounds).forEach(([name, path]) => {
