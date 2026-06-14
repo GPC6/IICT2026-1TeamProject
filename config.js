@@ -215,7 +215,7 @@ const ASSET_MANIFEST = {
     brickBreaker: {
       basePath: "./assets/minigame/breakblocks/original/",
       assets: {
-        background: "game_background.png",
+        background: "../backGROUND_BLOCK.png",
         frame: "playfield_frame_exact.png",
         floorDanger: "floor_danger_line.png",
         ballDefault: "ball_default.png",
@@ -253,17 +253,12 @@ const ASSET_MANIFEST = {
     sideShooter: {
       basePath: "./assets/minigame/shooting/original/",
       assets: {
-        background: "bg_starfield_full.png",
+        background: "../shooting_scroll_loop.png",
         hudTopPanel: "hud_top_panel_blank.png",
         messagePanel: "message_panel_blank.png",
         powerMeter: "power_meter_empty_cells.png",
         starParticle: "star_particle.png",
-        player: {
-          base: "player_ship_base.png",
-          speed: "player_ship_speed_boost.png",
-          overdrive: "player_ship_overdrive.png",
-          shield: "player_shield_ring.png"
-        },
+        player: "player_char.png",
         optionDrone: "option_drone.png",
         receptorGate: "receptor_gate.png",
         shots: {

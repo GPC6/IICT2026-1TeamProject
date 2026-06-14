@@ -48,6 +48,7 @@ class SideShooterGame {
     this.invincibleFrames = 0;
     this.doubleShotActive = false;
     this.doubleShotCollected = false;
+    this.backgroundStoppedFrame = null;
     this.finished = false;
   }
 
@@ -60,7 +61,7 @@ class SideShooterGame {
     push();
     translate((width - this.w) / 2, (height - this.h) / 2);
     background("#0e151c");
-    this.drawImageTopLeft(this.assets.background, 0, 0, this.w, this.h, 125);
+    this.drawScrollingBackground(this.assets.background);
     this.drawStars();
     this.drawGame();
     this.drawHud();
@@ -98,6 +99,27 @@ class SideShooterGame {
     image(img, x, y, w, h);
     pop();
     return true;
+  }
+
+  drawScrollingBackground(img) {
+    if (!img) return false;
+
+    const scrollSpeed = 1.15;
+    const bgW = this.h * img.width / img.height;
+    const offset = (this.getBackgroundFrame() * scrollSpeed) % bgW;
+
+    push();
+    imageMode(CORNER);
+    tint(255, 160);
+    for (let x = -offset; x < this.w; x += bgW) {
+      image(img, x, 0, bgW, this.h);
+    }
+    pop();
+    return true;
+  }
+
+  getBackgroundFrame() {
+    return this.backgroundStoppedFrame ?? frameCount;
   }
 
   drawImageCentered(img, x, y, w, h, alpha = 255) {
@@ -550,6 +572,7 @@ class SideShooterGame {
   }
 
   endGame(text) {
+    if (!this.gameOver) this.backgroundStoppedFrame = frameCount;
     this.gameOver = true;
     this.resultText = text;
   }
@@ -588,21 +611,16 @@ class SideShooterGame {
 
   drawStars() {
     stroke("#1f2c37");
+    const backgroundFrame = this.getBackgroundFrame();
     for (let i = 0; i < 42; i++) {
-      const x = (i * 137 - frameCount * 1.4) % this.w;
+      const x = (i * 137 - backgroundFrame * 1.4) % this.w;
       point((x + this.w) % this.w, 105 + (i * 61) % (this.h - 130));
     }
     noStroke();
   }
 
   drawGame() {
-    const playerImg = this.getPlayerAsset();
-    if (!this.drawImageCentered(playerImg, this.player.x + 3, this.player.y, 64, 48)) {
-      fill("#7be0b7");
-      triangle(this.player.x - 18, this.player.y - 16, this.player.x - 18, this.player.y + 16, this.player.x + 24, this.player.y);
-      fill("#e9fff4");
-      circle(this.player.x - 4, this.player.y, 8);
-    }
+    this.drawPlayer();
     this.drawHitEffect();
 
     for (const gate of this.gates) {
@@ -668,11 +686,79 @@ class SideShooterGame {
     rect(0, 0, this.w, this.h);
   }
 
-  getPlayerAsset() {
-    if (this.dopamine >= 85 && this.assets.player && this.assets.player.overdrive) {
-      return this.assets.player.overdrive;
+  drawPlayer() {
+    this.drawPlayerMotionEffect();
+    this.drawPlayerOverdriveEffect();
+
+    const playerImg = this.getPlayerAsset();
+    const alpha = this.getPlayerDrawAlpha();
+    if (!this.drawPlayerImage(playerImg, this.player.x + 3, this.player.y, 92, 64, alpha)) {
+      fill("#7be0b7");
+      triangle(this.player.x - 18, this.player.y - 16, this.player.x - 18, this.player.y + 16, this.player.x + 24, this.player.y);
+      fill("#e9fff4");
+      circle(this.player.x - 4, this.player.y, 8);
     }
-    return this.assets.player && this.assets.player.base;
+  }
+
+  drawPlayerImage(img, x, y, w, h, alpha = 255) {
+    if (!img) return false;
+
+    const source = this.getPlayerImageCrop(img);
+    push();
+    imageMode(CENTER);
+    if (alpha < 255) tint(255, alpha);
+    image(img, x, y, w, h, source.x, source.y, source.w, source.h);
+    pop();
+    return true;
+  }
+
+  getPlayerImageCrop(img) {
+    return {
+      x: img.width * 0.38,
+      y: img.height * 0.24,
+      w: img.width * 0.42,
+      h: img.height * 0.5
+    };
+  }
+
+  getPlayerDrawAlpha() {
+    if (!this.isPlayerInvincible()) return 255;
+    return frameCount % 8 < 4 ? 145 : 255;
+  }
+
+  drawPlayerMotionEffect() {
+    const profile = this.getDopamineProfile();
+    const strength = constrain((profile.playerSpeed - 4.1) / 2.2, 0, 1);
+    if (strength <= 0) return;
+
+    push();
+    noFill();
+    strokeWeight(2);
+    for (let i = 0; i < 4; i++) {
+      const alpha = 95 * strength * (1 - i * 0.18);
+      stroke(123, 224, 183, alpha);
+      line(this.player.x - 42 - i * 14, this.player.y - 16 + i * 7, this.player.x - 10, this.player.y - 7 + i * 3);
+    }
+    pop();
+  }
+
+  drawPlayerOverdriveEffect() {
+    if (this.dopamine < 85) return;
+
+    const pulse = 0.5 + 0.5 * sin(frameCount * 0.18);
+    push();
+    noFill();
+    strokeWeight(2);
+    stroke(255, 93, 115, 120 + pulse * 70);
+    ellipse(this.player.x + 2, this.player.y, 92 + pulse * 16, 62 + pulse * 10);
+    stroke(255, 200, 87, 90 + pulse * 50);
+    line(this.player.x - 44, this.player.y - 24, this.player.x + 36, this.player.y - 24);
+    line(this.player.x - 44, this.player.y + 24, this.player.x + 36, this.player.y + 24);
+    pop();
+  }
+
+  getPlayerAsset() {
+    return this.assets.player || null;
   }
 
   drawFloatingTexts() {

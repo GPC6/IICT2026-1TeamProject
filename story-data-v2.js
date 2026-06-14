@@ -332,9 +332,22 @@ const EPISODES = {
       "id": 46
     },
     {
-      "type": "dialogue",
-      "speaker": "주인공",
-      "text": "헉... 어떡하면 좋을까?",
+      "type": "choice",
+      "prompt": "하필 이 타이밍에 첫사랑을 시작하다니!",
+      "choices": [
+        {
+          "text": "첫사랑..?ㅎㅎ",
+          "effects": {},
+          "follow": [],
+          "nextNode": 48
+        },
+        {
+          "text": "헉... 어떡하면 좋을까?",
+          "effects": {},
+          "follow": [],
+          "nextNode": 48
+        }
+      ],
       "id": 47
     },
     {
@@ -358,30 +371,67 @@ const EPISODES = {
     {
       "type": "dialogue",
       "speaker": "파미니",
-      "text": "정확해!",
+      "text": "정확해! 너무 높아도 문제, 너무 낮아도 문제야.",
       "id": 51
     },
     {
       "type": "dialogue",
       "speaker": "파미니",
-      "text": "너무 높아도 문제, 너무 낮아도 문제야.",
+      "text": " 내일 있을 동아리 OT를 위해 도파민 수치를 조절해보자!",
       "id": 52
     },
     {
-      "type": "dialogue",
-      "speaker": "파미니",
-      "text": " 내일 있을 동아리 OT를 위해 도파민 수치를 조절해보자!",
+      "type": "choice",
+      "prompt": " 내일 있을 동아리 OT를 위해 도파민 수치를 조절해보자!",
+      "choices": [
+        {
+          "text": "오케이!",
+          "effects": {},
+          "follow": [],
+          "nextNode": 54
+        },
+        {
+          "text": "알겠어!",
+          "effects": {},
+          "follow": [],
+          "nextNode": 54
+        }
+      ],
       "id": 53
     },
     {
       "type": "dialogue",
       "speaker": "파미니",
-      "text": "잊지 마. 목표는 50~80이야!",
+      "text": "아, 그리고 하나 더!",
       "id": 54
     },
     {
-      "type": "clear background",
+      "type": "dialogue",
+      "speaker": "파미니",
+      "text": "결정적인 순간에 어떤 선택을 하느냐에 따라 상대의 호감도가 달라져.",
       "id": 55
+    },
+    {
+      "type": "dialogue",
+      "speaker": "파미니",
+      "text": "호감도가 높아지면 마지막 고백의 성공의 확률도 올라간다구!",
+      "id": 56
+    },
+    {
+      "type": "dialogue",
+      "speaker": "파미니",
+      "text": "도파민도 잘 관리하고, 선택도 신중하게 해봐!",
+      "id": 57
+    },
+    {
+      "type": "dialogue",
+      "speaker": "파미니",
+      "text": "잊지 마. 도파민 목표는 50~80이야!",
+      "id": 58
+    },
+    {
+      "type": "clear background",
+      "id": 59
     },
     {
       "type": "move",
@@ -398,7 +448,7 @@ const EPISODES = {
           "벽돌이 바닥에 닿으면 현재의 도파민 레벨 그대로 게임 종료야!"
         ]
       },
-      "id": 56
+      "id": 60
     }
   ],
   "EP2 동아리 OT": [

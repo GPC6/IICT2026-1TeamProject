@@ -125,7 +125,7 @@ class Game {
   }
 
   createTitleReturnButton() {
-    return new Button(CONFIG.width - 156, 58, 136, 36, "타이틀", () => {
+    return new Button(CONFIG.width - 156, 58, 136, 36, "타이틀로", () => {
       this.openTitleReturnConfirm();
     }, {
       fill: "rgba(0, 0, 0, 0.56)",
@@ -1380,16 +1380,8 @@ class Game {
 
   buildPaminiFirstMeetingLines(snapshot) {
     return [
-      "안녕, 오늘도 도파민 점검하러 파미니가 왔어!",
-      this.getPaminiFirstMeetingEmotionLine(snapshot.dopamine)
+      "안녕, 도파민 점검하러 파미니가 왔어!",
     ];
-  }
-
-  getPaminiFirstMeetingEmotionLine(dopamine) {
-    const dopamineState = this.getDopamineState(dopamine);
-    if (dopamineState === "LOW") return "오늘 하루 감정은 조금 가라앉아 있었던 것 같아. 말보다 망설임이 먼저 온 순간들이 있었지.";
-    if (dopamineState === "HIGH") return "오늘 하루 감정은 꽤 달아올라 있었던 것 같아. 설렘이 먼저 튀어나오려는 순간들이 있었지.";
-    return "오늘 하루 감정은 꽤 적당한 온도였던 것 같아. 설렘과 침착함이 같이 남아 있었지.";
   }
 
   getPaminiAffectionBriefingLine(snapshot) {
@@ -1398,19 +1390,19 @@ class Game {
 
     const lines = {
       positive: {
-        LOW: "수진이와 가까워졌지만, 도파민이 낮아서 기회를 놓친 순간도 있었던 것 같아.",
-        OPT: "오늘은 적절한 도파민으로 좋은 흐름을 잘 이어간 것 같아.",
-        HIGH: "수진이와 더 가까워졌지만, 높은 도파민으로 감정이 조금 앞섰던 순간도 있었어."
+        LOW: "오늘은 수진이와 가까워졌지만, 도파민이 낮아서 기회를 놓친 순간도 있었던 것 같아.",
+        OPT: "오늘은 적절한 도파민 흐름을 유지했고, 수진이와 더욱 가까워졌어.",
+        HIGH: "오늘은 수진이와 더 가까워졌지만, 높은 도파민으로 감정이 조금 앞섰던 순간도 있었어."
       },
       neutral: {
-        LOW: "낮은 도파민으로 기회를 놓쳤고, 그래서 관계는 제자리였던 것 같아.",
-        OPT: "적절한 도파민 흐름을 유지했지만, 관계는 아직 제자리인 것 같아.",
-        HIGH: "도파민이 높아서 감정이 앞섰는데, 관계는 아직 제자리였던 것 같아."
+        LOW: "오늘은 낮은 도파민으로 기회를 놓쳤고, 그래서 관계는 제자리였던 것 같아.",
+        OPT: "오늘은 적절한 도파민 흐름을 유지했지만, 관계는 아직 제자리인 것 같아.",
+        HIGH: "오늘은 도파민이 높아서 감정이 앞섰는데, 관계는 아직 제자리였던 것 같아."
       },
       negative: {
-        LOW: "도파민이 낮아 기회를 놓친 순간이 있었고, 상대와 박자가 어긋났던 것 같아.",
-        OPT: "적절한 도파민 흐름을 유지했지만, 오늘은 선택의 결이 조금 엇갈린 것 같아.",
-        HIGH: "높은 도파민으로 감정이 앞서면서 상대와 박자가 어긋난 순간이 있었어."
+        LOW: "오늘은 도파민이 낮아 기회를 놓친 순간이 있었고, 상대와 박자가 어긋났던 것 같아.",
+        OPT: "오늘은 적절한 도파민 흐름을 유지했지만, 선택의 결이 조금 엇갈린 것 같아.",
+        HIGH: "오늘은 높은 도파민으로 감정이 앞서면서 상대와 박자가 어긋난 순간이 있었어."
       }
     };
 
