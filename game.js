@@ -63,6 +63,7 @@ class Game {
     this.backgroundImage = null;
     this.backgroundTransition = null;
     this.episodeTransition = null;
+    this.sceneFadeTransition = null;
     this.pendingBgmNode = null;
     this.currentBgmLoop = null;
     this.character = {};
@@ -207,11 +208,21 @@ class Game {
   }
 
   changeScene(scene) {
+    const previousScene = this.state.scene;
+
     if (this.state.scene === SCENES.MINIGAME && scene !== SCENES.MINIGAME) {
       this.cleanupSubGame();
     }
 
     this.state.scene = scene;
+
+    if (previousScene === SCENES.STORY && scene === SCENES.ENDING) {
+      this.sceneFadeTransition = {
+        scene,
+        startedAt: this.getTimeMs(),
+        duration: 700
+      };
+    }
 
     if (scene === SCENES.STORY) {
       this.refreshChoices();
@@ -263,6 +274,7 @@ class Game {
     }
     if (this.state.scene === SCENES.ENDING) this.drawEnding();
     if (this.state.scene === SCENES.CREDITS) this.drawCredits();
+    this.drawSceneFadeTransition();
     if (this.drawEpisodeTransition()) return;
     this.drawTitleReturnButton();
     if (this.logPanelOpen) this.drawDialogueLogOverlay();
@@ -273,6 +285,7 @@ class Game {
   mousePressed() {
     if (this.isNameOverlayOpen() || Date.now() < (this.ignoreCanvasClickUntil || 0)) return;
     if (this.isEpisodeTransitionActive()) return;
+    if (this.isSceneFadeTransitionActive()) return;
 
     this.unlockAudio();
 
@@ -532,8 +545,8 @@ class Game {
   }
 
   drawEnding() {
-    if(this.state.endingText == "해피엔딩") {
-    this.drawSceneImage("(CG) 손을 잡는 둘", true)
+    if (this.state.endingText == "해피엔딩") {
+      this.drawSceneImage("(CG) 손을 잡는 둘", true)
     } else {
       background("rgb(15, 9, 31)")
     }
@@ -543,8 +556,12 @@ class Game {
     this.useFont("title");
     textSize(42);
     text(this.state.endingText || "END", width / 2, 280);
+    if (this.state.endingText == "해피엔딩") {
+      fill("#0c0a02");
+    } else {
+      fill("#f5f2ea");
+    }
 
-    fill("#f5f2ea");
     this.useFont("ui");
     textSize(24);
     text(`도파민 ${Math.round(this.state.dopamine)} / 호감도 ${Math.round(this.state.affection)}`, width / 2, 360);
@@ -569,21 +586,7 @@ class Game {
   }
 
   drawCredits() {
-    this.drawSceneImage("happyendcredit", true)
-
-    fill("#f6d365");
-    textAlign(CENTER, CENTER);
-    this.useFont("title");
-    textSize(48);
-    text("CREDITS", width / 2, 190);
-
-    fill("#f5f2ea");
-    this.useFont("ui");
-    textSize(24);
-    text("임시 크레딧", width / 2, 282);
-    textSize(18);
-    text("도파민때문에 제작팀", width / 2, 326);
-    text("Thanks for playing", width / 2, 364);
+    this.drawSceneImage("happyendcredit", false)
 
     this.restartButton.label = "타이틀로";
     this.restartButton.draw();
@@ -627,6 +630,7 @@ class Game {
     this.backgroundImage = null;
     this.backgroundTransition = null;
     this.episodeTransition = null;
+    this.sceneFadeTransition = null;
     this.pendingBgmNode = null;
     this.currentBgmLoop = null;
     this.character = {};
@@ -831,6 +835,27 @@ class Game {
     noStroke();
     fill(0, 0, 0, Math.max(0, Math.min(255, alpha)));
     rect(0, 0, width, height);
+  }
+
+  drawSceneFadeTransition() {
+    if (!this.isSceneFadeTransitionActive()) return;
+
+    const elapsed = this.getTimeMs() - this.sceneFadeTransition.startedAt;
+    const progress = Math.min(1, elapsed / this.sceneFadeTransition.duration);
+    this.drawBlackOverlay(255 * (1 - progress));
+  }
+
+  isSceneFadeTransitionActive() {
+    if (!this.sceneFadeTransition) return false;
+
+    const elapsed = this.getTimeMs() - this.sceneFadeTransition.startedAt;
+    const isSameScene = this.sceneFadeTransition.scene === this.state.scene;
+    if (!isSameScene || elapsed >= this.sceneFadeTransition.duration) {
+      this.sceneFadeTransition = null;
+      return false;
+    }
+
+    return true;
   }
 
   startEpisodeTransition(episodeId) {

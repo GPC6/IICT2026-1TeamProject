@@ -1,4 +1,4 @@
-const STORY_START_EPISODE = "EP1 첫만남";
+const STORY_START_EPISODE = "베드엔딩";
 const EPISODES = {
   "EP1 첫만남": [
     {
@@ -4317,7 +4317,7 @@ const EPISODES = {
     },
     {
       "type": "background",
-      "name": "백스테이지",
+      "name": "무대막이 내리는 장면",
       "id": 5
     },
     {
@@ -4570,7 +4570,7 @@ const EPISODES = {
     },
     {
       "type": "background",
-      "name": "백스테이지",
+      "name": "무대막이 내리는 장면",
       "id": 5
     },
     {

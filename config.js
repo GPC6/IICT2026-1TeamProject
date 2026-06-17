@@ -107,7 +107,7 @@ const ASSET_MANIFEST = {
     "(CG) 서로 바라보는 둘": "./assets/bg/ending_looking_at_each_other_cg.png",
     "(CG) 손을 잡는 둘": "./assets/bg/ending_holding_hands_cg.png",
     "(CG) 혼자 남은 주인공)": "./assets/bg/bad_ending_alone_protagonist_cg.png",
-    happyendcredit: "./assets/bg/happyend_cg.png"
+    happyendcredit: "./assets/bg/엔딩크레딧.png"
   },
   sounds: {
     bgm: {
