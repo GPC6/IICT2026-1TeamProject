@@ -310,30 +310,30 @@ const EPISODES = {
     {
       "type": "dialogue",
       "speaker": "파미니",
-      "text": "네 마음속 도파민 흐름을 관리하는 작은 안내자라고 생각하면 돼.",
+      "text": "나는 네 마음속 도파민 흐름을 관리하는 작은 안내자야.",
       "id": 43
     },
     {
       "type": "dialogue",
       "speaker": "파미니",
-      "text": "현재 너의 뇌 속은 과도한 밤샘 과제, 카페인 폭탄, 그리고 3시간 연속 숏폼 시청으로 인해,",
+      "text": "현재 너의 뇌 속은 과도한 밤샘 과제, 카페인 폭탄, 그리고 3시간 연속 숏폼 시청으로 과열되었어.",
       "id": 44
     },
     {
       "type": "dialogue",
       "speaker": "파미니",
-      "text": "도파민 체계가 완전히 무너지기 직전이야.",
+      "text": "그래서 지금 도파민 체계가 완전히 무너지기 직전이야!",
       "id": 45
     },
     {
       "type": "dialogue",
       "speaker": "파미니",
-      "text": "하필 이 타이밍에 첫사랑을 시작하다니!",
+      "text": "그런데 하필 이 타이밍에 첫사랑을 시작하다니!",
       "id": 46
     },
     {
       "type": "choice",
-      "prompt": "하필 이 타이밍에 첫사랑을 시작하다니!",
+      "prompt": "그런데 하필 이 타이밍에 첫사랑을 시작하다니!",
       "choices": [
         {
           "text": "첫사랑..?ㅎㅎ",
@@ -683,9 +683,6 @@ const EPISODES = {
       "type": "dialogue",
       "speaker": "수진",
       "text": "(싱긋 웃으며) 그래도 든든하다. 앞으로 잘 해봐요!",
-      "effects": {
-        "dopamine": 3
-      },
       "id": 24
     },
     {
@@ -1419,7 +1416,7 @@ const EPISODES = {
       "text": "술 더 가져올게. 소주?맥주?",
       "id": 45,
       "effects": {
-        "dopamine": -5
+        "dopamine": -3
       }
     },
     {
@@ -2109,11 +2106,8 @@ const EPISODES = {
     {
       "type": "dialogue",
       "speaker": "건호",
-      "text": "예썰!",
-      "id": 44,
-      "effects": {
-        "dopamine": -3
-      }
+      "text": "네엡!",
+      "id": 44
     },
     {
       "type": "dialogue",
@@ -2504,7 +2498,7 @@ const EPISODES = {
       "text": "(수진의 어깨를 두드린다) 다음에도 또 만나서 놀자 얘들아.",
       "id": 72,
       "effects": {
-        "dopamine": -5
+        "dopamine": -3
       }
     },
     {
@@ -3631,7 +3625,7 @@ const EPISODES = {
               "characters": [
                 {
                   "name": "수진",
-                  "emotion": "Surprised"
+                  "emotion": "Focused"
                 }
               ],
               "speaker": "수진",
