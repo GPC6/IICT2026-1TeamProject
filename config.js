@@ -145,6 +145,11 @@ const ASSET_MANIFEST = {
         path: "./assets/sound/bgm/title_bgm.mp3",
         loopStart: 14.34,
         loopEnd: 171.938
+      },
+      ending: {
+        path: "./assets/sound/bgm/ending.mp3",
+        loopStart: 0,
+        loopEnd: 153
       }
     },
     effects: {

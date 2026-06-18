@@ -381,22 +381,9 @@ const EPISODES = {
       "id": 52
     },
     {
-      "type": "choice",
-      "prompt": " 내일 있을 동아리 OT를 위해 도파민 수치를 조절해보자!",
-      "choices": [
-        {
-          "text": "오케이!",
-          "effects": {},
-          "follow": [],
-          "nextNode": 54
-        },
-        {
-          "text": "알겠어!",
-          "effects": {},
-          "follow": [],
-          "nextNode": 54
-        }
-      ],
+      "type": "dialogue",
+      "speaker": "주인공",
+      "text": "알겠어!",
       "id": 53
     },
     {
@@ -1800,7 +1787,7 @@ const EPISODES = {
     {
       "type": "dialogue",
       "speaker": "건호",
-      "text": "OO이스케이프에 XX테마가 진짜 잘 만들었대.",
+      "text": "ㅁㅁ이스케이프에 XX테마가 진짜 잘 만들었대.",
       "id": 9
     },
     {
@@ -2582,7 +2569,7 @@ const EPISODES = {
             {
               "background": "카톡방 화면",
               "speaker": "주인공",
-              "text": "파스타 좋지! 학교 앞에 OO음식점이 파스타 맛있다던데 어때?"
+              "text": "파스타 좋지! 학교 앞에 ㅁㅁ음식점이 파스타 맛있다던데 어때?"
             },
             {
               "background": "카톡방 화면",
@@ -2623,7 +2610,7 @@ const EPISODES = {
             {
               "background": "카톡방 화면",
               "speaker": "주인공",
-              "text": "학교 앞에 OO음식점이 파스타 맛있다던데 어때?"
+              "text": "학교 앞에 ㅁㅁ음식점이 파스타 맛있다던데 어때?"
             },
             {
               "background": "카톡방 화면",
@@ -4290,9 +4277,16 @@ const EPISODES = {
       "id": 1
     },
     {
+      "type": "sound",
+      "soundType": "bgm",
+      "action": "play",
+      "name": "ending",
+      "id": 2
+    },
+    {
       "type": "background",
       "name": "무대막이 내리는 장면",
-      "id": 2,
+      "id": 3,
       "transitionDuration": 3000,
       "transition": "fadeBlack"
     },
@@ -4301,17 +4295,12 @@ const EPISODES = {
       "soundType": "effect",
       "action": "play",
       "name": "clap",
-      "id": 3
+      "id": 4
     },
     {
       "type": "dialogue",
       "speaker": "선배1",
       "text": "다들 수고 많았어! 덕분에 순조롭게 공연 잘 마쳤다!",
-      "id": 4
-    },
-    {
-      "type": "background",
-      "name": "무대막이 내리는 장면",
       "id": 5
     },
     {
@@ -4543,9 +4532,16 @@ const EPISODES = {
       "id": 1
     },
     {
+      "type": "sound",
+      "soundType": "bgm",
+      "action": "play",
+      "name": "ending",
+      "id": 2
+    },
+    {
       "type": "background",
       "name": "무대막이 내리는 장면",
-      "id": 2,
+      "id": 3,
       "transitionDuration": 3000,
       "transition": "fadeBlack"
     },
@@ -4554,17 +4550,12 @@ const EPISODES = {
       "soundType": "effect",
       "action": "play",
       "name": "clap",
-      "id": 3
+      "id": 4
     },
     {
       "type": "dialogue",
       "speaker": "선배1",
       "text": "다들 수고 많았어! 덕분에 순조롭게 공연 잘 마쳤다!",
-      "id": 4
-    },
-    {
-      "type": "background",
-      "name": "무대막이 내리는 장면",
       "id": 5
     },
     {
