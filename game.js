@@ -66,6 +66,7 @@ class Game {
     this.sceneFadeTransition = null;
     this.pendingBgmNode = null;
     this.currentBgmLoop = null;
+    this.lastBgmRecoveryAt = 0;
     this.character = {};
     this.dopamineDeltaPopup = null;
     this.affectionDeltaPopup = null;
@@ -633,6 +634,7 @@ class Game {
     this.sceneFadeTransition = null;
     this.pendingBgmNode = null;
     this.currentBgmLoop = null;
+    this.lastBgmRecoveryAt = 0;
     this.character = {};
     this.dopamineDeltaPopup = null;
     this.affectionDeltaPopup = null;
@@ -1724,7 +1726,20 @@ class Game {
 
   unlockAudio() {
     if (typeof userStartAudio === "function") {
-      userStartAudio();
+      const startResult = userStartAudio();
+      if (startResult && typeof startResult.catch === "function") {
+        startResult.catch(() => {});
+      }
+    }
+
+    if (typeof getAudioContext === "function") {
+      const audioContext = getAudioContext();
+      if (audioContext && audioContext.state !== "running" && typeof audioContext.resume === "function") {
+        const resumeResult = audioContext.resume();
+        if (resumeResult && typeof resumeResult.catch === "function") {
+          resumeResult.catch(() => {});
+        }
+      }
     }
   }
 
@@ -1818,7 +1833,7 @@ class Game {
       this.currentBgmLoop = null;
       sound.play();
     } else {
-      this.currentBgmLoop = this.getBgmLoopPoints(node.name);
+      this.currentBgmLoop = this.getBgmLoopPoints(node.name, node.volume);
       sound.play();
     }
     this.pendingBgmNode = null;
@@ -1830,8 +1845,12 @@ class Game {
     if (!this.currentBgmLoop) return;
 
     const sound = this.getSoundAsset(this.currentBgmLoop.name, "bgm");
-    if (!sound || !sound.isPlaying()) return;
+    if (!sound) return;
     if (typeof sound.isLoaded === "function" && !sound.isLoaded()) return;
+    if (!sound.isPlaying()) {
+      this.recoverStoppedBgmLoop(sound);
+      return;
+    }
     if (typeof sound.currentTime !== "function" || typeof sound.jump !== "function") return;
 
     const loopEnd = this.currentBgmLoop.loopEnd || (typeof sound.duration === "function" ? sound.duration() : 0);
@@ -1839,6 +1858,24 @@ class Game {
 
     if (sound.currentTime() >= loopEnd - 0.04) {
       sound.jump(this.currentBgmLoop.loopStart || 0);
+    }
+  }
+
+  recoverStoppedBgmLoop(sound) {
+    if (!this.currentBgmLoop || this.state.currentBgm !== this.currentBgmLoop.name) return;
+
+    const now = this.getTimeMs();
+    if (this.lastBgmRecoveryAt && now - this.lastBgmRecoveryAt < 500) return;
+    this.lastBgmRecoveryAt = now;
+
+    this.unlockAudio();
+    this.setSoundVolume(sound, this.currentBgmLoop.volume);
+    if (typeof sound.jump === "function") {
+      sound.jump(this.currentBgmLoop.loopStart || 0);
+      return;
+    }
+    if (typeof sound.play === "function") {
+      sound.play();
     }
   }
 
@@ -1863,12 +1900,13 @@ class Game {
     return config ? config.path : null;
   }
 
-  getBgmLoopPoints(name) {
+  getBgmLoopPoints(name, volume) {
     const config = this.getBgmConfig(name) || {};
     return {
       name,
       loopStart: config.loopStart || 0,
-      loopEnd: config.loopEnd || null
+      loopEnd: config.loopEnd || null,
+      volume
     };
   }
 
